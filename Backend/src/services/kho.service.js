@@ -49,32 +49,49 @@ const getTonKhoNPLByKho = async (id_kho, id_dn) => {
     include: [{
       model: NguyenPhuLieu,
       as: 'nguyenPhuLieu',
-      include: [{
-        model: DonViTinhHQ,
-        as: 'donViTinhHQ'
-      }]
+      include: [
+        {
+          model: DonViTinhHQ,
+          as: 'donViTinhHQ'
+        },
+        {
+          model: db.QuyDoiNPL,
+          as: 'quyDoiNPLs',
+          required: false
+        }
+      ]
     }]
   });
   
-  // Map lại data để đảm bảo format đúng
-  return tonKhoList.map(item => ({
-    id: item.id,
-    id_kho: item.id_kho,
-    id_npl: item.id_npl,
-    so_luong_ton: item.so_luong_ton,
-    nguyenPhuLieu: item.nguyenPhuLieu ? {
-      id_npl: item.nguyenPhuLieu.id_npl,
-      ten_npl: item.nguyenPhuLieu.ten_npl,
-      donViTinhHQ: item.nguyenPhuLieu.donViTinhHQ ? {
-        ten_dvt: item.nguyenPhuLieu.donViTinhHQ.ten_dvt
+  // Map lại data và filter quy đổi theo doanh nghiệp
+  return tonKhoList.map(item => {
+    // Tìm quy đổi của doanh nghiệp hiện tại
+    const quyDoiDN = item.nguyenPhuLieu?.quyDoiNPLs?.find(qd => qd.id_dn === dnId);
+    
+    return {
+      id: item.id,
+      id_kho: item.id_kho,
+      id_npl: item.id_npl,
+      so_luong_ton: item.so_luong_ton,
+      nguyenPhuLieu: item.nguyenPhuLieu ? {
+        id_npl: item.nguyenPhuLieu.id_npl,
+        ten_npl: item.nguyenPhuLieu.ten_npl,
+        donViTinhHQ: item.nguyenPhuLieu.donViTinhHQ ? {
+          ten_dvt: item.nguyenPhuLieu.donViTinhHQ.ten_dvt
+        } : null,
+        quyDoiDN: quyDoiDN ? {
+          ten_dvt: quyDoiDN.ten_dvt_dn,
+          he_so: quyDoiDN.he_so
+        } : null
       } : null
-    } : null
-  }));
+    };
+  });
 };
 
 // Lấy tồn kho SP theo kho
 const getTonKhoSPByKho = async (id_kho, id_dn) => {
   const khoId = parseInt(id_kho, 10);
+  const dnId = parseInt(id_dn, 10);
   
   // Kiểm tra kho tồn tại
   const kho = await Kho.findByPk(khoId);
@@ -85,27 +102,43 @@ const getTonKhoSPByKho = async (id_kho, id_dn) => {
     include: [{
       model: SanPham,
       as: 'sanPham',
-      include: [{
-        model: DonViTinhHQ,
-        as: 'donViTinhHQ'
-      }]
+      include: [
+        {
+          model: DonViTinhHQ,
+          as: 'donViTinhHQ'
+        },
+        {
+          model: db.QuyDoiDonViSP,
+          as: 'quyDoiDonViSPs',
+          required: false
+        }
+      ]
     }]
   });
   
-  // Map lại data để đảm bảo format đúng
-  return tonKhoList.map(item => ({
-    id: item.id,
-    id_kho: item.id_kho,
-    id_sp: item.id_sp,
-    so_luong_ton: item.so_luong_ton,
-    sanPham: item.sanPham ? {
-      id_sp: item.sanPham.id_sp,
-      ten_sp: item.sanPham.ten_sp,
-      donViTinhHQ: item.sanPham.donViTinhHQ ? {
-        ten_dvt: item.sanPham.donViTinhHQ.ten_dvt
+  // Map lại data và filter quy đổi theo doanh nghiệp
+  return tonKhoList.map(item => {
+    // Tìm quy đổi của doanh nghiệp hiện tại
+    const quyDoiDN = item.sanPham?.quyDoiDonViSPs?.find(qd => qd.id_dn === dnId);
+    
+    return {
+      id: item.id,
+      id_kho: item.id_kho,
+      id_sp: item.id_sp,
+      so_luong_ton: item.so_luong_ton,
+      sanPham: item.sanPham ? {
+        id_sp: item.sanPham.id_sp,
+        ten_sp: item.sanPham.ten_sp,
+        donViTinhHQ: item.sanPham.donViTinhHQ ? {
+          ten_dvt: item.sanPham.donViTinhHQ.ten_dvt
+        } : null,
+        quyDoiDN: quyDoiDN ? {
+          ten_dvt: quyDoiDN.ten_dvt_sp,
+          he_so: quyDoiDN.he_so
+        } : null
       } : null
-    } : null
-  }));
+    };
+  });
 };
 
 module.exports = { createKho, getAllKho, getKhoById, updateKho, deleteKho, getTonKhoNPLByKho, getTonKhoSPByKho };

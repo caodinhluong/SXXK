@@ -354,7 +354,7 @@ const XuatKhoNPL = () => {
                 </Space>
             )
         },
-        { title: 'Hành động', width: 100, align: 'center', render: (_, record) => <Popconfirm title="Chắc chắn xóa?" onConfirm={() => handleRemoveRow(record.key)}><Button icon={<DeleteOutlined/>} danger /></Popconfirm> },
+        { title: 'Hành động', width: '20%', align: 'center', render: (_, record) => <Popconfirm title="Chắc chắn xóa?" onConfirm={() => handleRemoveRow(record.key)}><Button icon={<DeleteOutlined/>} danger /></Popconfirm> },
     ];
 
     const lichSuColumns = [

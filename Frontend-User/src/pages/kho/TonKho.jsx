@@ -62,6 +62,7 @@ const TonKho = () => {
                 khoService.getTonKhoNPLByKho(id_kho),
                 khoService.getTonKhoSPByKho(id_kho)
             ]);
+            console.log('Data SP từ API:', resSP.data);
             setTonKhoNPL(resNPL.data || []);
             setTonKhoSP(resSP.data || []);
         } catch {
@@ -102,13 +103,13 @@ const TonKho = () => {
             render: (_, record) => record.nguyenPhuLieu?.ten_npl || record.ten_npl || 'N/A'
         },
         {
-            title: 'Đơn vị tính',
-            key: 'dvt',
+            title: 'ĐVT Hải quan',
+            key: 'dvt_hq',
             width: 120,
             render: (_, record) => record.nguyenPhuLieu?.donViTinhHQ?.ten_dvt || record.don_vi || record.ten_dvt || 'N/A'
         },
         {
-            title: 'Số lượng tồn',
+            title: 'Số lượng tồn (HQ)',
             dataIndex: 'so_luong_ton',
             key: 'so_luong_ton',
             width: 150,
@@ -119,6 +120,36 @@ const TonKho = () => {
                 return (
                     <Text strong style={{ color: num <= 0 ? '#ff4d4f' : num < 100 ? '#faad14' : '#52c41a' }}>
                         {formatVNNumber(num)}
+                    </Text>
+                );
+            }
+        },
+        {
+            title: 'ĐVT Doanh nghiệp',
+            key: 'dvt_dn',
+            width: 140,
+            render: (_, record) => {
+                const dvtDN = record.nguyenPhuLieu?.quyDoiDN?.ten_dvt;
+                return dvtDN ? <Text type="success">{dvtDN}</Text> : <Text type="secondary">-</Text>;
+            }
+        },
+        {
+            title: 'Số lượng tồn (DN)',
+            key: 'so_luong_ton_dn',
+            width: 150,
+            align: 'right',
+            render: (_, record) => {
+                const soLuongHQ = Number(record.so_luong_ton) || 0;
+                const heSo = record.nguyenPhuLieu?.quyDoiDN?.he_so;
+                
+                if (!heSo) {
+                    return <Text type="secondary">-</Text>;
+                }
+                
+                const soLuongDN = soLuongHQ / Number(heSo);
+                return (
+                    <Text strong style={{ color: soLuongDN <= 0 ? '#ff4d4f' : soLuongDN < 100 ? '#faad14' : '#52c41a' }}>
+                        {formatVNNumber(soLuongDN.toFixed(2))}
                     </Text>
                 );
             }
@@ -156,13 +187,13 @@ const TonKho = () => {
             render: (_, record) => record.sanPham?.ten_sp || record.ten_sp || 'N/A'
         },
         {
-            title: 'Đơn vị tính',
-            key: 'dvt',
+            title: 'ĐVT Hải quan',
+            key: 'dvt_hq',
             width: 120,
             render: (_, record) => record.sanPham?.donViTinhHQ?.ten_dvt || record.don_vi || record.ten_dvt || 'N/A'
         },
         {
-            title: 'Số lượng tồn',
+            title: 'Số lượng tồn (HQ)',
             dataIndex: 'so_luong_ton',
             key: 'so_luong_ton',
             width: 150,
@@ -173,6 +204,36 @@ const TonKho = () => {
                 return (
                     <Text strong style={{ color: num <= 0 ? '#ff4d4f' : num < 100 ? '#faad14' : '#52c41a' }}>
                         {formatVNNumber(num)}
+                    </Text>
+                );
+            }
+        },
+        {
+            title: 'ĐVT Doanh nghiệp',
+            key: 'dvt_dn',
+            width: 140,
+            render: (_, record) => {
+                const dvtDN = record.sanPham?.quyDoiDN?.ten_dvt;
+                return dvtDN ? <Text type="success">{dvtDN}</Text> : <Text type="secondary">-</Text>;
+            }
+        },
+        {
+            title: 'Số lượng tồn (DN)',
+            key: 'so_luong_ton_dn',
+            width: 150,
+            align: 'right',
+            render: (_, record) => {
+                const soLuongHQ = Number(record.so_luong_ton) || 0;
+                const heSo = record.sanPham?.quyDoiDN?.he_so;
+                
+                if (!heSo) {
+                    return <Text type="secondary">-</Text>;
+                }
+                
+                const soLuongDN = soLuongHQ / Number(heSo);
+                return (
+                    <Text strong style={{ color: soLuongDN <= 0 ? '#ff4d4f' : soLuongDN < 100 ? '#faad14' : '#52c41a' }}>
+                        {formatVNNumber(soLuongDN.toFixed(2))}
                     </Text>
                 );
             }

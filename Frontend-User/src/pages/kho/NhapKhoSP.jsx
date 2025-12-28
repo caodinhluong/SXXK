@@ -358,7 +358,7 @@ const NhapKhoSP = () => {
         },
         {
             title: "Hành động",
-            width: '15%',
+            width: '20%',
             align: 'center',
             render: (_, record) => (
                 <Popconfirm title="Chắc chắn xóa?" onConfirm={() => handleRemoveRow(record.key)}>
