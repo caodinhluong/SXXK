@@ -289,18 +289,66 @@ const HopDong = () => {
                     </Form.Item>
                     <Row gutter={16}>
                         <Col span={8}>
-                            <Form.Item name="ngay_ky" label="Ngày ký" rules={[{ required: true }]}>
-                                <DatePicker style={{ width: "100%" }} />
+                            <Form.Item name="ngay_ky" label="Ngày ký" rules={[{ required: true, message: 'Vui lòng chọn ngày ký' }]}>
+                                <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="ngay_hieu_luc" label="Ngày hiệu lực">
-                                <DatePicker style={{ width: "100%" }} />
+                            <Form.Item 
+                                name="ngay_hieu_luc" 
+                                label="Ngày hiệu lực"
+                                rules={[
+                                    ({ getFieldValue }) => ({
+                                        validator(_, value) {
+                                            const ngayHetHan = getFieldValue('ngay_het_han');
+                                            if (!value || !ngayHetHan) {
+                                                return Promise.resolve();
+                                            }
+                                            if (value.isBefore(ngayHetHan)) {
+                                                return Promise.resolve();
+                                            }
+                                            return Promise.reject(new Error('Ngày hiệu lực phải nhỏ hơn ngày hết hạn'));
+                                        },
+                                    }),
+                                ]}
+                            >
+                                <DatePicker 
+                                    style={{ width: "100%" }} 
+                                    format="DD/MM/YYYY"
+                                    onChange={() => {
+                                        // Trigger validation cho ngày hết hạn khi ngày hiệu lực thay đổi
+                                        crudForm.validateFields(['ngay_het_han']);
+                                    }}
+                                />
                             </Form.Item>
                         </Col>
                         <Col span={8}>
-                            <Form.Item name="ngay_het_han" label="Ngày hết hạn">
-                                <DatePicker style={{ width: "100%" }} />
+                            <Form.Item 
+                                name="ngay_het_han" 
+                                label="Ngày hết hạn"
+                                rules={[
+                                    ({ getFieldValue }) => ({
+                                        validator(_, value) {
+                                            const ngayHieuLuc = getFieldValue('ngay_hieu_luc');
+                                            if (!value || !ngayHieuLuc) {
+                                                return Promise.resolve();
+                                            }
+                                            if (value.isAfter(ngayHieuLuc)) {
+                                                return Promise.resolve();
+                                            }
+                                            return Promise.reject(new Error('Ngày hết hạn phải lớn hơn ngày hiệu lực'));
+                                        },
+                                    }),
+                                ]}
+                            >
+                                <DatePicker 
+                                    style={{ width: "100%" }} 
+                                    format="DD/MM/YYYY"
+                                    onChange={() => {
+                                        // Trigger validation cho ngày hiệu lực khi ngày hết hạn thay đổi
+                                        crudForm.validateFields(['ngay_hieu_luc']);
+                                    }}
+                                />
                             </Form.Item>
                         </Col>
                     </Row>

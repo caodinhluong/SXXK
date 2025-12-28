@@ -9,6 +9,16 @@ const { Op } = db.Sequelize;
 const createHD = async ({ id_dn, so_hd, ngay_ky, ngay_hieu_luc, ngay_het_han, gia_tri, id_tt, file_hop_dong }) => {
   if (!id_dn || !so_hd || !ngay_ky) throw new Error("Thiếu dữ liệu bắt buộc");
 
+  // Validation: Ngày hiệu lực phải nhỏ hơn ngày hết hạn
+  if (ngay_hieu_luc && ngay_het_han) {
+    const hieuLuc = new Date(ngay_hieu_luc);
+    const hetHan = new Date(ngay_het_han);
+    
+    if (hieuLuc >= hetHan) {
+      throw new Error("Ngày hiệu lực phải nhỏ hơn ngày hết hạn");
+    }
+  }
+
   // Kiểm tra số hợp đồng trùng trong cùng doanh nghiệp
   const exists = await HopDong.findOne({ where: { so_hd, id_dn } });
   if (exists) throw new Error(`Số hợp đồng "${so_hd}" đã tồn tại trong doanh nghiệp này`);
@@ -48,6 +58,19 @@ const updateHD = async (id_hd, data, id_dn, role) => {
   
   const hd = await HopDong.findOne({ where: whereClause });
   if (!hd) throw new Error(`Không tìm thấy hợp đồng ID=${id_hd} hoặc bạn không có quyền truy cập`);
+  
+  // Validation: Ngày hiệu lực phải nhỏ hơn ngày hết hạn
+  const ngayHieuLuc = data.ngay_hieu_luc || hd.ngay_hieu_luc;
+  const ngayHetHan = data.ngay_het_han || hd.ngay_het_han;
+  
+  if (ngayHieuLuc && ngayHetHan) {
+    const hieuLuc = new Date(ngayHieuLuc);
+    const hetHan = new Date(ngayHetHan);
+    
+    if (hieuLuc >= hetHan) {
+      throw new Error("Ngày hiệu lực phải nhỏ hơn ngày hết hạn");
+    }
+  }
   
   // Không cho phép thay đổi id_dn
   delete data.id_dn;
