@@ -5,6 +5,8 @@ module.exports = (sequelize, DataTypes) => {
   class BaoCaoThanhKhoan extends Model {
     static associate(models) {
       BaoCaoThanhKhoan.belongsTo(models.HopDong, { foreignKey: 'id_hd', as: 'hopdong' });
+      BaoCaoThanhKhoan.hasMany(models.BaoCaoThanhKhoanNPL, { foreignKey: 'id_bc', as: 'chiTietNPL' });
+      BaoCaoThanhKhoan.hasMany(models.BaoCaoThanhKhoanSP, { foreignKey: 'id_bc', as: 'chiTietSP' });
     }
   }
 
@@ -39,6 +41,30 @@ module.exports = (sequelize, DataTypes) => {
     data_snapshot: {
       type: DataTypes.JSON,
       comment: 'Lưu toàn bộ dữ liệu JSON của 3 mẫu báo cáo'
+    },
+    data_ton_dau_ky: {
+      type: DataTypes.JSON,
+      comment: 'Dữ liệu tồn đầu kỳ'
+    },
+    data_nhap_trong_ky: {
+      type: DataTypes.JSON,
+      comment: 'Dữ liệu nhập trong kỳ'
+    },
+    data_xuat_trong_ky: {
+      type: DataTypes.JSON,
+      comment: 'Dữ liệu xuất trong kỳ'
+    },
+    data_ton_cuoi_ky: {
+      type: DataTypes.JSON,
+      comment: 'Dữ liệu tồn cuối kỳ'
+    },
+    data_dinh_muc: {
+      type: DataTypes.JSON,
+      comment: 'Dữ liệu định mức'
+    },
+    data_doi_soat: {
+      type: DataTypes.JSON,
+      comment: 'Dữ liệu đối soát'
     },
     file_bao_cao: {
       type: DataTypes.STRING(255)

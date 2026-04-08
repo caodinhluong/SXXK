@@ -1,6 +1,7 @@
 // Export notification components and utilities
 export { default as NotificationCenter } from './NotificationCenter';
 export { default as NotificationSettings } from './NotificationSettings';
+export { default as NotificationDemo } from './NotificationDemo';
 
 // Export notification functions
 export {
@@ -18,6 +19,12 @@ export {
   showRejectSuccess,
   showUploadSuccess,
   showUploadError,
+  showValidationError,
+  showForbiddenError,
+  showNotFoundError,
+  showServerError,
+  showNetworkError,
+  showApiError,
 } from './Notification';
 
 // Export services

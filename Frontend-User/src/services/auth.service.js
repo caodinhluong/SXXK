@@ -1,4 +1,5 @@
 import { createApiInstance } from "./apiConfig";
+import { formatServiceError, logError } from "../utils/errorHandler";
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/auth`;
 
@@ -10,7 +11,8 @@ export const registerBusiness = async (data) => {
         const res = await api.post("/register", data);
         return res.data;
     } catch (err) {
-        throw err.response?.data || { message: "Lỗi kết nối máy chủ" };
+        logError("registerBusiness", err);
+        throw formatServiceError(err, "Lỗi khi đăng ký doanh nghiệp");
     }
 };
 
@@ -27,8 +29,8 @@ export const loginBusiness = async (data) => {
 
         return res.data;
     } catch (err) {
-        console.error("Lỗi loginBusiness:", err);
-        throw err.response?.data || { message: "Lỗi kết nối máy chủ" };
+        logError("loginBusiness", err);
+        throw formatServiceError(err, "Lỗi khi đăng nhập");
     }
 };
 
@@ -44,8 +46,8 @@ export const loginHaiQuan = async (data) => {
 
         return res.data;
     } catch (err) {
-        console.error("Lỗi loginHaiQuan:", err);
-        throw err.response?.data || { message: "Lỗi kết nối máy chủ" };
+        logError("loginHaiQuan", err);
+        throw formatServiceError(err, "Lỗi khi đăng nhập hải quan");
     }
 };
 
@@ -64,10 +66,11 @@ export const refreshAccessToken = async () => {
 
         return res.data;
     } catch (err) {
+        logError("refreshAccessToken", err);
         // Nếu refresh fail thì xóa token
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        throw err.response?.data || { message: "Lỗi khi làm mới token" };
+        throw formatServiceError(err, "Lỗi khi làm mới token");
     }
 };
 

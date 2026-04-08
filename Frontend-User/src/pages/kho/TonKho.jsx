@@ -62,7 +62,6 @@ const TonKho = () => {
                 khoService.getTonKhoNPLByKho(id_kho),
                 khoService.getTonKhoSPByKho(id_kho)
             ]);
-            console.log('Data SP từ API:', resSP.data);
             setTonKhoNPL(resNPL.data || []);
             setTonKhoSP(resSP.data || []);
         } catch {

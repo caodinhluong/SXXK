@@ -37,9 +37,17 @@ const xuatKhoSPRoutes = require('./routes/xuatKhoSP.routes');
 const baocaothanhkhoanRoutes = require('./routes/baocaothanhkhoan.routes');
 const toKhaiRoutes = require('./routes/tokhai.routes');
 const profileRoutes = require('./routes/profile.routes');
+const phieuSanXuatRoutes = require('./routes/phieusanxuat.routes');
+const hoaDonNoiDiaRoutes = require('./routes/hoadonnoidia.routes');
+const bienBanTieuHuyRoutes = require('./routes/bienbantieuHuy.routes');
+const canhBaoRoutes = require('./routes/canhbao.routes');
+const logRoutes = require('./routes/log.routes');
+const doiSoatRoutes = require('./routes/doisoat.routes');
+const tonkhoRoutes = require('./routes/tonkho.routes');
+const sokhopRoutes = require('./routes/sokhop.routes');
+const phantichRoutes = require('./routes/phantich.routes');
+const quydoiRoutes = require('./routes/quydoi.routes');
 const scheduleTyGiaUpdate = require('./cron/tygia.cron');
-
-// const donvitinhhaiquanRoutes = require('./routes/dvtinh.routes')
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -82,14 +90,23 @@ app.use('/api/bao-cao-thanh-khoan', baocaothanhkhoanRoutes);
 app.use('/api/thanh-khoan', baocaothanhkhoanRoutes);
 app.use('/api/to-khai', toKhaiRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/phieu-san-xuat', phieuSanXuatRoutes);
+app.use('/api/hoa-don-noi-dia', hoaDonNoiDiaRoutes);
+app.use('/api/bien-ban-tieu-huy', bienBanTieuHuyRoutes);
+app.use('/api/canh-bao', canhBaoRoutes);
+app.use('/api/logs', logRoutes);
+app.use('/api/doi-soat', doiSoatRoutes);
+app.use('/api/ton-kho', tonkhoRoutes);
+app.use('/api/so-khop', sokhopRoutes);
+app.use('/api/phantich', phantichRoutes);
+app.use('/api/quy-doi-chi-tiet', quydoiRoutes);
 
 
 // --- Kết nối DB và khởi động Server ---
 db.sequelize.authenticate()
   .then(() => {
     console.log(' Kết nối MySQL thành công!');
-    return db.sequelize.sync(); // có thể dùng { alter: true } trong dev
-      //return db.sequelize.sync({ alter: true })
+    return db.sequelize.sync({ alter: true });
   })
 
   .then(() => {

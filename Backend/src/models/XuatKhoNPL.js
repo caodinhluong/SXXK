@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     id_xuat: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     id_kho: { type: DataTypes.INTEGER, allowNull: false },
     ngay_xuat: { type: DataTypes.DATEONLY, allowNull: false },
+    ca_kip: { type: DataTypes.STRING(50), allowNull: true, comment: 'Ca kíp sản xuất' },
     file_phieu: { type: DataTypes.STRING(255), allowNull: true }
   }, {
     sequelize,

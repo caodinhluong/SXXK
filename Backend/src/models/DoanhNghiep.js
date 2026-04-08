@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       DoanhNghiep.hasMany(models.QuyDoiNPL, { foreignKey: 'id_dn', as: 'quyDoiNPLs' });
       DoanhNghiep.hasMany(models.NguyenPhuLieu, { foreignKey: 'id_dn', as: 'nguyenPhuLieus' });
       DoanhNghiep.hasMany(models.SanPham, { foreignKey: 'id_dn', as: 'sanPhams' });
+      DoanhNghiep.hasMany(models.HoaDonNoiDia, { foreignKey: 'id_dn', as: 'hoaDonNoiDias' });
     }
   }
 

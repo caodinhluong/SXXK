@@ -159,7 +159,7 @@ const MainLayout = () => {
         <Content
           style={{
             margin: '24px',
-            minHeight: 'calc(100vh - 64px - 70px - 48px)',
+            minHeight: 'calc(100vh - 64px - 70px)',
           }}
         >
           <div

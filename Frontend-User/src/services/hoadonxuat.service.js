@@ -10,7 +10,8 @@ const api = createApiInstance(API_BASE_URL);
 export const getAllHoaDonXuat = async () => {
     try {
         const res = await api.get("/");
-        return res.data;
+        // Backend returns { success: true, data: [...] }
+        return res.data?.data || res.data || [];
     } catch (err) {
         console.error("❌ Lỗi getAllHoaDonXuat:", err);
         throw err.response?.data || { message: "Lỗi khi lấy danh sách hóa đơn xuất" };
@@ -18,11 +19,12 @@ export const getAllHoaDonXuat = async () => {
 };
 
 /* ============================================================
-   TẠO MỚI HÓA ĐƠN XUẤT
+   🟢 TẠO MỚI HÓA ĐƠN XUẤT
 ============================================================ */
 export const createHoaDonXuat = async (payload) => {
     try {
         const res = await api.post("/", payload);
+        // Backend returns { success: true, data }
         return res.data;
     } catch (err) {
         console.error("❌ Lỗi createHoaDonXuat:", err);

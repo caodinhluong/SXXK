@@ -1,4 +1,5 @@
 import { createApiInstance } from "./apiConfig";
+import { formatServiceError, logError } from "../utils/errorHandler";
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/hop-dong`;
 
@@ -15,8 +16,8 @@ export const getAllHopDong = async () => {
         const res = await api.get("/");
         return res.data;
     } catch (err) {
-        console.error("❌ Lỗi getAllHopDong:", err);
-        throw err.response?.data || { message: "Lỗi khi lấy danh sách hợp đồng" };
+        logError("getAllHopDong", err);
+        throw formatServiceError(err, "Lỗi khi lấy danh sách hợp đồng");
     }
 };
 
@@ -32,8 +33,8 @@ export const getHopDongById = async (id_hd) => {
         const res = await api.get(`/${id_hd}`);
         return res.data; // { success, data }
     } catch (err) {
-        console.error("❌ Lỗi getHopDongById:", err);
-        throw err.response?.data || { message: "Lỗi khi lấy chi tiết hợp đồng" };
+        logError("getHopDongById", err);
+        throw formatServiceError(err, "Lỗi khi lấy chi tiết hợp đồng");
     }
 };
 
@@ -56,8 +57,8 @@ export const createHopDong = async (payload) => {
         const res = await api.post("/", payload);
         return res.data; // { success, message, data }
     } catch (err) {
-        console.error("❌ Lỗi createHopDong:", err);
-        throw err.response?.data || { message: "Lỗi khi tạo hợp đồng" };
+        logError("createHopDong", err);
+        throw formatServiceError(err, "Lỗi khi tạo hợp đồng");
     }
 };
 
@@ -73,8 +74,8 @@ export const updateHopDong = async (id_hd, payload) => {
         const res = await api.put(`/${id_hd}`, payload);
         return res.data; // { success, message, data }
     } catch (err) {
-        console.error("❌ Lỗi updateHopDong:", err);
-        throw err.response?.data || { message: "Lỗi khi cập nhật hợp đồng" };
+        logError("updateHopDong", err);
+        throw formatServiceError(err, "Lỗi khi cập nhật hợp đồng");
     }
 };
 
@@ -89,8 +90,8 @@ export const deleteHopDong = async (id_hd) => {
         const res = await api.delete(`/${id_hd}`);
         return res.data; // { success, message }
     } catch (err) {
-        console.error("❌ Lỗi deleteHopDong:", err);
-        throw err.response?.data || { message: "Lỗi khi xóa hợp đồng" };
+        logError("deleteHopDong", err);
+        throw formatServiceError(err, "Lỗi khi xóa hợp đồng");
     }
 };
 

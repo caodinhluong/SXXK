@@ -45,8 +45,9 @@ import {
     showSaveError,
     showUploadSuccess,
     showUploadError,
-    showError,
+    showError
 } from "../../components/notification";
+import { extractErrorMessage } from "../../utils/errorHandler";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -80,8 +81,9 @@ const NhapKhoSP = () => {
             const response = await getAllNhapKhoSP();
             const data = response?.data || response || [];
             setLichSuPhieu(data);
-        } catch {
-            showLoadError('lịch sử phiếu nhập SP');
+        } catch (error) {
+            const errorMsg = extractErrorMessage(error);
+            showLoadError('lịch sử phiếu nhập SP', errorMsg);
         } finally {
             setLoadingLichSu(false);
         }
@@ -100,8 +102,9 @@ const NhapKhoSP = () => {
 
                 setKhoList(khoArr);
                 setSpList(spArr);
-            } catch {
-                showLoadError('danh sách kho hoặc sản phẩm');
+            } catch (error) {
+                const errorMsg = extractErrorMessage(error);
+                showLoadError('danh sách kho hoặc sản phẩm', errorMsg);
             }
         };
 
@@ -136,6 +139,7 @@ const NhapKhoSP = () => {
                 newData[index].id_sp = value;
                 newData[index].so_luong_dn = 1;
                 newData[index].so_luong_hq = 1;
+                newData[index].validated = false; // Reset validation state
                 
                 // Load quy đổi cho SP
                 try {
@@ -151,6 +155,11 @@ const NhapKhoSP = () => {
                 newData[index].ten_dvt_sp = qd?.ten_dvt_sp || null;
                 newData[index].ten_dvt_hq = qd?.ten_dvt_hq || null;
             } else if (field === 'so_luong') {
+                // Validate quantity
+                if (value && value <= 0) {
+                    newData[index].validated = true;
+                }
+                
                 // Tính toán quy đổi nếu có
                 if (newData[index].id_qd) {
                     try {
@@ -212,12 +221,21 @@ const NhapKhoSP = () => {
             id_kho: record.kho?.id_kho,
             ngay_nhap: dayjs(record.ngay_nhap),
         });
-        // Backend trả về chiTiets, không phải chiTietNhapKhoSPs
+        setFileUrl(record.file_phieu || null);
+        
+        // Backend trả về chiTiets với structure: { id_ct, id_sp, so_luong, sanPham: {...} }
         const chiTiets = record.chiTiets || [];
         setChiTietNhap(chiTiets.map((item, index) => ({
             key: item.id_ct || index,
-            id_sp: item.sanPham?.id_sp,
+            id_sp: item.sanPham?.id_sp || item.id_sp,
+            so_luong_dn: item.so_luong,
+            so_luong_hq: item.so_luong,
             so_luong: item.so_luong,
+            quyDoiList: [],
+            id_qd: null,
+            ten_dvt_sp: null,
+            ten_dvt_hq: null,
+            validated: false
         })));
         window.scrollTo(0, 0);
     };
@@ -227,8 +245,9 @@ const NhapKhoSP = () => {
             await deleteNhapKhoSP(id_nhap);
             showDeleteSuccess('Phiếu nhập SP');
             fetchLichSu(); // Tải lại danh sách
-        } catch {
-            showSaveError('phiếu nhập SP');
+        } catch (error) {
+            const errorMsg = extractErrorMessage(error);
+            showSaveError('xóa phiếu nhập SP', errorMsg);
         }
     };
     
@@ -245,17 +264,28 @@ const NhapKhoSP = () => {
             return;
         }
 
+        // Mark all items as validated for visual feedback
+        const validatedItems = chiTietNhap.map(item => ({ ...item, validated: true }));
+        setChiTietNhap(validatedItems);
+
         // Validate chi tiết
+        let hasError = false;
         for (const item of chiTietNhap) {
             if (!item.id_sp) {
                 showError("Vui lòng chọn sản phẩm cho tất cả dòng!", "Có dòng chưa chọn sản phẩm");
-                return;
+                hasError = true;
+                break;
             }
             const soLuong = item.so_luong_hq || item.so_luong_dn;
             if (!soLuong || soLuong <= 0) {
                 showError("Số lượng phải lớn hơn 0!", "Kiểm tra lại số lượng nhập");
-                return;
+                hasError = true;
+                break;
             }
+        }
+
+        if (hasError) {
+            return;
         }
 
         const payload = {
@@ -266,9 +296,11 @@ const NhapKhoSP = () => {
             file_phieu: fileUrl || null,
             chi_tiets: chiTietNhap.map(item => ({
                 id_sp: item.id_sp,
-                so_luong: item.so_luong_hq || item.so_luong_dn // Lưu số lượng HQ
+                so_luong_nhap: item.so_luong_hq || item.so_luong_dn || item.so_luong // Backend expects 'so_luong_nhap'
             }))
         };
+
+        console.log("📦 Payload gửi đi:", payload);
 
         try {
             setSubmitting(true);
@@ -286,8 +318,9 @@ const NhapKhoSP = () => {
             cancelEdit(); // Reset form và trạng thái
             fetchLichSu(); // Tải lại lịch sử
 
-        } catch {
-            showSaveError('phiếu nhập SP');
+        } catch (error) {
+            const errorMsg = extractErrorMessage(error);
+            showSaveError('phiếu nhập SP', errorMsg);
         } finally {
             setSubmitting(false);
         }
@@ -306,6 +339,7 @@ const NhapKhoSP = () => {
                     onChange={(val) => handleRowChange(record.key, "id_sp", val)}
                     showSearch
                     optionFilterProp="children"
+                    status={!record.id_sp && record.validated ? 'error' : ''}
                 >
                     {(Array.isArray(spList) ? spList : []).map(sp => (
                         <Option key={sp.id_sp} value={sp.id_sp}>{sp.ten_sp}</Option>
@@ -339,22 +373,33 @@ const NhapKhoSP = () => {
         {
             title: "Số lượng nhập",
             width: '30%',
-            render: (_, record) => (
-                <Space direction="vertical" style={{ width: '100%' }}>
-                    <InputNumber
-                        min={1}
-                        style={{ width: "100%" }}
-                        value={record.so_luong_dn}
-                        onChange={(val) => handleRowChange(record.key, "so_luong", val)}
-                        placeholder={record.id_qd ? `Nhập ${record.ten_dvt_sp}` : 'Nhập số lượng'}
-                    />
-                    {record.id_qd && record.so_luong_hq !== record.so_luong_dn && (
-                        <Text type="secondary" style={{ fontSize: '12px' }}>
-                            = {formatVNNumber(record.so_luong_hq)} {record.ten_dvt_hq}
-                        </Text>
-                    )}
-                </Space>
-            )
+            render: (_, record) => {
+                const soLuong = record.so_luong_dn;
+                const hasError = record.validated && (!soLuong || soLuong <= 0);
+                
+                return (
+                    <Space direction="vertical" style={{ width: '100%' }}>
+                        <InputNumber
+                            min={0.01}
+                            style={{ width: "100%" }}
+                            value={record.so_luong_dn}
+                            onChange={(val) => handleRowChange(record.key, "so_luong", val)}
+                            placeholder={record.id_qd ? `Nhập ${record.ten_dvt_sp}` : 'Nhập số lượng'}
+                            status={hasError ? 'error' : ''}
+                        />
+                        {hasError && (
+                            <Text type="danger" style={{ fontSize: '12px' }}>
+                                Số lượng phải lớn hơn 0
+                            </Text>
+                        )}
+                        {record.id_qd && record.so_luong_hq !== record.so_luong_dn && !hasError && (
+                            <Text type="secondary" style={{ fontSize: '12px' }}>
+                                = {formatVNNumber(record.so_luong_hq)} {record.ten_dvt_hq}
+                            </Text>
+                        )}
+                    </Space>
+                );
+            }
         },
         {
             title: "Hành động",
@@ -369,23 +414,72 @@ const NhapKhoSP = () => {
     ];
 
     const lichSuColumns = [
-        { title: 'Số phiếu', dataIndex: 'so_phieu', render: (text, record) => text || `PNKSP-${record.id_nhap}` },
-        { title: 'Ngày nhập', dataIndex: 'ngay_nhap', render: (text) => text ? dayjs(text).format('DD/MM/YYYY') : '-' },
-        { title: 'Kho nhận', dataIndex: ['kho', 'ten_kho'] },
-        { title: 'Hành động', key: 'action', width: 220, align: 'center', render: (_, record) => (
-            <Space>
-                <Button size="small" icon={<EyeOutlined />} onClick={() => showDrawer(record)}>Xem</Button>
-                <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
-                <Popconfirm title="Bạn có chắc muốn xóa phiếu này?" onConfirm={() => handleDelete(record.id_nhap)}>
-                    <Button size="small" danger icon={<DeleteOutlined />}>Xóa</Button>
-                </Popconfirm>
-            </Space>
-        )},
+        { 
+            title: 'Số phiếu', 
+            dataIndex: 'so_phieu', 
+            render: (text, record) => text || `PNKSP-${record.id_nhap}`,
+            width: '15%'
+        },
+        { 
+            title: 'Ngày nhập', 
+            dataIndex: 'ngay_nhap', 
+            render: (text) => text ? dayjs(text).format('DD/MM/YYYY') : '-',
+            width: '15%'
+        },
+        { 
+            title: 'Kho nhận', 
+            dataIndex: ['kho', 'ten_kho'],
+            render: (text) => text || '-',
+            width: '25%'
+        },
+        {
+            title: 'Số lượng SP',
+            key: 'so_luong_sp',
+            render: (_, record) => {
+                const chiTiets = record.chiTiets || [];
+                return chiTiets.length > 0 ? `${chiTiets.length} loại` : '-';
+            },
+            width: '15%',
+            align: 'center'
+        },
+        { 
+            title: 'Hành động', 
+            key: 'action', 
+            width: '30%', 
+            align: 'center', 
+            render: (_, record) => (
+                <Space>
+                    <Button size="small" icon={<EyeOutlined />} onClick={() => showDrawer(record)}>Xem</Button>
+                    <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
+                    <Popconfirm title="Bạn có chắc muốn xóa phiếu này?" onConfirm={() => handleDelete(record.id_nhap)}>
+                        <Button size="small" danger icon={<DeleteOutlined />}>Xóa</Button>
+                    </Popconfirm>
+                </Space>
+            )
+        },
     ];
     
     const chiTietColumns = [
-        { title: 'Tên sản phẩm', dataIndex: ['sanPham', 'ten_sp'] },
-        { title: 'Số lượng nhập', dataIndex: 'so_luong', align: 'right', render: (val) => formatVNNumber(val) },
+        { 
+            title: 'STT',
+            key: 'stt',
+            width: '10%',
+            align: 'center',
+            render: (_, __, index) => index + 1
+        },
+        { 
+            title: 'Tên sản phẩm', 
+            dataIndex: ['sanPham', 'ten_sp'],
+            render: (text) => text || '-',
+            width: '60%'
+        },
+        { 
+            title: 'Số lượng nhập', 
+            dataIndex: 'so_luong', 
+            align: 'right', 
+            width: '30%',
+            render: (val) => formatVNNumber(val) 
+        },
     ];
 
     return (
@@ -395,13 +489,34 @@ const NhapKhoSP = () => {
                 <Form form={form} layout="vertical" onFinish={onFinish}>
                     <Row gutter={24}>
                         <Col span={12}>
-                            <Form.Item label="Kho nhận hàng" name="id_kho" rules={[{ required: true, message: "Chọn kho!" }]}>
+                            <Form.Item 
+                                label="Kho nhận hàng" 
+                                name="id_kho" 
+                                rules={[
+                                    { required: true, message: "Vui lòng chọn kho nhận hàng!" }
+                                ]}
+                            >
                                 <Select placeholder="Chọn kho">{khoList.map(k => (<Option key={k.id_kho} value={k.id_kho}>{k.ten_kho}</Option>))}</Select>
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item label="Ngày nhập kho" name="ngay_nhap" rules={[{ required: true, message: "Chọn ngày!" }]}>
-                                <DatePicker style={{ width: "100%" }} />
+                            <Form.Item 
+                                label="Ngày nhập kho" 
+                                name="ngay_nhap" 
+                                rules={[
+                                    { required: true, message: "Vui lòng chọn ngày nhập kho!" },
+                                    {
+                                        validator: (_, value) => {
+                                            if (!value) return Promise.resolve();
+                                            if (!dayjs(value).isValid()) {
+                                                return Promise.reject(new Error('Ngày không hợp lệ'));
+                                            }
+                                            return Promise.resolve();
+                                        }
+                                    }
+                                ]}
+                            >
+                                <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -430,11 +545,21 @@ const NhapKhoSP = () => {
                 <Table columns={lichSuColumns} dataSource={lichSuPhieu} rowKey="id_nhap" loading={loadingLichSu} />
             </Card>
 
-            <Drawer title={`Chi tiết Phiếu nhập: ${selectedPhieu?.so_phieu || `PNKSP-${selectedPhieu?.id_nhap}`}`} width={600} open={isDrawerOpen} onClose={closeDrawer} destroyOnClose>
+            <Drawer title={`Chi tiết Phiếu nhập: ${selectedPhieu?.so_phieu || `PNKSP-${selectedPhieu?.id_nhap}`}`} width={700} open={isDrawerOpen} onClose={closeDrawer} destroyOnClose>
                 {selectedPhieu && <>
                     <Descriptions bordered column={1} size="small" style={{ marginBottom: 24 }}>
+                        <Descriptions.Item label="Số phiếu">
+                            {selectedPhieu.so_phieu || `PNKSP-${selectedPhieu.id_nhap}`}
+                        </Descriptions.Item>
                         <Descriptions.Item label="Ngày nhập">{dayjs(selectedPhieu.ngay_nhap).format('DD/MM/YYYY')}</Descriptions.Item>
-                        <Descriptions.Item label="Kho nhận">{selectedPhieu.kho?.ten_kho}</Descriptions.Item>
+                        <Descriptions.Item label="Kho nhận">{selectedPhieu.kho?.ten_kho || '-'}</Descriptions.Item>
+                        {selectedPhieu.file_phieu && (
+                            <Descriptions.Item label="File đính kèm">
+                                <a href={selectedPhieu.file_phieu} target="_blank" rel="noopener noreferrer">
+                                    Xem file
+                                </a>
+                            </Descriptions.Item>
+                        )}
                     </Descriptions>
                     <Title level={5}>Danh sách sản phẩm đã nhập</Title>
                     <Table columns={chiTietColumns} dataSource={selectedPhieu.chiTiets || []} rowKey="id_ct" pagination={false} size="small" bordered />

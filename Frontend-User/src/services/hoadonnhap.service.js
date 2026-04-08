@@ -24,7 +24,8 @@ export const getAllHoaDonNhap = async () => {
 export const getHoaDonNhapById = async (id_hd_nhap) => {
     try {
         const res = await api.get(`/${id_hd_nhap}`);
-        return res.data;
+        // Backend returns { success: true, data: {...} }
+        return res.data?.data || res.data;
     } catch (err) {
         console.error("❌ Lỗi getHoaDonNhapById:", err);
         throw err.response?.data || { message: "Lỗi khi lấy chi tiết hóa đơn nhập" };
@@ -37,6 +38,7 @@ export const getHoaDonNhapById = async (id_hd_nhap) => {
 export const createHoaDonNhap = async (payload) => {
     try {
         const res = await api.post("/", payload);
+        // Backend returns { success: true, message, data }
         return res.data;
     } catch (err) {
         console.error("❌ Lỗi createHoaDonNhap:", err);
@@ -50,6 +52,7 @@ export const createHoaDonNhap = async (payload) => {
 export const deleteHoaDonNhap = async (id_hd_nhap) => {
     try {
         const res = await api.delete(`/${id_hd_nhap}`);
+        // Backend returns { success: true, message }
         return res.data;
     } catch (err) {
         console.error("❌ Lỗi deleteHoaDonNhap:", err);

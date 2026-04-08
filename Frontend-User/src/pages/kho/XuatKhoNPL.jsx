@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Form, Select, DatePicker, Button, Table, InputNumber, Upload, Typography, Popconfirm, Row, Col, Card, Space, Drawer, Descriptions } from 'antd';
+import { Form, Select, DatePicker, Button, Table, InputNumber, Upload, Typography, Popconfirm, Row, Col, Card, Space, Drawer, Descriptions, Input } from 'antd';
 import { SaveOutlined, PlusOutlined, DeleteOutlined, EyeOutlined, EditOutlined, CloseCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import * as XuatKhoNPLService from '../../services/xuatkhonpl.service';
@@ -8,6 +8,7 @@ import { getQuyDoiListNPL, calculateNPL_DN_to_HQ } from '../../services/quyDoiHe
 
 import axios from 'axios';
 import { showCreateSuccess, showUpdateSuccess, showDeleteSuccess, showLoadError, showSaveError, showWarning } from '../../components/notification';
+import { extractErrorMessage } from '../../utils/errorHandler';
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -60,11 +61,12 @@ const XuatKhoNPL = () => {
         try {
             const response = await XuatKhoNPLService.getAllXuatKhoNPL();
             setLichSuPhieu(response.data || []);
-        } catch (err) {
-            if (err.status === 401) {
+        } catch (error) {
+            if (error.status === 401) {
                 showWarning('Phiên làm việc hết hạn', 'Vui lòng đăng nhập lại');
             } else {
-                showLoadError('lịch sử phiếu xuất NPL');
+                const errorMsg = extractErrorMessage(error);
+                showLoadError('lịch sử phiếu xuất NPL', errorMsg);
             }
         } finally { 
             setLoadingLichSu(false); 
@@ -78,11 +80,12 @@ const XuatKhoNPL = () => {
                 // Xử lý response có thể là { success, data } hoặc array trực tiếp
                 const khoData = res?.data || res || [];
                 setKhoList(Array.isArray(khoData) ? khoData : []);
-            } catch (err) {
-                if (err.status === 401) {
+            } catch (error) {
+                if (error.status === 401) {
                     showWarning('Phiên làm việc hết hạn', 'Vui lòng đăng nhập lại');
                 } else {
-                    showLoadError('danh sách kho');
+                    const errorMsg = extractErrorMessage(error);
+                    showLoadError('danh sách kho', errorMsg);
                 }
             }
         };
@@ -102,7 +105,8 @@ const XuatKhoNPL = () => {
                 if (error.status === 401) {
                     showWarning('Phiên làm việc hết hạn', 'Vui lòng đăng nhập lại');
                 } else {
-                    showLoadError('tồn kho của kho này');
+                    const errorMsg = extractErrorMessage(error);
+                    showLoadError('tồn kho của kho này', errorMsg);
                 }
             }
         } else {
@@ -199,6 +203,7 @@ const XuatKhoNPL = () => {
         form.setFieldsValue({
             id_kho: record.kho?.id_kho,
             ngay_xuat: dayjs(record.ngay_xuat),
+            ca_kip: record.ca_kip || '',
         });
 
         // Backend trả về chiTiets, không phải chiTietXuatKhoNPLs
@@ -237,7 +242,8 @@ const XuatKhoNPL = () => {
             if (error.status === 401) {
                 showWarning('Phiên làm việc hết hạn', 'Vui lòng đăng nhập lại');
             } else {
-                showSaveError('phiếu xuất NPL');
+                const errorMsg = extractErrorMessage(error);
+                showSaveError('xóa phiếu xuất NPL', errorMsg);
             }
         }
     };
@@ -268,6 +274,7 @@ const XuatKhoNPL = () => {
         const payload = {
             id_kho: values.id_kho,
             ngay_xuat: dayjs(values.ngay_xuat).format("YYYY-MM-DD"),
+            ca_kip: values.ca_kip || null,
             file_phieu: null,
             chi_tiets: chiTietXuat.map((item) => ({
                 id_npl: item.id_npl,
@@ -285,11 +292,12 @@ const XuatKhoNPL = () => {
             }
             cancelEdit();
             fetchLichSu();
-        } catch (err) {
-            if (err.status === 401) {
+        } catch (error) {
+            if (error.status === 401) {
                 showWarning('Phiên làm việc hết hạn', 'Vui lòng đăng nhập lại');
             } else {
-                showSaveError('phiếu xuất NPL');
+                const errorMsg = extractErrorMessage(error);
+                showSaveError('phiếu xuất NPL', errorMsg);
             }
         } finally { 
             setSubmitting(false); 
@@ -361,6 +369,7 @@ const XuatKhoNPL = () => {
         { title: 'Số phiếu', dataIndex: 'so_phieu', render: (text, record) => text || `PXKNPL-${record.id_xuat}` },
         { title: 'Ngày xuất', dataIndex: 'ngay_xuat', render: (text) => text ? dayjs(text).format('DD/MM/YYYY') : '-' },
         { title: 'Kho xuất', dataIndex: ['kho', 'ten_kho'] },
+        { title: 'Ca kíp', dataIndex: 'ca_kip', render: (text) => text || '-' },
         { title: 'Hành động', key: 'action', width: 220, align: 'center', render: (_, record) => (
             <Space>
                 <Button size="small" icon={<EyeOutlined />} onClick={() => showDrawer(record)}>Xem</Button>
@@ -370,8 +379,20 @@ const XuatKhoNPL = () => {
         )},
     ];
     const chiTietColumns = [
-        { title: 'Tên Nguyên phụ liệu', dataIndex: ['nguyenPhuLieu', 'ten_npl'] },
-        { title: 'Số lượng xuất', dataIndex: 'so_luong', align: 'right', render: (val) => formatVNNumber(val) },
+        { 
+            title: 'Tên Nguyên phụ liệu', 
+            dataIndex: ['nguyenPhuLieu', 'ten_npl'],
+            render: (text) => text || '-'
+        },
+        { 
+            title: 'Số lượng xuất', 
+            dataIndex: 'so_luong', 
+            align: 'right', 
+            render: (val, record) => {
+                const donVi = record.nguyenPhuLieu?.donViTinhHQ?.ten_dvt || record.nguyenPhuLieu?.don_vi || '';
+                return `${formatVNNumber(val)} ${donVi}`;
+            }
+        },
     ];
 
     return (
@@ -382,6 +403,9 @@ const XuatKhoNPL = () => {
                     <Row gutter={24}>
                         <Col span={12}><Form.Item label="Kho xuất hàng" name="id_kho" rules={[{ required: true, message: "Vui lòng chọn kho xuất" }]}><Select placeholder={editingRecord ? null : "-- Trước tiên, hãy chọn kho --"} onChange={handleKhoChange} disabled={!!editingRecord}>{khoList.map(k => <Option key={k.id_kho} value={k.id_kho}>{k.ten_kho}</Option>)}</Select></Form.Item></Col>
                         <Col span={12}><Form.Item label="Ngày xuất kho" name="ngay_xuat" rules={[{ required: true, message: "Vui lòng chọn ngày xuất" }]}><DatePicker style={{ width: '100%' }} /></Form.Item></Col>
+                    </Row>
+                    <Row gutter={24}>
+                        <Col span={12}><Form.Item label="Ca kíp" name="ca_kip"><Input placeholder="Nhập ca kíp (ví dụ: Ca 1, Ca 2, Ca sáng...)" /></Form.Item></Col>
                     </Row>
                     <Form.Item label="File phiếu xuất (nếu có)" name="file_phieu">
                         <Upload
@@ -417,6 +441,7 @@ const XuatKhoNPL = () => {
                     <Descriptions bordered column={1} size="small" style={{ marginBottom: 24 }}>
                         <Descriptions.Item label="Ngày xuất">{dayjs(selectedPhieu.ngay_xuat).format('DD/MM/YYYY')}</Descriptions.Item>
                         <Descriptions.Item label="Kho xuất">{selectedPhieu.kho?.ten_kho}</Descriptions.Item>
+                        <Descriptions.Item label="Ca kíp">{selectedPhieu.ca_kip || '-'}</Descriptions.Item>
                     </Descriptions>
                     <Title level={5}>Danh sách NPL đã xuất</Title>
                     <Table columns={chiTietColumns} dataSource={selectedPhieu.chiTiets || []} rowKey="id_ct" pagination={false} size="small" bordered />

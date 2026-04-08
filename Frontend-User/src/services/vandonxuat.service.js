@@ -10,7 +10,8 @@ const api = createApiInstance(API_BASE_URL);
 export const getAllVanDonXuat = async () => {
     try {
         const res = await api.get("/");
-        return res.data;
+        // Backend returns { success: true, data: [...] }
+        return res.data?.data || res.data || [];
     } catch (err) {
         console.error("❌ Lỗi getAllVanDonXuat:", err);
         throw err.response?.data || { message: "Lỗi khi lấy danh sách vận đơn xuất" };
@@ -23,6 +24,7 @@ export const getAllVanDonXuat = async () => {
 export const createVanDonXuat = async (payload) => {
     try {
         const res = await api.post("/", payload);
+        // Backend returns { success: true, data }
         return res.data;
     } catch (err) {
         console.error("❌ Lỗi createVanDonXuat:", err);

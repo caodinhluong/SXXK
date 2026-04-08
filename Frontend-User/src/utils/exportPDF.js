@@ -327,6 +327,10 @@ export const exportBaoCaoToPDF = (baoCaoData, fileName = 'BaoCaoThanhKhoan') => 
             });
         }
         
+        // Note: Additional JSON data fields (data_ton_dau_ky, data_nhap_trong_ky, etc.) 
+        // are included in the Excel export for detailed analysis.
+        // PDF export focuses on the main report tables to keep file size manageable.
+        
         // Lưu file
         doc.save(`${fileName}.pdf`);
         console.log('PDF da duoc tao thanh cong:', fileName);

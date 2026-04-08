@@ -1,0 +1,661 @@
+/* ========================================
+   📝 FORM COMPONENTS - ENHANCED UI STYLES
+   Beautiful and consistent styling for all form components
+   ======================================== */
+
+/* ========================================
+   🎨 FORM ITEM ENHANCEMENTS
+   ======================================== */
+
+/* Form Item Label - More prominent and clear */
+.enhanced-form-item .ant-form-item-label > label {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Required asterisk styling */
+.enhanced-form-item .ant-form-item-label > label.ant-form-item-required::before {
+  color: var(--error-color);
+  font-size: 16px;
+  margin-right: 4px;
+}
+
+/* Help text styling */
+.enhanced-form-item .ant-form-item-explain {
+  font-size: 12px;
+  margin-top: 4px;
+  color: var(--text-secondary);
+}
+
+/* Error message styling */
+.enhanced-form-item .ant-form-item-explain-error {
+  color: var(--error-color);
+  font-weight: 500;
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Success state */
+.enhanced-form-item .ant-form-item-has-success .ant-input,
+.enhanced-form-item .ant-form-item-has-success .ant-select-selector,
+.enhanced-form-item .ant-form-item-has-success .ant-picker {
+  border-color: var(--success-color) !important;
+}
+
+.enhanced-form-item .ant-form-item-has-success .ant-input:focus,
+.enhanced-form-item .ant-form-item-has-success .ant-select-focused .ant-select-selector,
+.enhanced-form-item .ant-form-item-has-success .ant-picker-focused {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* ========================================
+   📥 INPUT ENHANCEMENTS
+   ======================================== */
+
+/* Input with icon prefix/suffix */
+.enhanced-input-wrapper .ant-input-prefix,
+.enhanced-input-wrapper .ant-input-suffix {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+.enhanced-input-wrapper .ant-input-prefix {
+  margin-right: 8px;
+}
+
+.enhanced-input-wrapper .ant-input-suffix {
+  margin-left: 8px;
+}
+
+/* Input hover effect */
+.enhanced-input-wrapper .ant-input:hover {
+  border-color: var(--primary-400);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+}
+
+/* Input focus effect */
+.enhanced-input-wrapper .ant-input:focus,
+.enhanced-input-wrapper .ant-input-focused {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Disabled input */
+.enhanced-input-wrapper .ant-input:disabled {
+  background: var(--bg-color);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Input with character count */
+.enhanced-input-wrapper .ant-input-show-count::after {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* ========================================
+   📋 SELECT ENHANCEMENTS
+   ======================================== */
+
+/* Select dropdown styling */
+.enhanced-select-wrapper .ant-select-selector {
+  transition: all var(--transition-base);
+}
+
+.enhanced-select-wrapper .ant-select:hover .ant-select-selector {
+  border-color: var(--primary-400);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+}
+
+.enhanced-select-wrapper .ant-select-focused .ant-select-selector {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Select arrow icon */
+.enhanced-select-wrapper .ant-select-arrow {
+  color: var(--text-secondary);
+  transition: transform var(--transition-base);
+}
+
+.enhanced-select-wrapper .ant-select-open .ant-select-arrow {
+  transform: rotate(180deg);
+}
+
+/* Select dropdown menu */
+.ant-select-dropdown {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 4px;
+}
+
+.ant-select-item {
+  border-radius: var(--radius-sm);
+  margin: 2px 0;
+  transition: all var(--transition-fast);
+}
+
+.ant-select-item:hover {
+  background: var(--primary-light);
+  transform: translateX(4px);
+}
+
+.ant-select-item-option-selected {
+  background: var(--primary-100);
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Select with search */
+.enhanced-select-wrapper .ant-select-show-search .ant-select-selection-search-input {
+  height: 100%;
+}
+
+/* Multiple select tags */
+.enhanced-select-wrapper .ant-select-multiple .ant-select-selection-item {
+  background: var(--primary-light);
+  border: 1px solid var(--primary-200);
+  border-radius: var(--radius-full);
+  padding: 2px 10px;
+  font-size: 13px;
+  transition: all var(--transition-fast);
+}
+
+.enhanced-select-wrapper .ant-select-multiple .ant-select-selection-item:hover {
+  background: var(--primary-100);
+  transform: scale(1.05);
+}
+
+/* ========================================
+   📅 DATE PICKER ENHANCEMENTS
+   ======================================== */
+
+/* DatePicker styling */
+.enhanced-datepicker-wrapper .ant-picker {
+  transition: all var(--transition-base);
+}
+
+.enhanced-datepicker-wrapper .ant-picker:hover {
+  border-color: var(--primary-400);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+}
+
+.enhanced-datepicker-wrapper .ant-picker-focused {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  transform: translateY(-1px);
+}
+
+/* DatePicker icon */
+.enhanced-datepicker-wrapper .ant-picker-suffix {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+/* DatePicker dropdown */
+.ant-picker-dropdown {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+.ant-picker-panel-container {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Calendar header */
+.ant-picker-header {
+  border-bottom: 2px solid var(--primary-color);
+  padding: 12px;
+}
+
+.ant-picker-header-view button {
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.ant-picker-header-view button:hover {
+  color: var(--primary-color);
+  transform: scale(1.05);
+}
+
+/* Calendar cells */
+.ant-picker-cell {
+  transition: all var(--transition-fast);
+}
+
+.ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-disabled) .ant-picker-cell-inner {
+  background: var(--primary-light);
+  transform: scale(1.1);
+}
+
+.ant-picker-cell-selected .ant-picker-cell-inner {
+  background: var(--gradient-primary);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+}
+
+.ant-picker-cell-today .ant-picker-cell-inner::before {
+  border-color: var(--primary-color);
+  border-width: 2px;
+}
+
+/* ========================================
+   📤 UPLOAD ENHANCEMENTS
+   ======================================== */
+
+/* Upload button styling */
+.enhanced-upload-wrapper .ant-upload-select {
+  width: 100%;
+}
+
+.enhanced-upload-wrapper .ant-btn {
+  width: 100%;
+  height: 40px;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  background: var(--bg-white);
+}
+
+.enhanced-upload-wrapper .ant-btn:hover {
+  border-color: var(--primary-color);
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Upload list */
+.enhanced-upload-wrapper .ant-upload-list-item {
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  transition: all var(--transition-fast);
+  border: 1px solid var(--border-color);
+  margin-top: 8px;
+}
+
+.enhanced-upload-wrapper .ant-upload-list-item:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-200);
+  transform: translateX(4px);
+}
+
+/* Upload success state */
+.enhanced-upload-wrapper .ant-upload-list-item-done {
+  border-color: var(--success-color);
+  background: var(--success-light);
+}
+
+/* Upload error state */
+.enhanced-upload-wrapper .ant-upload-list-item-error {
+  border-color: var(--error-color);
+  background: var(--error-light);
+}
+
+/* Upload progress */
+.enhanced-upload-wrapper .ant-upload-list-item-progress {
+  padding-bottom: 4px;
+}
+
+.enhanced-upload-wrapper .ant-progress-bg {
+  background: var(--gradient-primary);
+}
+
+/* File preview link */
+.enhanced-upload-wrapper .file-preview-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin-top: 8px;
+  background: var(--success-light);
+  border: 1px solid var(--success-color);
+  border-radius: var(--radius-md);
+  color: var(--success-color);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  font-weight: 500;
+}
+
+.enhanced-upload-wrapper .file-preview-link:hover {
+  background: var(--success-color);
+  color: white;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* ========================================
+   🔢 INPUT NUMBER ENHANCEMENTS
+   ======================================== */
+
+/* InputNumber styling */
+.enhanced-input-number-wrapper .ant-input-number {
+  width: 100%;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+}
+
+.enhanced-input-number-wrapper .ant-input-number:hover {
+  border-color: var(--primary-400);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+}
+
+.enhanced-input-number-wrapper .ant-input-number-focused {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  transform: translateY(-1px);
+}
+
+/* InputNumber handlers */
+.enhanced-input-number-wrapper .ant-input-number-handler-wrap {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--bg-color);
+}
+
+.enhanced-input-number-wrapper .ant-input-number-handler {
+  transition: all var(--transition-fast);
+}
+
+.enhanced-input-number-wrapper .ant-input-number-handler:hover {
+  background: var(--primary-light);
+  color: var(--primary-color);
+}
+
+/* ========================================
+   📝 TEXTAREA ENHANCEMENTS
+   ======================================== */
+
+/* TextArea styling */
+.enhanced-textarea-wrapper .ant-input-textarea {
+  transition: all var(--transition-base);
+}
+
+.enhanced-textarea-wrapper .ant-input-textarea:hover .ant-input {
+  border-color: var(--primary-400);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+}
+
+.enhanced-textarea-wrapper .ant-input-textarea-focused .ant-input {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* TextArea with character count */
+.enhanced-textarea-wrapper .ant-input-textarea-show-count::after {
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 4px 8px;
+  background: var(--bg-color);
+  border-radius: var(--radius-sm);
+}
+
+/* ========================================
+   🎛️ FORM LAYOUT ENHANCEMENTS
+   ======================================== */
+
+/* Form section divider */
+.form-section-divider {
+  margin: 32px 0 24px 0;
+  border-top: 2px solid var(--border-color);
+  position: relative;
+}
+
+.form-section-divider::before {
+  content: attr(data-title);
+  position: absolute;
+  top: -12px;
+  left: 16px;
+  background: var(--bg-white);
+  padding: 0 12px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary-color);
+}
+
+/* Form section title */
+.form-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-color);
+  display: inline-block;
+}
+
+/* Form grid layout */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .form-grid-2,
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Form actions (buttons) */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 24px;
+}
+
+.form-actions-centered {
+  justify-content: center;
+}
+
+.form-actions-space-between {
+  justify-content: space-between;
+}
+
+/* ========================================
+   ✨ SPECIAL FORM EFFECTS
+   ======================================== */
+
+/* Floating label effect */
+.floating-label-wrapper {
+  position: relative;
+  margin-top: 8px;
+}
+
+.floating-label-wrapper .ant-input,
+.floating-label-wrapper .ant-select-selector {
+  padding-top: 20px;
+  padding-bottom: 4px;
+}
+
+.floating-label-wrapper label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all var(--transition-base);
+  pointer-events: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.floating-label-wrapper .ant-input:focus ~ label,
+.floating-label-wrapper .ant-input:not(:placeholder-shown) ~ label,
+.floating-label-wrapper .ant-select-focused ~ label,
+.floating-label-wrapper .ant-select-selection-item ~ label {
+  top: 8px;
+  font-size: 11px;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Form card wrapper */
+.form-card-wrapper {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-base);
+}
+
+.form-card-wrapper:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-200);
+}
+
+/* Form with gradient header */
+.form-with-gradient-header {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.form-gradient-header {
+  background: var(--gradient-primary);
+  padding: 20px 24px;
+  color: white;
+}
+
+.form-gradient-header h3 {
+  color: white;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.form-gradient-body {
+  padding: 24px;
+  background: var(--bg-white);
+}
+
+/* ========================================
+   🎨 FORM VALIDATION STATES
+   ======================================== */
+
+/* Validation icon */
+.validation-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  animation: scaleIn 0.3s ease-out;
+}
+
+.validation-icon-success {
+  color: var(--success-color);
+}
+
+.validation-icon-error {
+  color: var(--error-color);
+}
+
+/* Validation message box */
+.validation-message-box {
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  margin-top: 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideInDown 0.3s ease-out;
+}
+
+.validation-message-box-error {
+  background: var(--error-light);
+  border: 1px solid var(--error-color);
+  color: var(--error-color);
+}
+
+.validation-message-box-success {
+  background: var(--success-light);
+  border: 1px solid var(--success-color);
+  color: var(--success-color);
+}
+
+.validation-message-box-warning {
+  background: var(--warning-light);
+  border: 1px solid var(--warning-color);
+  color: var(--warning-color);
+}
+
+/* ========================================
+   📱 RESPONSIVE FORM STYLES
+   ======================================== */
+
+@media (max-width: 768px) {
+  .enhanced-form-item .ant-form-item-label {
+    padding-bottom: 4px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions .ant-btn {
+    width: 100%;
+  }
+  
+  .enhanced-upload-wrapper .ant-btn {
+    height: 36px;
+    font-size: 13px;
+  }
+}
+
+/* ========================================
+   🎯 UTILITY CLASSES
+   ======================================== */
+
+/* Form spacing utilities */
+.form-item-compact {
+  margin-bottom: 12px;
+}
+
+.form-item-spacious {
+  margin-bottom: 32px;
+}
+
+/* Form width utilities */
+.form-item-full-width .ant-input,
+.form-item-full-width .ant-select,
+.form-item-full-width .ant-picker,
+.form-item-full-width .ant-input-number {
+  width: 100%;
+}
+
+/* Form alignment utilities */
+.form-label-left .ant-form-item-label {
+  text-align: left;
+}
+
+.form-label-right .ant-form-item-label {
+  text-align: right;
+}
+
+.form-label-center .ant-form-item-label {
+  text-align: center;
+}

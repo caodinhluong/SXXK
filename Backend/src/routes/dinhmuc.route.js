@@ -11,6 +11,8 @@ router.post('/', authenticateToken, authorizeRole(['business', 'Admin']), dmCont
 router.get('/', authenticateToken, authorizeRole(['business', 'Admin']), dmController.getAll);
 router.get('/san-pham', authenticateToken, authorizeRole(['business', 'Admin']), dmController.getSanPham);
 router.get('/nguyen-lieu', authenticateToken, authorizeRole(['business', 'Admin']), dmController.getNguyenLieu);
+router.get('/template', authenticateToken, authorizeRole(['business', 'Admin']), dmController.getTemplate);
+router.post('/import', authenticateToken, authorizeRole(['business', 'Admin']), dmController.importExcel);
 router.get('/:id_sp', authenticateToken, authorizeRole(['business', 'Admin']), dmController.getByProduct);
 router.delete('/:id_dinhmuc', authenticateToken, authorizeRole(['business', 'Admin']), dmController.remove);
 

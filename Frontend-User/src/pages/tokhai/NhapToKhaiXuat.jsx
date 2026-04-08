@@ -54,6 +54,7 @@ const NhapToKhaiXuat = () => {
     const [fileHoaDon, setFileHoaDon] = useState(null);
     const [fileVanDon, setFileVanDon] = useState(null);
     const [fileToKhai, setFileToKhai] = useState(null);
+    const [fileExcelImport, setFileExcelImport] = useState(null);
 
     // Fetch initial data
     useEffect(() => {
@@ -102,6 +103,9 @@ const NhapToKhaiXuat = () => {
                         break;
                     case "tokhai":
                         setFileToKhai(res.data.imageUrl);
+                        break;
+                    case "excel":
+                        setFileExcelImport(res.data.imageUrl);
                         break;
                     default:
                         break;
@@ -283,9 +287,17 @@ const NhapToKhaiXuat = () => {
                 id_lh,
                 so_tk: toKhaiFormValues.so_to_khai,
                 ngay_tk: toKhaiFormValues.ngay_dk ? toKhaiFormValues.ngay_dk.format("YYYY-MM-DD") : null,
+                ma_to_khai: toKhaiFormValues.ma_to_khai || null,
+                loai_hang: toKhaiFormValues.loai_hang || null,
+                ngay_thong_quan: toKhaiFormValues.ngay_thong_quan ? toKhaiFormValues.ngay_thong_quan.format("YYYY-MM-DD") : null,
+                cang_xuat: toKhaiFormValues.cang_xuat || null,
                 tong_tri_gia,
                 id_tt: hoaDonForm.id_tt,
                 file_to_khai: fileToKhai || null,
+                file_excel_import: toKhaiFormValues.file_excel_import || null,
+                ghi_chu: toKhaiFormValues.ghi_chu || null,
+                nguoi_xu_ly: toKhaiFormValues.nguoi_xu_ly || null,
+                ngay_xu_ly: toKhaiFormValues.ngay_xu_ly ? toKhaiFormValues.ngay_xu_ly.format("YYYY-MM-DD") : null,
             };
 
             await createToKhaiXuat(payloadToKhai);
@@ -301,6 +313,7 @@ const NhapToKhaiXuat = () => {
             setFileHoaDon(null);
             setFileVanDon(null);
             setFileToKhai(null);
+            setFileExcelImport(null);
             setChiTietHoaDon([{ key: 1, id_sp: null, so_luong: 0, don_gia: 0, tri_gia: 0 }]);
         } catch (err) {
             console.error("onFinish error:", err);
@@ -405,14 +418,21 @@ const NhapToKhaiXuat = () => {
                             </Col>
                             <Col span={24}>
                                 <Form.Item label="File chứng từ lô hàng">
-                                    <Upload customRequest={(options) => handleUpload(options, "lohang")} maxCount={1} showUploadList={false}>
-                                        <Button icon={<UploadOutlined />} loading={uploading}>Tải lên file</Button>
+                                    <Upload 
+                                        customRequest={(options) => handleUpload(options, "lohang")} 
+                                        maxCount={1} 
+                                        showUploadList={true}
+                                        onRemove={() => setFileLoHang(null)}
+                                        fileList={fileLoHang ? [{
+                                            uid: '-1',
+                                            name: 'File lô hàng',
+                                            status: 'done',
+                                            url: fileLoHang,
+                                        }] : []}
+                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                    >
+                                        <Button icon={<UploadOutlined />} loading={uploading} disabled={!!fileLoHang}>Tải lên file</Button>
                                     </Upload>
-                                    {fileLoHang && (
-                                        <div style={{ marginTop: 8 }}>
-                                            <a href={fileLoHang} target="_blank" rel="noopener noreferrer">Xem file đã tải lên</a>
-                                        </div>
-                                    )}
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -453,14 +473,21 @@ const NhapToKhaiXuat = () => {
                             </Col>
                             <Col span={24}>
                                 <Form.Item label="File scan hóa đơn">
-                                    <Upload customRequest={(options) => handleUpload(options, "hoadon")} maxCount={1} showUploadList={false}>
-                                        <Button icon={<UploadOutlined />} loading={uploading}>Tải lên file</Button>
+                                    <Upload 
+                                        customRequest={(options) => handleUpload(options, "hoadon")} 
+                                        maxCount={1} 
+                                        showUploadList={true}
+                                        onRemove={() => setFileHoaDon(null)}
+                                        fileList={fileHoaDon ? [{
+                                            uid: '-2',
+                                            name: 'File hóa đơn',
+                                            status: 'done',
+                                            url: fileHoaDon,
+                                        }] : []}
+                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                    >
+                                        <Button icon={<UploadOutlined />} loading={uploading} disabled={!!fileHoaDon}>Tải lên file</Button>
                                     </Upload>
-                                    {fileHoaDon && (
-                                        <div style={{ marginTop: 8 }}>
-                                            <a href={fileHoaDon} target="_blank" rel="noopener noreferrer">Xem file đã tải lên</a>
-                                        </div>
-                                    )}
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -493,14 +520,21 @@ const NhapToKhaiXuat = () => {
                             </Col>
                             <Col span={24}>
                                 <Form.Item label="File scan vận đơn">
-                                    <Upload customRequest={(options) => handleUpload(options, "vandon")} maxCount={1} showUploadList={false}>
-                                        <Button icon={<UploadOutlined />} loading={uploading}>Tải lên file</Button>
+                                    <Upload 
+                                        customRequest={(options) => handleUpload(options, "vandon")} 
+                                        maxCount={1} 
+                                        showUploadList={true}
+                                        onRemove={() => setFileVanDon(null)}
+                                        fileList={fileVanDon ? [{
+                                            uid: '-3',
+                                            name: 'File vận đơn',
+                                            status: 'done',
+                                            url: fileVanDon,
+                                        }] : []}
+                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                    >
+                                        <Button icon={<UploadOutlined />} loading={uploading} disabled={!!fileVanDon}>Tải lên file</Button>
                                     </Upload>
-                                    {fileVanDon && (
-                                        <div style={{ marginTop: 8 }}>
-                                            <a href={fileVanDon} target="_blank" rel="noopener noreferrer">Xem file đã tải lên</a>
-                                        </div>
-                                    )}
                                 </Form.Item>
                             </Col>
                         </Row>
@@ -516,12 +550,68 @@ const NhapToKhaiXuat = () => {
                         <Row gutter={24}>
                             <Col span={12}>
                                 <Form.Item label="Số tờ khai" name="so_to_khai" rules={[{ required: true, message: "Vui lòng nhập số tờ khai!" }]}>
-                                    <Input />
+                                    <Input placeholder="Nhập số tờ khai" />
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
-                                <Form.Item label="Ngày tờ khai" name="ngay_dk" rules={[{ required: true, message: "Vui lòng chọn ngày tờ khai!" }]}>
-                                    <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
+                                <Form.Item label="Ngày đăng ký tờ khai" name="ngay_dk" rules={[{ required: true, message: "Vui lòng chọn ngày tờ khai!" }]}>
+                                    <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" placeholder="Chọn ngày" />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item 
+                                    label="Mã tờ khai" 
+                                    name="ma_to_khai"
+                                    rules={[
+                                        { required: true, message: "Vui lòng chọn mã tờ khai!" }
+                                    ]}
+                                >
+                                    <Select placeholder="Chọn mã tờ khai">
+                                        <Option value="G21">G21 - Xuất khẩu thông thường</Option>
+                                        <Option value="G22">G22 - Xuất khẩu ưu đãi</Option>
+                                        <Option value="G23">G23 - Tạm xuất tái nhập</Option>
+                                        <Option value="G24">G24 - Chuyển khẩu</Option>
+                                        <Option value="G61">G61 - Tái xuất</Option>
+                                    </Select>
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item 
+                                    label="Loại hàng" 
+                                    name="loai_hang"
+                                    rules={[
+                                        { required: true, message: "Vui lòng chọn loại hàng!" }
+                                    ]}
+                                >
+                                    <Select placeholder="Chọn loại hàng">
+                                        <Option value="NguyenLieu">Nguyên liệu</Option>
+                                        <Option value="SanPham">Sản phẩm</Option>
+                                        <Option value="BanThanhPham">Bán thành phẩm</Option>
+                                    </Select>
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item 
+                                    label="Ngày thông quan" 
+                                    name="ngay_thong_quan"
+                                    rules={[
+                                        { required: true, message: "Vui lòng chọn ngày thông quan!" }
+                                    ]}
+                                >
+                                    <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" placeholder="Chọn ngày thông quan" />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item 
+                                    label="Cảng xuất" 
+                                    name="cang_xuat"
+                                    rules={[
+                                        { required: true, message: "Vui lòng nhập cảng xuất!" },
+                                        { min: 2, message: "Tên cảng xuất phải có ít nhất 2 ký tự!" },
+                                        { max: 100, message: "Tên cảng xuất không được vượt quá 100 ký tự!" }
+                                    ]}
+                                >
+                                    <Input placeholder="Nhập tên cảng xuất" />
                                 </Form.Item>
                             </Col>
                             <Col span={12}>
@@ -534,16 +624,74 @@ const NhapToKhaiXuat = () => {
                                     <Input style={{ width: "100%" }} disabled value={tienTeList.find(t => t.id_tt === formHoaDonVanDon.getFieldValue('id_tt'))?.ma_tt} />
                                 </Form.Item>
                             </Col>
+                            <Col span={12}>
+                                <Form.Item 
+                                    label="Người xử lý" 
+                                    name="nguoi_xu_ly"
+                                    rules={[
+                                        { min: 2, message: "Tên người xử lý phải có ít nhất 2 ký tự!" },
+                                        { max: 100, message: "Tên người xử lý không được vượt quá 100 ký tự!" }
+                                    ]}
+                                >
+                                    <Input placeholder="Nhập tên người xử lý" />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item label="Ngày xử lý" name="ngay_xu_ly">
+                                    <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" placeholder="Chọn ngày xử lý" />
+                                </Form.Item>
+                            </Col>
                             <Col span={24}>
+                                <Form.Item 
+                                    label="Ghi chú" 
+                                    name="ghi_chu"
+                                    rules={[
+                                        { max: 500, message: "Ghi chú không được vượt quá 500 ký tự!" }
+                                    ]}
+                                >
+                                    <Input.TextArea rows={3} placeholder="Nhập ghi chú (nếu có)" maxLength={500} showCount />
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
                                 <Form.Item label="File scan tờ khai">
-                                    <Upload customRequest={(options) => handleUpload(options, "tokhai")} maxCount={1} showUploadList={false}>
-                                        <Button icon={<UploadOutlined />} loading={uploading}>Tải lên file</Button>
+                                    <Upload 
+                                        customRequest={(options) => handleUpload(options, "tokhai")} 
+                                        maxCount={1} 
+                                        showUploadList={true}
+                                        onRemove={() => setFileToKhai(null)}
+                                        fileList={fileToKhai ? [{
+                                            uid: '-1',
+                                            name: 'File tờ khai',
+                                            status: 'done',
+                                            url: fileToKhai,
+                                        }] : []}
+                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                    >
+                                        <Button icon={<UploadOutlined />} loading={uploading} disabled={!!fileToKhai}>
+                                            Tải lên file tờ khai
+                                        </Button>
                                     </Upload>
-                                    {fileToKhai && (
-                                        <div style={{ marginTop: 8 }}>
-                                            <a href={fileToKhai} target="_blank" rel="noopener noreferrer">Xem file đã tải lên</a>
-                                        </div>
-                                    )}
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item label="File Excel Import">
+                                    <Upload
+                                        customRequest={(options) => handleUpload(options, "excel")}
+                                        maxCount={1}
+                                        showUploadList={true}
+                                        onRemove={() => setFileExcelImport(null)}
+                                        fileList={fileExcelImport ? [{
+                                            uid: '-2',
+                                            name: 'File Excel',
+                                            status: 'done',
+                                            url: fileExcelImport,
+                                        }] : []}
+                                        accept=".xlsx,.xls"
+                                    >
+                                        <Button icon={<UploadOutlined />} loading={uploading} disabled={!!fileExcelImport}>
+                                            Tải lên file Excel
+                                        </Button>
+                                    </Upload>
                                 </Form.Item>
                             </Col>
                         </Row>

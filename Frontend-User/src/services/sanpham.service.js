@@ -69,10 +69,23 @@ export const deleteSanPham = async (id_sp) => {
     }
 };
 
+// Alias exports for compatibility
+export const getAll = getAllSanPham;
+export const getById = getSanPhamById;
+export const create = createSanPham;
+export const update = updateSanPham;
+export const remove = deleteSanPham;
+
 export default {
     getAllSanPham,
     getSanPhamById,
     createSanPham,
     updateSanPham,
     deleteSanPham,
+    // Aliases
+    getAll: getAllSanPham,
+    getById: getSanPhamById,
+    create: createSanPham,
+    update: updateSanPham,
+    remove: deleteSanPham,
 };

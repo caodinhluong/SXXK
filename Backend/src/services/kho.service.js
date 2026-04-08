@@ -8,13 +8,23 @@ const NguyenPhuLieu = db.NguyenPhuLieu;
 const SanPham = db.SanPham;
 const DonViTinhHQ = db.DonViTinhHQ;
 
-const createKho = async ({ id_dn, ten_kho, dia_chi }) => {
+const createKho = async ({ id_dn, ten_kho, dia_chi, ma_kho, loai_kho }) => {
   if (!id_dn || !ten_kho) throw new Error("Thiếu dữ liệu bắt buộc");
-  return await Kho.create({ id_dn, ten_kho, dia_chi });
+  return await Kho.create({ id_dn, ten_kho, dia_chi, ma_kho, loai_kho });
 };
 
-const getAllKho = async (id_dn) => {
-  return await Kho.findAll({  where: { id_dn }, include: [{ model: DoanhNghiep, as: 'doanhNghiep' }] });
+const getAllKho = async (id_dn, filters = {}) => {
+  const where = { id_dn };
+  
+  // Add loai_kho filter if provided
+  if (filters.loai_kho) {
+    where.loai_kho = filters.loai_kho;
+  }
+  
+  return await Kho.findAll({  
+    where, 
+    include: [{ model: DoanhNghiep, as: 'doanhNghiep' }] 
+  });
 };
 
 const getKhoById = async (id_kho) => {

@@ -369,6 +369,276 @@ export const exportBaoCaoToExcel = (baoCaoData, fileName = 'BaoCaoThanhKhoan') =
             XLSX.utils.book_append_sheet(wb, wsDinhMuc, 'Mẫu 16 - Định mức');
         }
         
+        // Sheet 5: Chi tiết Tồn đầu kỳ (JSON data)
+        if (baoCaoData.data_ton_dau_ky) {
+            const tonDauKyData = [
+                ['CHI TIẾT TỒN ĐẦU KỲ'],
+                [],
+                ['NGUYÊN PHỤ LIỆU'],
+                ['Mã NPL', 'Tên NPL', 'Tồn đầu kỳ', 'ĐVT']
+            ];
+            
+            if (baoCaoData.data_ton_dau_ky.npl && baoCaoData.data_ton_dau_ky.npl.length > 0) {
+                baoCaoData.data_ton_dau_ky.npl.forEach(item => {
+                    tonDauKyData.push([
+                        item.ma_npl,
+                        item.ten_npl,
+                        item.ton_dau_ky,
+                        item.don_vi_tinh
+                    ]);
+                });
+            }
+            
+            tonDauKyData.push([]);
+            tonDauKyData.push(['SẢN PHẨM']);
+            tonDauKyData.push(['Mã SP', 'Tên SP', 'Tồn đầu kỳ', 'ĐVT']);
+            
+            if (baoCaoData.data_ton_dau_ky.sp && baoCaoData.data_ton_dau_ky.sp.length > 0) {
+                baoCaoData.data_ton_dau_ky.sp.forEach(item => {
+                    tonDauKyData.push([
+                        item.ma_sp,
+                        item.ten_sp,
+                        item.ton_dau_ky,
+                        item.don_vi_tinh
+                    ]);
+                });
+            }
+            
+            const wsTonDauKy = XLSX.utils.aoa_to_sheet(tonDauKyData);
+            wsTonDauKy['!cols'] = [
+                { wch: 15 },
+                { wch: 40 },
+                { wch: 15 },
+                { wch: 10 }
+            ];
+            
+            XLSX.utils.book_append_sheet(wb, wsTonDauKy, 'Chi tiết Tồn đầu kỳ');
+        }
+        
+        // Sheet 6: Chi tiết Nhập trong kỳ (JSON data)
+        if (baoCaoData.data_nhap_trong_ky) {
+            const nhapTrongKyData = [
+                ['CHI TIẾT NHẬP TRONG KỲ'],
+                [],
+                ['NGUYÊN PHỤ LIỆU'],
+                ['Mã NPL', 'Tên NPL', 'Tái nhập', 'Nhập khác', 'ĐVT']
+            ];
+            
+            if (baoCaoData.data_nhap_trong_ky.npl && baoCaoData.data_nhap_trong_ky.npl.length > 0) {
+                baoCaoData.data_nhap_trong_ky.npl.forEach(item => {
+                    nhapTrongKyData.push([
+                        item.ma_npl,
+                        item.ten_npl,
+                        item.tai_nhap,
+                        item.nhap_khac,
+                        item.don_vi_tinh
+                    ]);
+                });
+            }
+            
+            nhapTrongKyData.push([]);
+            nhapTrongKyData.push(['SẢN PHẨM']);
+            nhapTrongKyData.push(['Mã SP', 'Tên SP', 'Nhập kho trong kỳ', 'ĐVT']);
+            
+            if (baoCaoData.data_nhap_trong_ky.sp && baoCaoData.data_nhap_trong_ky.sp.length > 0) {
+                baoCaoData.data_nhap_trong_ky.sp.forEach(item => {
+                    nhapTrongKyData.push([
+                        item.ma_sp,
+                        item.ten_sp,
+                        item.nhap_kho_trong_ky,
+                        item.don_vi_tinh
+                    ]);
+                });
+            }
+            
+            const wsNhapTrongKy = XLSX.utils.aoa_to_sheet(nhapTrongKyData);
+            wsNhapTrongKy['!cols'] = [
+                { wch: 15 },
+                { wch: 40 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 10 }
+            ];
+            
+            XLSX.utils.book_append_sheet(wb, wsNhapTrongKy, 'Chi tiết Nhập trong kỳ');
+        }
+        
+        // Sheet 7: Chi tiết Xuất trong kỳ (JSON data)
+        if (baoCaoData.data_xuat_trong_ky) {
+            const xuatTrongKyData = [
+                ['CHI TIẾT XUẤT TRONG KỲ'],
+                [],
+                ['NGUYÊN PHỤ LIỆU'],
+                ['Mã NPL', 'Tên NPL', 'Xuất SX', 'Chuyển MĐ', 'ĐVT']
+            ];
+            
+            if (baoCaoData.data_xuat_trong_ky.npl && baoCaoData.data_xuat_trong_ky.npl.length > 0) {
+                baoCaoData.data_xuat_trong_ky.npl.forEach(item => {
+                    xuatTrongKyData.push([
+                        item.ma_npl,
+                        item.ten_npl,
+                        item.xuat_san_pham,
+                        item.thay_doi_muc_dich,
+                        item.don_vi_tinh
+                    ]);
+                });
+            }
+            
+            xuatTrongKyData.push([]);
+            xuatTrongKyData.push(['SẢN PHẨM']);
+            xuatTrongKyData.push(['Mã SP', 'Tên SP', 'Xuất khẩu', 'Xuất khác', 'Chuyển MĐ', 'ĐVT']);
+            
+            if (baoCaoData.data_xuat_trong_ky.sp && baoCaoData.data_xuat_trong_ky.sp.length > 0) {
+                baoCaoData.data_xuat_trong_ky.sp.forEach(item => {
+                    xuatTrongKyData.push([
+                        item.ma_sp,
+                        item.ten_sp,
+                        item.xuat_khau,
+                        item.xuat_khac,
+                        item.chuyen_muc_dich,
+                        item.don_vi_tinh
+                    ]);
+                });
+            }
+            
+            const wsXuatTrongKy = XLSX.utils.aoa_to_sheet(xuatTrongKyData);
+            wsXuatTrongKy['!cols'] = [
+                { wch: 15 },
+                { wch: 40 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 15 },
+                { wch: 10 }
+            ];
+            
+            XLSX.utils.book_append_sheet(wb, wsXuatTrongKy, 'Chi tiết Xuất trong kỳ');
+        }
+        
+        // Sheet 8: Chi tiết Tồn cuối kỳ (JSON data)
+        if (baoCaoData.data_ton_cuoi_ky) {
+            const tonCuoiKyData = [
+                ['CHI TIẾT TỒN CUỐI KỲ'],
+                [],
+                ['NGUYÊN PHỤ LIỆU'],
+                ['Mã NPL', 'Tên NPL', 'Tồn cuối kỳ', 'ĐVT']
+            ];
+            
+            if (baoCaoData.data_ton_cuoi_ky.npl && baoCaoData.data_ton_cuoi_ky.npl.length > 0) {
+                baoCaoData.data_ton_cuoi_ky.npl.forEach(item => {
+                    tonCuoiKyData.push([
+                        item.ma_npl,
+                        item.ten_npl,
+                        item.ton_cuoi_ky,
+                        item.don_vi_tinh
+                    ]);
+                });
+            }
+            
+            tonCuoiKyData.push([]);
+            tonCuoiKyData.push(['SẢN PHẨM']);
+            tonCuoiKyData.push(['Mã SP', 'Tên SP', 'Tồn cuối kỳ', 'ĐVT']);
+            
+            if (baoCaoData.data_ton_cuoi_ky.sp && baoCaoData.data_ton_cuoi_ky.sp.length > 0) {
+                baoCaoData.data_ton_cuoi_ky.sp.forEach(item => {
+                    tonCuoiKyData.push([
+                        item.ma_sp,
+                        item.ten_sp,
+                        item.ton_cuoi_ky,
+                        item.don_vi_tinh
+                    ]);
+                });
+            }
+            
+            const wsTonCuoiKy = XLSX.utils.aoa_to_sheet(tonCuoiKyData);
+            wsTonCuoiKy['!cols'] = [
+                { wch: 15 },
+                { wch: 40 },
+                { wch: 15 },
+                { wch: 10 }
+            ];
+            
+            XLSX.utils.book_append_sheet(wb, wsTonCuoiKy, 'Chi tiết Tồn cuối kỳ');
+        }
+        
+        // Sheet 9: Chi tiết Định mức (JSON data)
+        if (baoCaoData.data_dinh_muc && baoCaoData.data_dinh_muc.items && baoCaoData.data_dinh_muc.items.length > 0) {
+            const dinhMucDetailData = [
+                ['CHI TIẾT ĐỊNH MỨC SẢN XUẤT'],
+                [],
+                ['Mã SP', 'Tên SP', 'ĐVT SP', 'Mã NPL', 'Tên NPL', 'ĐVT NPL', 'Định mức/1SP', 'Ghi chú']
+            ];
+            
+            baoCaoData.data_dinh_muc.items.forEach(item => {
+                dinhMucDetailData.push([
+                    item.ma_sp,
+                    item.ten_sp,
+                    item.don_vi_tinh_sp,
+                    item.ma_npl,
+                    item.ten_npl,
+                    item.don_vi_tinh_npl,
+                    item.luong_sd,
+                    item.ghi_chu || ''
+                ]);
+            });
+            
+            const wsDinhMucDetail = XLSX.utils.aoa_to_sheet(dinhMucDetailData);
+            wsDinhMucDetail['!cols'] = [
+                { wch: 12 },
+                { wch: 30 },
+                { wch: 10 },
+                { wch: 12 },
+                { wch: 30 },
+                { wch: 10 },
+                { wch: 15 },
+                { wch: 20 }
+            ];
+            
+            XLSX.utils.book_append_sheet(wb, wsDinhMucDetail, 'Chi tiết Định mức');
+        }
+        
+        // Sheet 10: Đối soát & Cảnh báo (JSON data)
+        if (baoCaoData.data_doi_soat && (baoCaoData.data_doi_soat.npl?.length > 0 || baoCaoData.data_doi_soat.sp?.length > 0)) {
+            const doiSoatData = [
+                ['ĐỐI SOÁT & CẢNH BÁO'],
+                [],
+                ['CẢNH BÁO NGUYÊN PHỤ LIỆU'],
+                ['Mã NPL', 'Tên NPL', 'Vấn đề']
+            ];
+            
+            if (baoCaoData.data_doi_soat.npl && baoCaoData.data_doi_soat.npl.length > 0) {
+                baoCaoData.data_doi_soat.npl.forEach(item => {
+                    doiSoatData.push([
+                        item.ma_npl,
+                        item.ten_npl,
+                        item.ghi_chu
+                    ]);
+                });
+            }
+            
+            doiSoatData.push([]);
+            doiSoatData.push(['CẢNH BÁO SẢN PHẨM']);
+            doiSoatData.push(['Mã SP', 'Tên SP', 'Vấn đề']);
+            
+            if (baoCaoData.data_doi_soat.sp && baoCaoData.data_doi_soat.sp.length > 0) {
+                baoCaoData.data_doi_soat.sp.forEach(item => {
+                    doiSoatData.push([
+                        item.ma_sp,
+                        item.ten_sp,
+                        item.ghi_chu
+                    ]);
+                });
+            }
+            
+            const wsDoiSoat = XLSX.utils.aoa_to_sheet(doiSoatData);
+            wsDoiSoat['!cols'] = [
+                { wch: 15 },
+                { wch: 40 },
+                { wch: 50 }
+            ];
+            
+            XLSX.utils.book_append_sheet(wb, wsDoiSoat, 'Đối soát & Cảnh báo');
+        }
+        
         // Xuất file
         const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
         const blob = new Blob([wbout], { type: 'application/octet-stream' });

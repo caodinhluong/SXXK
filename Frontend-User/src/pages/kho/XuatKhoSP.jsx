@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Form, Select, DatePicker, Button, Table, InputNumber, Typography, Tag, Space, Row, Col, Card, Drawer, Descriptions, Popconfirm } from 'antd';
+import { Form, Select, DatePicker, Button, Table, InputNumber, Typography, Tag, Space, Row, Col, Card, Drawer, Descriptions, Popconfirm, Input } from 'antd';
 import { SendOutlined, EyeOutlined, EditOutlined, DeleteOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import axios from 'axios';
@@ -172,6 +172,7 @@ const XuatKhoSP = () => {
         const payload = {
             id_kho: values.id_kho,
             ngay_xuat: dayjs(values.ngay_xuat).format("YYYY-MM-DD"),
+            ca_kip: values.ca_kip || null,
             chi_tiets: chiTietXuat.map(item => ({ 
                 id_sp: item.id_sp, 
                 so_luong: item.so_luong_xuat
@@ -214,6 +215,7 @@ const XuatKhoSP = () => {
                 id_kho: record.kho.id_kho,
                 id_hd_xuat: record.hoaDonXuat?.id_hd_xuat,
                 ngay_xuat: dayjs(record.ngay_xuat),
+                ca_kip: record.ca_kip || '',
             });
             
             if (record.hoaDonXuat) {
@@ -282,6 +284,7 @@ const XuatKhoSP = () => {
         { title: 'Số phiếu', dataIndex: 'so_phieu', render: (text, record) => text || `PXKSP-${record.id_xuat}` }, 
         { title: 'Ngày xuất', dataIndex: 'ngay_xuat', render: (text) => text ? dayjs(text).format('DD/MM/YYYY') : '-' },
         { title: 'Kho xuất', dataIndex: ['kho', 'ten_kho'] },
+        { title: 'Ca kíp', dataIndex: 'ca_kip', render: (text) => text || '-' },
         { title: 'Hành động', key: 'action', width: 220, align: 'center', render: (_, record) => (
             <Space>
                 <Button size="small" icon={<EyeOutlined />} onClick={() => showDrawer(record)}>Xem</Button>
@@ -308,6 +311,9 @@ const XuatKhoSP = () => {
                         <Col span={8}><Form.Item label="Hóa đơn xuất" name="id_hd_xuat" rules={[requiredSelectRule('hóa đơn xuất')]}><Select placeholder="Chọn hóa đơn" onChange={handleHoaDonChange} disabled={!selectedKhoId}>{hoaDonXuatList.map(hd => <Option key={hd.id_hd_xuat} value={hd.id_hd_xuat}>{hd.so_hd}</Option>)}</Select></Form.Item></Col>
                         <Col span={8}><Form.Item label="Ngày xuất kho" name="ngay_xuat" rules={pastDateRules('ngày xuất')}><DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" placeholder="Chọn ngày xuất" /></Form.Item></Col>
                     </Row>
+                    <Row gutter={24}>
+                        <Col span={8}><Form.Item label="Ca kíp" name="ca_kip"><Input placeholder="Nhập ca kíp (ví dụ: Ca 1, Ca 2, Ca sáng...)" /></Form.Item></Col>
+                    </Row>
                     <Title level={4}>Chi tiết Sản Phẩm Xuất Kho</Title>
                     <Table columns={columns} dataSource={chiTietXuat} pagination={false} rowKey="key" bordered/>
                     <Form.Item style={{ marginTop: 24 }}>
@@ -330,6 +336,7 @@ const XuatKhoSP = () => {
                     <Descriptions bordered column={1} size="small" style={{ marginBottom: 24 }}>
                         <Descriptions.Item label="Ngày xuất">{dayjs(selectedPhieu.ngay_xuat).format('DD/MM/YYYY')}</Descriptions.Item>
                         <Descriptions.Item label="Kho xuất">{selectedPhieu.kho?.ten_kho}</Descriptions.Item>
+                        <Descriptions.Item label="Ca kíp">{selectedPhieu.ca_kip || '-'}</Descriptions.Item>
                     </Descriptions>
                     <Title level={5}>Danh sách sản phẩm đã xuất</Title>
                     <Table columns={chiTietColumns} dataSource={selectedPhieu.chiTiets || []} rowKey="id_ct" pagination={false} size="small" bordered />

@@ -1,4 +1,5 @@
 import { createApiInstance } from "./apiConfig";
+import { formatServiceError, logError } from "../utils/errorHandler";
 
 // 🔹 Base URL cho API kho
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/kho`;
@@ -11,13 +12,22 @@ const api = createApiInstance(API_BASE_URL);
 // =======================
 
 // 🟢 Tạo kho mới
+// Payload structure:
+// {
+//   ten_kho: string (required) - Tên kho,
+//   ma_kho: string (optional) - Mã kho,
+//   loai_kho: string (optional) - Loại kho,
+//   dia_chi: string (optional) - Địa chỉ,
+//   id_dn: number (optional) - Doanh nghiệp ID (auto-filled from auth)
+// }
 export const createKho = async (data) => {
     try {
         const res = await api.post("/", data);
+        // Backend returns { message, data }
         return res.data;
     } catch (err) {
-        console.error("Lỗi createKho:", err);
-        throw err.response?.data || { message: "Lỗi kết nối máy chủ" };
+        logError("createKho", err);
+        throw formatServiceError(err, "Lỗi khi tạo kho");
     }
 };
 
@@ -29,8 +39,8 @@ export const getAllKho = async () => {
         const data = res.data?.data || res.data || [];
         return { data: Array.isArray(data) ? data : [] };
     } catch (err) {
-        console.error("Lỗi getAllKho:", err);
-        throw err.response?.data || { message: "Lỗi kết nối máy chủ" };
+        logError("getAllKho", err);
+        throw formatServiceError(err, "Lỗi khi lấy danh sách kho");
     }
 };
 
@@ -38,21 +48,24 @@ export const getAllKho = async () => {
 export const getKhoById = async (id_kho) => {
     try {
         const res = await api.get(`/${id_kho}`);
-        return res.data;
+        // Backend returns { success: true, data: {...} }
+        return res.data?.data || res.data;
     } catch (err) {
-        console.error("Lỗi getKhoById:", err);
-        throw err.response?.data || { message: "Lỗi kết nối máy chủ" };
+        logError("getKhoById", err);
+        throw formatServiceError(err, "Lỗi khi lấy chi tiết kho");
     }
 };
 
 // 🟣 Cập nhật kho
+// Payload structure: Same as createKho (all fields optional)
 export const updateKho = async (id_kho, data) => {
     try {
         const res = await api.put(`/${id_kho}`, data);
+        // Backend returns { message, data }
         return res.data;
     } catch (err) {
-        console.error("Lỗi updateKho:", err);
-        throw err.response?.data || { message: "Lỗi kết nối máy chủ" };
+        logError("updateKho", err);
+        throw formatServiceError(err, "Lỗi khi cập nhật kho");
     }
 };
 
@@ -60,10 +73,11 @@ export const updateKho = async (id_kho, data) => {
 export const deleteKho = async (id_kho) => {
     try {
         const res = await api.delete(`/${id_kho}`);
+        // Backend returns { message }
         return res.data;
     } catch (err) {
-        console.error("Lỗi deleteKho:", err);
-        throw err.response?.data || { message: "Lỗi kết nối máy chủ" };
+        logError("deleteKho", err);
+        throw formatServiceError(err, "Lỗi khi xóa kho");
     }
 };
 
@@ -78,8 +92,8 @@ export const getTonKhoNPLByKho = async (id_kho) => {
         const data = res.data?.data || res.data || [];
         return { data: Array.isArray(data) ? data : [] };
     } catch (err) {
-        console.error("Lỗi getTonKhoNPLByKho:", err);
-        throw err.response?.data || { message: "Lỗi kết nối máy chủ" };
+        logError("getTonKhoNPLByKho", err);
+        throw formatServiceError(err, "Lỗi khi lấy tồn kho NPL");
     }
 };
 
@@ -90,8 +104,8 @@ export const getTonKhoSPByKho = async (id_kho) => {
         const data = res.data?.data || res.data || [];
         return { data: Array.isArray(data) ? data : [] };
     } catch (err) {
-        console.error("Lỗi getTonKhoSPByKho:", err);
-        throw err.response?.data || { message: "Lỗi kết nối máy chủ" };
+        logError("getTonKhoSPByKho", err);
+        throw formatServiceError(err, "Lỗi khi lấy tồn kho SP");
     }
 };
 

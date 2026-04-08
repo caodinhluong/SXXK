@@ -1,4 +1,5 @@
 import { createApiInstance } from "./apiConfig";
+import { formatServiceError, logError } from "../utils/errorHandler";
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/nhapkho-sp`;
 
@@ -10,10 +11,11 @@ const api = createApiInstance(API_BASE_URL);
 export const getAllNhapKhoSP = async () => {
     try {
         const res = await api.get("/");
-        return res.data; // { success, data }
+        // Backend returns { success: true, data: [...] }
+        return res.data?.data || res.data || [];
     } catch (err) {
-        console.error("❌ Lỗi getAllNhapKhoSP:", err);
-        throw err.response?.data || { message: "Lỗi khi lấy danh sách phiếu nhập SP" };
+        logError("getAllNhapKhoSP", err);
+        throw formatServiceError(err, "Lỗi khi lấy danh sách phiếu nhập SP");
     }
 };
 
@@ -23,36 +25,65 @@ export const getAllNhapKhoSP = async () => {
 export const getNhapKhoSPById = async (id_nhap) => {
     try {
         const res = await api.get(`/${id_nhap}`);
-        return res.data; // { success, data }
+        // Backend returns { success: true, data: {...} }
+        return res.data?.data || res.data;
     } catch (err) {
-        console.error("❌ Lỗi getNhapKhoSPById:", err);
-        throw err.response?.data || { message: "Lỗi khi lấy chi tiết phiếu nhập SP" };
+        logError("getNhapKhoSPById", err);
+        throw formatServiceError(err, "Lỗi khi lấy chi tiết phiếu nhập SP");
     }
 };
 
 /* ============================================================
    🟢 TẠO MỚI PHIẾU NHẬP SẢN PHẨM
+   Payload structure:
+   {
+     id_kho: number (required),
+     id_phieu_sx: number (required),
+     ngay_nhap: date (required),
+     file_phieu: string (optional),
+     chi_tiets: [
+       {
+         id_sp: number (required),
+         so_luong_nhap: number (required) // NOTE: Use 'so_luong_nhap', not 'so_luong'
+       }
+     ]
+   }
 ============================================================ */
 export const createNhapKhoSP = async (payload) => {
     try {
         const res = await api.post("/", payload);
-        return res.data; // { success, message, data }
+        // Backend returns { success: true, message, data }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi createNhapKhoSP:", err);
-        throw err.response?.data || { message: "Lỗi khi tạo phiếu nhập SP" };
+        logError("createNhapKhoSP", err);
+        throw formatServiceError(err, "Lỗi khi tạo phiếu nhập SP");
     }
 };
 
 /* ============================================================
    🟢 CẬP NHẬT PHIẾU NHẬP SẢN PHẨM
+   Payload structure:
+   {
+     id_kho: number (optional),
+     id_phieu_sx: number (optional),
+     ngay_nhap: date (optional),
+     file_phieu: string (optional),
+     chi_tiets: [
+       {
+         id_sp: number (required),
+         so_luong_nhap: number (required) // NOTE: Use 'so_luong_nhap', not 'so_luong'
+       }
+     ]
+   }
 ============================================================ */
 export const updateNhapKhoSP = async (id_nhap, payload) => {
     try {
         const res = await api.put(`/${id_nhap}`, payload);
-        return res.data; // { success, message, data }
+        // Backend returns { success: true, message, data }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi updateNhapKhoSP:", err);
-        throw err.response?.data || { message: "Lỗi khi cập nhật phiếu nhập SP" };
+        logError("updateNhapKhoSP", err);
+        throw formatServiceError(err, "Lỗi khi cập nhật phiếu nhập SP");
     }
 };
 
@@ -62,24 +93,27 @@ export const updateNhapKhoSP = async (id_nhap, payload) => {
 export const deleteNhapKhoSP = async (id_nhap) => {
     try {
         const res = await api.delete(`/${id_nhap}`);
-        return res.data; // { success, message }
+        // Backend returns { success: true, message }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi deleteNhapKhoSP:", err);
-        throw err.response?.data || { message: "Lỗi khi xóa phiếu nhập SP" };
+        logError("deleteNhapKhoSP", err);
+        throw formatServiceError(err, "Lỗi khi xóa phiếu nhập SP");
     }
 };
 
 /* ============================================================
    🟢 THÊM CHI TIẾT PHIẾU NHẬP SẢN PHẨM
-   body yêu cầu: { id_sp, so_luong }
+   body yêu cầu: { id_nhap, id_sp, so_luong_nhap }
+   NOTE: Backend expects 'so_luong_nhap' field, not 'so_luong'
 ============================================================ */
 export const addChiTietNhapKhoSP = async (id_nhap, payload) => {
     try {
         const res = await api.post(`/${id_nhap}/chi-tiet`, payload);
-        return res.data; // { success, data }
+        // Backend returns { success: true, data }
+        return res.data?.data || res.data;
     } catch (err) {
-        console.error("❌ Lỗi addChiTietNhapKhoSP:", err);
-        throw err.response?.data || { message: "Lỗi khi thêm chi tiết phiếu nhập SP" };
+        logError("addChiTietNhapKhoSP", err);
+        throw formatServiceError(err, "Lỗi khi thêm chi tiết phiếu nhập SP");
     }
 };
 
@@ -89,10 +123,11 @@ export const addChiTietNhapKhoSP = async (id_nhap, payload) => {
 export const getChiTietByPhieuNhapSP = async (id_nhap) => {
     try {
         const res = await api.get(`/${id_nhap}/chi-tiet`);
-        return res.data; // { success, data }
+        // Backend returns { success: true, data: [...] }
+        return res.data?.data || res.data || [];
     } catch (err) {
-        console.error("❌ Lỗi getChiTietByPhieuNhapSP:", err);
-        throw err.response?.data || { message: "Lỗi khi lấy chi tiết phiếu nhập SP" };
+        logError("getChiTietByPhieuNhapSP", err);
+        throw formatServiceError(err, "Lỗi khi lấy chi tiết phiếu nhập SP");
     }
 };
 
@@ -102,10 +137,11 @@ export const getChiTietByPhieuNhapSP = async (id_nhap) => {
 export const deleteChiTietNhapKhoSP = async (id_ct) => {
     try {
         const res = await api.delete(`/chi-tiet/${id_ct}`);
-        return res.data; // { success, message }
+        // Backend returns { success: true, message }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi deleteChiTietNhapKhoSP:", err);
-        throw err.response?.data || { message: "Lỗi khi xóa chi tiết phiếu nhập SP" };
+        logError("deleteChiTietNhapKhoSP", err);
+        throw formatServiceError(err, "Lỗi khi xóa chi tiết phiếu nhập SP");
     }
 };
 

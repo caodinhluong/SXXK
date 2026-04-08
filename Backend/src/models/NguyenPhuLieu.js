@@ -9,6 +9,8 @@ module.exports = (sequelize, DataTypes) => {
       NguyenPhuLieu.hasMany(models.HoaDonNhapChiTiet, { foreignKey: 'id_npl', as: 'hoaDonNhapChiTiets' });
       NguyenPhuLieu.hasMany(models.TonKhoNPL, { foreignKey: 'id_npl', as: 'tonKhoNPLs' });
       NguyenPhuLieu.hasMany(models.QuyDoiNPL, { foreignKey: 'id_npl', as: 'quyDoiNPLs' });
+      NguyenPhuLieu.hasMany(models.LichSuTonKhoNPL, { foreignKey: 'id_npl', as: 'lichSuTonKhoNPLs' });
+      NguyenPhuLieu.hasMany(models.HoaDonNoiDiaChiTiet, { foreignKey: 'id_npl', as: 'hoaDonNoiDiaChiTiets' });
     }
   }
   NguyenPhuLieu.init({
@@ -16,7 +18,16 @@ module.exports = (sequelize, DataTypes) => {
     ten_npl: { type: DataTypes.STRING(255), allowNull: false },
     mo_ta: { type: DataTypes.TEXT, allowNull: true },
     id_dvt_hq: { type: DataTypes.INTEGER, allowNull: false },
-    id_dn: { type: DataTypes.INTEGER, allowNull: false }
+    id_dn: { type: DataTypes.INTEGER, allowNull: false },
+    loai_npl: { 
+      type: DataTypes.ENUM('NguyenLieu', 'PhuLieu', 'BaoBi'), 
+      allowNull: true,
+      defaultValue: 'NguyenLieu'
+    },
+    ma_phan_loai: { 
+      type: DataTypes.STRING(50), 
+      allowNull: true 
+    }
   }, {
     sequelize,
     modelName: 'NguyenPhuLieu',

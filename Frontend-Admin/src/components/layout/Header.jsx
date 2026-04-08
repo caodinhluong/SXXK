@@ -31,7 +31,6 @@ const AppHeader = ({ collapsed, setCollapsed }) => {
     });
     navigate('/login');
   };
-
   const handleGoToProfile = () => {
     navigate('/tai-khoan');
   };

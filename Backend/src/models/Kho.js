@@ -11,6 +11,8 @@ module.exports = (sequelize, DataTypes) => {
       Kho.hasMany(models.XuatKhoSP, { foreignKey: 'id_kho', as: 'xuatKhoSPs' });
       Kho.hasMany(models.TonKhoNPL, { foreignKey: 'id_kho', as: 'tonKhoNPLs' });
       Kho.hasMany(models.TonKhoSP, { foreignKey: 'id_kho', as: 'tonKhoSPs' });
+      Kho.hasMany(models.LichSuTonKhoNPL, { foreignKey: 'id_kho', as: 'lichSuTonKhoNPLs' });
+      Kho.hasMany(models.LichSuTonKhoSP, { foreignKey: 'id_kho', as: 'lichSuTonKhoSPs' });
     }
   }
 
@@ -18,7 +20,13 @@ module.exports = (sequelize, DataTypes) => {
     id_kho: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     id_dn: { type: DataTypes.INTEGER, allowNull: false },
     ten_kho: { type: DataTypes.STRING(255), allowNull: false },
-    dia_chi: { type: DataTypes.STRING(255), allowNull: true }
+    dia_chi: { type: DataTypes.STRING(255), allowNull: true },
+    ma_kho: { type: DataTypes.STRING(50), allowNull: true },
+    loai_kho: { 
+      type: DataTypes.ENUM('NguyenLieu', 'ThanhPham', 'BanThanhPham', 'TongHop'), 
+      allowNull: true,
+      defaultValue: 'TongHop'
+    }
   }, {
     sequelize,
     modelName: 'Kho',

@@ -14,7 +14,7 @@ class NotificationHistoryService {
       const data = localStorage.getItem(STORAGE_KEY);
       return data ? JSON.parse(data) : [];
     } catch (error) {
-      console.error('Error reading notification history:', error);
+      console.error('❌ Error reading notification history:', error);
       return [];
     }
   }
@@ -48,7 +48,7 @@ class NotificationHistoryService {
 
       return newNotification;
     } catch (error) {
-      console.error('Error adding notification:', error);
+      console.error('❌ Error adding notification:', error);
       return null;
     }
   }
@@ -67,7 +67,7 @@ class NotificationHistoryService {
       window.dispatchEvent(new Event('notificationUpdated'));
       return true;
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error('❌ Error marking notification as read:', error);
       return false;
     }
   }
@@ -84,7 +84,7 @@ class NotificationHistoryService {
       window.dispatchEvent(new Event('notificationUpdated'));
       return true;
     } catch (error) {
-      console.error('Error marking all as read:', error);
+      console.error('❌ Error marking all as read:', error);
       return false;
     }
   }
@@ -101,7 +101,7 @@ class NotificationHistoryService {
       window.dispatchEvent(new Event('notificationUpdated'));
       return true;
     } catch (error) {
-      console.error('Error removing notification:', error);
+      console.error('❌ Error removing notification:', error);
       return false;
     }
   }
@@ -115,7 +115,7 @@ class NotificationHistoryService {
       window.dispatchEvent(new Event('notificationUpdated'));
       return true;
     } catch (error) {
-      console.error('Error clearing notifications:', error);
+      console.error('❌ Error clearing notifications:', error);
       return false;
     }
   }
@@ -124,24 +124,39 @@ class NotificationHistoryService {
    * Lấy số lượng thông báo chưa đọc
    */
   getUnreadCount() {
-    const notifications = this.getAll();
-    return notifications.filter(n => !n.read).length;
+    try {
+      const notifications = this.getAll();
+      return notifications.filter(n => !n.read).length;
+    } catch (error) {
+      console.error('❌ Error getting unread count:', error);
+      return 0;
+    }
   }
 
   /**
    * Lấy thông báo theo loại
    */
   getByType(type) {
-    const notifications = this.getAll();
-    return notifications.filter(n => n.type === type);
+    try {
+      const notifications = this.getAll();
+      return notifications.filter(n => n.type === type);
+    } catch (error) {
+      console.error('❌ Error getting notifications by type:', error);
+      return [];
+    }
   }
 
   /**
    * Lấy thông báo chưa đọc
    */
   getUnread() {
-    const notifications = this.getAll();
-    return notifications.filter(n => !n.read);
+    try {
+      const notifications = this.getAll();
+      return notifications.filter(n => !n.read);
+    } catch (error) {
+      console.error('❌ Error getting unread notifications:', error);
+      return [];
+    }
   }
 }
 

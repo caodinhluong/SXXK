@@ -1,4 +1,5 @@
 import { createApiInstance } from "./apiConfig";
+import { formatServiceError, logError } from "../utils/errorHandler";
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/xuatkho-sp`;
 
@@ -10,10 +11,11 @@ const api = createApiInstance(API_BASE_URL);
 export const getAllXuatKhoSP = async () => {
     try {
         const res = await api.get("/");
-        return res.data; // { success, data }
+        // Backend returns { success: true, data: [...] }
+        return res.data?.data || res.data || [];
     } catch (err) {
-        console.error("❌ Lỗi getAllXuatKhoSP:", err);
-        throw err.response?.data || { message: "Lỗi khi lấy danh sách phiếu xuất SP" };
+        logError("getAllXuatKhoSP", err);
+        throw formatServiceError(err, "Lỗi khi lấy danh sách phiếu xuất SP");
     }
 };
 
@@ -23,10 +25,11 @@ export const getAllXuatKhoSP = async () => {
 export const getXuatKhoSPById = async (id_xuat) => {
     try {
         const res = await api.get(`/${id_xuat}`);
-        return res.data; // { success, data }
+        // Backend returns { success: true, data: {...} }
+        return res.data?.data || res.data;
     } catch (err) {
-        console.error("❌ Lỗi getXuatKhoSPById:", err);
-        throw err.response?.data || { message: "Lỗi khi lấy chi tiết phiếu xuất SP" };
+        logError("getXuatKhoSPById", err);
+        throw formatServiceError(err, "Lỗi khi lấy chi tiết phiếu xuất SP");
     }
 };
 
@@ -37,10 +40,11 @@ export const getXuatKhoSPById = async (id_xuat) => {
 export const createXuatKhoSP = async (payload) => {
     try {
         const res = await api.post("/", payload);
-        return res.data; // { success, message, data }
+        // Backend returns { success: true, message, data }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi createXuatKhoSP:", err);
-        throw err.response?.data || { message: "Lỗi khi tạo phiếu xuất SP" };
+        logError("createXuatKhoSP", err);
+        throw formatServiceError(err, "Lỗi khi tạo phiếu xuất SP");
     }
 };
 
@@ -50,10 +54,11 @@ export const createXuatKhoSP = async (payload) => {
 export const updateXuatKhoSP = async (id_xuat, payload) => {
     try {
         const res = await api.put(`/${id_xuat}`, payload);
-        return res.data; // { success, message, data }
+        // Backend returns { success: true, message, data }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi updateXuatKhoSP:", err);
-        throw err.response?.data || { message: "Lỗi khi cập nhật phiếu xuất SP" };
+        logError("updateXuatKhoSP", err);
+        throw formatServiceError(err, "Lỗi khi cập nhật phiếu xuất SP");
     }
 };
 
@@ -63,10 +68,11 @@ export const updateXuatKhoSP = async (id_xuat, payload) => {
 export const deleteXuatKhoSP = async (id_xuat) => {
     try {
         const res = await api.delete(`/${id_xuat}`);
-        return res.data; // { success, message }
+        // Backend returns { success: true, message }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi deleteXuatKhoSP:", err);
-        throw err.response?.data || { message: "Lỗi khi xóa phiếu xuất SP" };
+        logError("deleteXuatKhoSP", err);
+        throw formatServiceError(err, "Lỗi khi xóa phiếu xuất SP");
     }
 };
 
@@ -79,10 +85,11 @@ export const addChiTiet = async (id_xuat, payload) => {
         // 👇 backend cần cả id_xuat trong body
         const data = { id_xuat, ...payload };
         const res = await api.post(`/${id_xuat}/chi-tiet`, data);
-        return res.data; // { success, data }
+        // Backend returns { success: true, data }
+        return res.data?.data || res.data;
     } catch (err) {
-        console.error("❌ Lỗi addChiTiet:", err);
-        throw err.response?.data || { message: "Lỗi khi thêm chi tiết phiếu xuất SP" };
+        logError("addChiTiet", err);
+        throw formatServiceError(err, "Lỗi khi thêm chi tiết phiếu xuất SP");
     }
 };
 
@@ -92,10 +99,11 @@ export const addChiTiet = async (id_xuat, payload) => {
 export const getChiTiet = async (id_xuat) => {
     try {
         const res = await api.get(`/${id_xuat}/chi-tiet`);
-        return res.data; // { success, data }
+        // Backend returns { success: true, data: [...] }
+        return res.data?.data || res.data || [];
     } catch (err) {
-        console.error("❌ Lỗi getChiTiet:", err);
-        throw err.response?.data || { message: "Lỗi khi lấy chi tiết phiếu xuất SP" };
+        logError("getChiTiet", err);
+        throw formatServiceError(err, "Lỗi khi lấy chi tiết phiếu xuất SP");
     }
 };
 
@@ -105,10 +113,11 @@ export const getChiTiet = async (id_xuat) => {
 export const deleteChiTiet = async (id_ct) => {
     try {
         const res = await api.delete(`/chi-tiet/${id_ct}`);
-        return res.data; // { success, message }
+        // Backend returns { success: true, message }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi deleteChiTiet:", err);
-        throw err.response?.data || { message: "Lỗi khi xóa chi tiết phiếu xuất SP" };
+        logError("deleteChiTiet", err);
+        throw formatServiceError(err, "Lỗi khi xóa chi tiết phiếu xuất SP");
     }
 };
 

@@ -52,7 +52,15 @@ export const createApiInstance = (baseURL) => {
             return response;
         },
         (error) => {
-            // Handle 401 Unauthorized - session expired
+            // Enhance error object with structured information
+            const enhancedError = {
+                ...error,
+                status: error.response?.status,
+                data: error.response?.data,
+                message: error.response?.data?.message || error.response?.data?.error || error.message
+            };
+
+            // Handle 401 Unauthorized - session expired or invalid token
             if (error.response?.status === 401) {
                 console.error('🔒 401 Unauthorized - Token invalid or expired');
                 console.error('Request URL:', error.config?.url);
@@ -72,7 +80,30 @@ export const createApiInstance = (baseURL) => {
                 }
             }
             
-            return Promise.reject(error);
+            // Handle 403 Forbidden - insufficient permissions
+            if (error.response?.status === 403) {
+                console.error('🚫 403 Forbidden - Insufficient permissions');
+                console.error('Request URL:', error.config?.url);
+                console.error('Response:', error.response?.data);
+                
+                // Show warning notification
+                showWarning(
+                    'Không có quyền truy cập', 
+                    'Bạn không có quyền thực hiện thao tác này'
+                );
+            }
+            
+            // Log other errors for debugging
+            if (error.response?.status >= 400) {
+                console.error(`❌ API Error ${error.response.status}:`, {
+                    url: error.config?.url,
+                    method: error.config?.method,
+                    data: error.response?.data,
+                    message: enhancedError.message
+                });
+            }
+            
+            return Promise.reject(enhancedError);
         }
     );
 

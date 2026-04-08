@@ -69,10 +69,23 @@ export const deleteNguyenPhuLieu = async (id_nguyenlieu) => {
     }
 };
 
+// Alias exports for compatibility
+export const getAll = getAllNguyenPhuLieu;
+export const getById = getNguyenPhuLieuById;
+export const create = createNguyenPhuLieu;
+export const update = updateNguyenPhuLieu;
+export const remove = deleteNguyenPhuLieu;
+
 export default {
     getAllNguyenPhuLieu,
     getNguyenPhuLieuById,
     createNguyenPhuLieu,
     updateNguyenPhuLieu,
     deleteNguyenPhuLieu,
+    // Aliases
+    getAll: getAllNguyenPhuLieu,
+    getById: getNguyenPhuLieuById,
+    create: createNguyenPhuLieu,
+    update: updateNguyenPhuLieu,
+    remove: deleteNguyenPhuLieu,
 };

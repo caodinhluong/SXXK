@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import { logout } from '../../services/auth.service';
 import NotificationCenter from '../notification/NotificationCenter';
+import AppBreadcrumb from './AppBreadcrumb';
 import { showInfo } from '../notification';
 import {
   User,
@@ -26,7 +27,7 @@ const AppHeader = ({ collapsed, setCollapsed }) => {
   const handleLogout = () => {
     logout();
     showInfo('Đã đăng xuất', 'Hẹn gặp lại bạn');
-    navigate('/login');
+    navigate('/auth/login');
   };
 
   const handleMenuClick = ({ key }) => {
@@ -109,20 +110,8 @@ const AppHeader = ({ collapsed, setCollapsed }) => {
           className="hover-lift"
         />
 
-        {/* Breadcrumb or Title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)',
-            }}
-          />
-          <Text style={{ color: '#64748b', fontSize: '14px' }}>
-            Xin chào, <span style={{ fontWeight: 600, color: '#1e293b' }}>{user?.ten_dn || 'Doanh nghiệp'}</span>
-          </Text>
-        </div>
+        {/* Breadcrumb */}
+        <AppBreadcrumb />
       </div>
 
       {/* Right Section */}

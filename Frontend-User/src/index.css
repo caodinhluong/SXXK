@@ -1777,3 +1777,76 @@ body.ant-scrolling-effect {
     margin: 1cm;
   }
 }
+
+/* ========================================
+   🍞 BREADCRUMB ENHANCEMENTS
+   ======================================== */
+.ant-breadcrumb {
+  font-size: 14px;
+}
+
+.ant-breadcrumb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-base);
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.ant-breadcrumb-link:hover {
+  color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.ant-breadcrumb-separator {
+  color: var(--text-tertiary);
+  margin: 0 8px;
+}
+
+/* Last breadcrumb item (current page) */
+.ant-breadcrumb li:last-child .ant-breadcrumb-link {
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: default;
+  pointer-events: none;
+}
+
+.ant-breadcrumb li:last-child .ant-breadcrumb-link:hover {
+  background: transparent;
+}
+
+/* Breadcrumb icon styling */
+.ant-breadcrumb-link svg {
+  flex-shrink: 0;
+}
+
+/* Responsive breadcrumb */
+@media (max-width: 768px) {
+  .ant-breadcrumb {
+    font-size: 12px;
+  }
+  
+  .ant-breadcrumb-link {
+    padding: 2px 6px;
+  }
+  
+  .ant-breadcrumb-separator {
+    margin: 0 4px;
+  }
+}
+
+/* Dark mode breadcrumb */
+[data-theme="dark"] .ant-breadcrumb-link {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .ant-breadcrumb-link:hover {
+  color: var(--primary-400);
+  background: rgba(37, 99, 235, 0.1);
+}
+
+[data-theme="dark"] .ant-breadcrumb li:last-child .ant-breadcrumb-link {
+  color: var(--text-primary);
+}

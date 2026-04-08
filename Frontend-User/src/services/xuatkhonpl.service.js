@@ -1,4 +1,5 @@
 import { createApiInstance } from "./apiConfig";
+import { formatServiceError, logError } from "../utils/errorHandler";
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/xuatkho-npl`;
 
@@ -10,10 +11,11 @@ const api = createApiInstance(API_BASE_URL);
 export const getAllXuatKhoNPL = async () => {
     try {
         const res = await api.get("/");
-        return res.data; // { success, data }
+        // Backend returns { success: true, data: [...] }
+        return res.data?.data || res.data || [];
     } catch (err) {
-        console.error("❌ Lỗi getAllXuatKhoNPL:", err);
-        throw err.response?.data || { message: "Lỗi khi lấy danh sách phiếu xuất NPL" };
+        logError("getAllXuatKhoNPL", err);
+        throw formatServiceError(err, "Lỗi khi lấy danh sách phiếu xuất NPL");
     }
 };
 
@@ -23,37 +25,65 @@ export const getAllXuatKhoNPL = async () => {
 export const getXuatKhoNPLById = async (id_xuat) => {
     try {
         const res = await api.get(`/${id_xuat}`);
-        return res.data; // { success, data }
+        // Backend returns { success: true, data: {...} }
+        return res.data?.data || res.data;
     } catch (err) {
-        console.error("❌ Lỗi getXuatKhoNPLById:", err);
-        throw err.response?.data || { message: "Lỗi khi lấy chi tiết phiếu xuất NPL" };
+        logError("getXuatKhoNPLById", err);
+        throw formatServiceError(err, "Lỗi khi lấy chi tiết phiếu xuất NPL");
     }
 };
 
 /* ============================================================
    🟢 TẠO MỚI PHIẾU XUẤT NPL
-   body: { id_kho, ngay_xuat, file_phieu? }
+   Payload structure:
+   {
+     id_kho: number (required),
+     ngay_xuat: date (required),
+     ca_kip: string (optional) - Ca kíp làm việc,
+     file_phieu: string (optional),
+     chi_tiets: [
+       {
+         id_npl: number (required),
+         so_luong: number (required)
+       }
+     ]
+   }
 ============================================================ */
 export const createXuatKhoNPL = async (payload) => {
     try {
         const res = await api.post("/", payload);
-        return res.data; // { success, message, data }
+        // Backend returns { success: true, message, data }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi createXuatKhoNPL:", err);
-        throw err.response?.data || { message: "Lỗi khi tạo phiếu xuất NPL" };
+        logError("createXuatKhoNPL", err);
+        throw formatServiceError(err, "Lỗi khi tạo phiếu xuất NPL");
     }
 };
 
 /* ============================================================
    🟢 CẬP NHẬT PHIẾU XUẤT NPL
+   Payload structure:
+   {
+     id_kho: number (optional),
+     ngay_xuat: date (optional),
+     ca_kip: string (optional) - Ca kíp làm việc,
+     file_phieu: string (optional),
+     chi_tiets: [
+       {
+         id_npl: number (required),
+         so_luong: number (required)
+       }
+     ]
+   }
 ============================================================ */
 export const updateXuatKhoNPL = async (id_xuat, payload) => {
     try {
         const res = await api.put(`/${id_xuat}`, payload);
-        return res.data; // { success, message, data }
+        // Backend returns { success: true, message, data }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi updateXuatKhoNPL:", err);
-        throw err.response?.data || { message: "Lỗi khi cập nhật phiếu xuất NPL" };
+        logError("updateXuatKhoNPL", err);
+        throw formatServiceError(err, "Lỗi khi cập nhật phiếu xuất NPL");
     }
 };
 
@@ -63,10 +93,11 @@ export const updateXuatKhoNPL = async (id_xuat, payload) => {
 export const deleteXuatKhoNPL = async (id_xuat) => {
     try {
         const res = await api.delete(`/${id_xuat}`);
-        return res.data; // { success, message }
+        // Backend returns { success: true, message }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi deleteXuatKhoNPL:", err);
-        throw err.response?.data || { message: "Lỗi khi xóa phiếu xuất NPL" };
+        logError("deleteXuatKhoNPL", err);
+        throw formatServiceError(err, "Lỗi khi xóa phiếu xuất NPL");
     }
 };
 
@@ -79,10 +110,11 @@ export const addChiTietXuatKhoNPL = async (id_xuat, payload) => {
         // 👇 backend cần cả id_xuat trong body
         const data = { id_xuat, ...payload };
         const res = await api.post(`/${id_xuat}/chi-tiet`, data);
-        return res.data; // { success, data }
+        // Backend returns { success: true, data }
+        return res.data?.data || res.data;
     } catch (err) {
-        console.error("❌ Lỗi addChiTietXuatKhoNPL:", err);
-        throw err.response?.data || { message: "Lỗi khi thêm chi tiết phiếu xuất NPL" };
+        logError("addChiTietXuatKhoNPL", err);
+        throw formatServiceError(err, "Lỗi khi thêm chi tiết phiếu xuất NPL");
     }
 };
 
@@ -92,10 +124,11 @@ export const addChiTietXuatKhoNPL = async (id_xuat, payload) => {
 export const getChiTietByPhieuXuat = async (id_xuat) => {
     try {
         const res = await api.get(`/${id_xuat}/chi-tiet`);
-        return res.data; // { success, data }
+        // Backend returns { success: true, data: [...] }
+        return res.data?.data || res.data || [];
     } catch (err) {
-        console.error("❌ Lỗi getChiTietByPhieuXuat:", err);
-        throw err.response?.data || { message: "Lỗi khi lấy chi tiết phiếu xuất NPL" };
+        logError("getChiTietByPhieuXuat", err);
+        throw formatServiceError(err, "Lỗi khi lấy chi tiết phiếu xuất NPL");
     }
 };
 
@@ -105,10 +138,11 @@ export const getChiTietByPhieuXuat = async (id_xuat) => {
 export const deleteChiTietXuatKhoNPL = async (id_ct) => {
     try {
         const res = await api.delete(`/chi-tiet/${id_ct}`);
-        return res.data; // { success, message }
+        // Backend returns { success: true, message }
+        return res.data;
     } catch (err) {
-        console.error("❌ Lỗi deleteChiTietXuatKhoNPL:", err);
-        throw err.response?.data || { message: "Lỗi khi xóa chi tiết phiếu xuất NPL" };
+        logError("deleteChiTietXuatKhoNPL", err);
+        throw formatServiceError(err, "Lỗi khi xóa chi tiết phiếu xuất NPL");
     }
 };
 

@@ -64,7 +64,7 @@ const TonKhoNPL = db.TonKhoNPL;
 //     throw err;
 //   }
 // };
-const createXuatNPL = async ({ id_kho, ngay_xuat, file_phieu, chi_tiets }) => {
+const createXuatNPL = async ({ id_kho, ngay_xuat, ca_kip, file_phieu, chi_tiets }) => {
   if (!id_kho || !ngay_xuat) throw new Error('Thiếu dữ liệu bắt buộc (id_kho, ngay_xuat)');
   if (!Array.isArray(chi_tiets) || chi_tiets.length === 0)
     throw new Error('Danh sách chi tiết xuất kho không hợp lệ');
@@ -77,7 +77,7 @@ const createXuatNPL = async ({ id_kho, ngay_xuat, file_phieu, chi_tiets }) => {
   try {
     // 1. Tạo phiếu xuất
     const phieu = await XuatKhoNPL.create(
-      { id_kho, ngay_xuat, file_phieu },
+      { id_kho, ngay_xuat, ca_kip, file_phieu },
       { transaction: t }
     );
 
@@ -124,9 +124,22 @@ const createXuatNPL = async ({ id_kho, ngay_xuat, file_phieu, chi_tiets }) => {
 
     await t.commit();
 
+    const DonViTinhHQ = db.DonViTinhHQ;
     return await XuatKhoNPL.findByPk(phieu.id_xuat, {
       include: [
-        { model: XuatKhoNPLChiTiet, as: 'chiTiets' },
+        { 
+          model: XuatKhoNPLChiTiet, 
+          as: 'chiTiets',
+          include: [
+            { 
+              model: NguyenPhuLieu, 
+              as: 'nguyenPhuLieu',
+              include: [
+                { model: DonViTinhHQ, as: 'donViTinhHQ' }
+              ]
+            }
+          ]
+        },
         { model: Kho, as: 'kho' }
       ]
     });
@@ -137,6 +150,7 @@ const createXuatNPL = async ({ id_kho, ngay_xuat, file_phieu, chi_tiets }) => {
 };
 
 const getAllXuatNPL = async (id_dn) => {
+  const DonViTinhHQ = db.DonViTinhHQ;
   return await XuatKhoNPL.findAll({
     include: [
       { 
@@ -145,17 +159,42 @@ const getAllXuatNPL = async (id_dn) => {
         where: { id_dn },
         required: true
       },
-      { model: XuatKhoNPLChiTiet, as: 'chiTiets', include: [{ model: NguyenPhuLieu, as: 'nguyenPhuLieu' }] }
+      { 
+        model: XuatKhoNPLChiTiet, 
+        as: 'chiTiets', 
+        include: [
+          { 
+            model: NguyenPhuLieu, 
+            as: 'nguyenPhuLieu',
+            include: [
+              { model: DonViTinhHQ, as: 'donViTinhHQ' }
+            ]
+          }
+        ] 
+      }
     ],
     order: [['id_xuat', 'DESC']]
   });
 };
 
 const getXuatNPLById = async (id_xuat) => {
+  const DonViTinhHQ = db.DonViTinhHQ;
   const rec = await XuatKhoNPL.findByPk(id_xuat, {
     include: [
       { model: Kho, as: 'kho' },
-      { model: XuatKhoNPLChiTiet, as: 'chiTiets', include: [{ model: NguyenPhuLieu, as: 'nguyenPhuLieu' }] }
+      { 
+        model: XuatKhoNPLChiTiet, 
+        as: 'chiTiets', 
+        include: [
+          { 
+            model: NguyenPhuLieu, 
+            as: 'nguyenPhuLieu',
+            include: [
+              { model: DonViTinhHQ, as: 'donViTinhHQ' }
+            ]
+          }
+        ] 
+      }
     ]
   });
   if (!rec) throw new Error(`Không tìm thấy phiếu xuất ID=${id_xuat}`);
@@ -163,7 +202,7 @@ const getXuatNPLById = async (id_xuat) => {
 };
 
 const updateXuatNPL = async (id_xuat, data) => {
-  const { id_kho, ngay_xuat, file_phieu, chi_tiets } = data;
+  const { id_kho, ngay_xuat, ca_kip, file_phieu, chi_tiets } = data;
   
   const rec = await XuatKhoNPL.findByPk(id_xuat, {
     include: [{ model: XuatKhoNPLChiTiet, as: 'chiTiets' }]
@@ -186,7 +225,7 @@ const updateXuatNPL = async (id_xuat, data) => {
     }
 
     // Cập nhật thông tin phiếu xuất
-    await rec.update({ id_kho, ngay_xuat, file_phieu }, { transaction: t });
+    await rec.update({ id_kho, ngay_xuat, ca_kip, file_phieu }, { transaction: t });
 
     // Xóa chi tiết cũ
     await XuatKhoNPLChiTiet.destroy({ where: { id_xuat }, transaction: t });
@@ -223,9 +262,22 @@ const updateXuatNPL = async (id_xuat, data) => {
 
     await t.commit();
 
+    const DonViTinhHQ = db.DonViTinhHQ;
     return await XuatKhoNPL.findByPk(id_xuat, {
       include: [
-        { model: XuatKhoNPLChiTiet, as: 'chiTiets' },
+        { 
+          model: XuatKhoNPLChiTiet, 
+          as: 'chiTiets',
+          include: [
+            { 
+              model: NguyenPhuLieu, 
+              as: 'nguyenPhuLieu',
+              include: [
+                { model: DonViTinhHQ, as: 'donViTinhHQ' }
+              ]
+            }
+          ]
+        },
         { model: Kho, as: 'kho' }
       ]
     });

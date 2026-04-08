@@ -19,7 +19,14 @@ exports.getAll = async (req, res) => {
         message: "Thiếu id_dn trong token!"
       });
     }
-    const data = await khoService.getAllKho(id_dn);
+    
+    // Extract filters from query parameters
+    const filters = {};
+    if (req.query.loai_kho) {
+      filters.loai_kho = req.query.loai_kho;
+    }
+    
+    const data = await khoService.getAllKho(id_dn, filters);
     res.json({ success: true, data });
   } catch (err) {
     res.status(500).json({ error: err.message });

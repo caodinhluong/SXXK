@@ -23,6 +23,8 @@ const DinhMucSanPham = db.DinhMucSanPham;
 const SanPham = db.SanPham;
 const NguyenPhuLieu = db.NguyenPhuLieu;
 const BaoCaoThanhKhoan = db.BaoCaoThanhKhoan;
+const BaoCaoThanhKhoanNPL = db.BaoCaoThanhKhoanNPL;
+const BaoCaoThanhKhoanSP = db.BaoCaoThanhKhoanSP;
 const DonViTinhHQ = db.DonViTinhHQ;
 
 // ========== Helper functions ==========
@@ -403,7 +405,7 @@ const calculateBaoCao = async ({ id_hd, tu_ngay, den_ngay }, id_dn) => {
 };
 
 // ========== API 3: Lưu Báo cáo Thanh khoản ==========
-const saveBaoCao = async ({ id_hd, tu_ngay, den_ngay, ket_luan_tong_the, data_snapshot }) => {
+const saveBaoCao = async ({ id_hd, tu_ngay, den_ngay, ket_luan_tong_the, data_snapshot, data_ton_dau_ky, data_nhap_trong_ky, data_xuat_trong_ky, data_ton_cuoi_ky, data_dinh_muc, data_doi_soat }) => {
   // Validate input
   if (!id_hd || !tu_ngay || !den_ngay) {
     throw new Error('Thiếu dữ liệu: id_hd, tu_ngay, den_ngay là bắt buộc');
@@ -451,6 +453,12 @@ const saveBaoCao = async ({ id_hd, tu_ngay, den_ngay, ket_luan_tong_the, data_sn
     thoi_gian_tao: new Date(),
     ket_luan_tong_the: ketLuan,
     data_snapshot,
+    data_ton_dau_ky,
+    data_nhap_trong_ky,
+    data_xuat_trong_ky,
+    data_ton_cuoi_ky,
+    data_dinh_muc,
+    data_doi_soat,
     trang_thai: 'HopLe'
   });
 
@@ -480,7 +488,7 @@ const updateTrangThaiBaoCao = async (id_bc, trang_thai) => {
 };
 
 // ========== API bổ sung: Cập nhật báo cáo (thay vì tạo mới) ==========
-const updateBaoCao = async (id_bc, { ket_luan_tong_the, data_snapshot }) => {
+const updateBaoCao = async (id_bc, { ket_luan_tong_the, data_snapshot, data_ton_dau_ky, data_nhap_trong_ky, data_xuat_trong_ky, data_ton_cuoi_ky, data_dinh_muc, data_doi_soat }) => {
   if (!id_bc) {
     throw new Error('Thiếu id_bc');
   }
@@ -506,6 +514,12 @@ const updateBaoCao = async (id_bc, { ket_luan_tong_the, data_snapshot }) => {
   // Cập nhật báo cáo
   baoCao.ket_luan_tong_the = ketLuan;
   baoCao.data_snapshot = data_snapshot;
+  baoCao.data_ton_dau_ky = data_ton_dau_ky;
+  baoCao.data_nhap_trong_ky = data_nhap_trong_ky;
+  baoCao.data_xuat_trong_ky = data_xuat_trong_ky;
+  baoCao.data_ton_cuoi_ky = data_ton_cuoi_ky;
+  baoCao.data_dinh_muc = data_dinh_muc;
+  baoCao.data_doi_soat = data_doi_soat;
   baoCao.thoi_gian_tao = new Date(); // Cập nhật thời gian
   await baoCao.save();
 
@@ -613,6 +627,42 @@ const getBaoCaoById = async (id_bc) => {
             attributes: ['ten_dn', 'dia_chi', 'ma_so_thue']
           }
         ]
+      },
+      {
+        model: BaoCaoThanhKhoanNPL,
+        as: 'chiTietNPL',
+        include: [
+          {
+            model: NguyenPhuLieu,
+            as: 'nguyenPhuLieu',
+            attributes: ['ten_npl', 'ma_npl'],
+            include: [
+              {
+                model: DonViTinhHQ,
+                as: 'donViTinhHQ',
+                attributes: ['ten_dvt']
+              }
+            ]
+          }
+        ]
+      },
+      {
+        model: BaoCaoThanhKhoanSP,
+        as: 'chiTietSP',
+        include: [
+          {
+            model: SanPham,
+            as: 'sanPham',
+            attributes: ['ten_sp', 'ma_sp'],
+            include: [
+              {
+                model: DonViTinhHQ,
+                as: 'donViTinhHQ',
+                attributes: ['ten_dvt']
+              }
+            ]
+          }
+        ]
       }
     ]
   });
@@ -647,7 +697,15 @@ const getBaoCaoById = async (id_bc) => {
       dia_chi: baoCao.hopdong?.doanhNghiep?.dia_chi,
       ma_so_thue: baoCao.hopdong?.doanhNghiep?.ma_so_thue
     },
-    data_snapshot: dataSnapshot
+    data_snapshot: dataSnapshot,
+    data_ton_dau_ky: baoCao.data_ton_dau_ky,
+    data_nhap_trong_ky: baoCao.data_nhap_trong_ky,
+    data_xuat_trong_ky: baoCao.data_xuat_trong_ky,
+    data_ton_cuoi_ky: baoCao.data_ton_cuoi_ky,
+    data_dinh_muc: baoCao.data_dinh_muc,
+    data_doi_soat: baoCao.data_doi_soat,
+    chiTietNPL: baoCao.chiTietNPL,
+    chiTietSP: baoCao.chiTietSP
   };
 };
 
@@ -666,6 +724,186 @@ const deleteBaoCao = async (id_bc) => {
   return { message: 'Xóa báo cáo thành công' };
 };
 
+// ========== API mới: Generate snapshot với JSON fields ==========
+const generateSnapshot = async ({ id_hd, tu_ngay, den_ngay }, id_dn) => {
+  // Tính toán báo cáo
+  const reportData = await calculateBaoCao({ id_hd, tu_ngay, den_ngay }, id_dn);
+
+  // Tạo các JSON fields từ dữ liệu báo cáo
+  const data_ton_dau_ky = {
+    npl: reportData.baoCaoSD_NPL.map(item => ({
+      id_npl: item.id_npl,
+      ma_npl: item.ma_npl,
+      ten_npl: item.ten_npl,
+      ton_dau_ky: item.ton_dau_ky,
+      don_vi_tinh: item.don_vi_tinh
+    })),
+    sp: reportData.baoCaoNXT_SP.map(item => ({
+      id_sp: item.id_sp,
+      ma_sp: item.ma_sp,
+      ten_sp: item.ten_sp,
+      ton_dau_ky: item.ton_dau_ky,
+      don_vi_tinh: item.don_vi_tinh
+    }))
+  };
+
+  const data_nhap_trong_ky = {
+    npl: reportData.baoCaoSD_NPL.map(item => ({
+      id_npl: item.id_npl,
+      ma_npl: item.ma_npl,
+      ten_npl: item.ten_npl,
+      tai_nhap: item.tai_nhap,
+      nhap_khac: item.nhap_khac,
+      don_vi_tinh: item.don_vi_tinh
+    })),
+    sp: reportData.baoCaoNXT_SP.map(item => ({
+      id_sp: item.id_sp,
+      ma_sp: item.ma_sp,
+      ten_sp: item.ten_sp,
+      nhap_kho_trong_ky: item.nhap_kho_trong_ky,
+      don_vi_tinh: item.don_vi_tinh
+    }))
+  };
+
+  const data_xuat_trong_ky = {
+    npl: reportData.baoCaoSD_NPL.map(item => ({
+      id_npl: item.id_npl,
+      ma_npl: item.ma_npl,
+      ten_npl: item.ten_npl,
+      xuat_san_pham: item.xuat_san_pham,
+      thay_doi_muc_dich: item.thay_doi_muc_dich,
+      don_vi_tinh: item.don_vi_tinh
+    })),
+    sp: reportData.baoCaoNXT_SP.map(item => ({
+      id_sp: item.id_sp,
+      ma_sp: item.ma_sp,
+      ten_sp: item.ten_sp,
+      xuat_khau: item.xuat_khau,
+      xuat_khac: item.xuat_khac,
+      chuyen_muc_dich: item.chuyen_muc_dich,
+      don_vi_tinh: item.don_vi_tinh
+    }))
+  };
+
+  const data_ton_cuoi_ky = {
+    npl: reportData.baoCaoSD_NPL.map(item => ({
+      id_npl: item.id_npl,
+      ma_npl: item.ma_npl,
+      ten_npl: item.ten_npl,
+      ton_cuoi_ky: item.ton_cuoi_ky,
+      don_vi_tinh: item.don_vi_tinh
+    })),
+    sp: reportData.baoCaoNXT_SP.map(item => ({
+      id_sp: item.id_sp,
+      ma_sp: item.ma_sp,
+      ten_sp: item.ten_sp,
+      ton_cuoi_ky: item.ton_cuoi_ky,
+      don_vi_tinh: item.don_vi_tinh
+    }))
+  };
+
+  const data_dinh_muc = {
+    items: reportData.dinhMucThucTe.map(item => ({
+      id_sp: item.id_sp,
+      ma_sp: item.ma_sp,
+      ten_sp: item.ten_sp,
+      don_vi_tinh_sp: item.don_vi_tinh_sp,
+      id_npl: item.id_npl,
+      ma_npl: item.ma_npl,
+      ten_npl: item.ten_npl,
+      don_vi_tinh_npl: item.don_vi_tinh_npl,
+      luong_sd: item.luong_sd
+    }))
+  };
+
+  const data_doi_soat = {
+    npl: reportData.baoCaoSD_NPL.filter(item => item.ghi_chu && item.ghi_chu.includes('Cảnh báo')).map(item => ({
+      id_npl: item.id_npl,
+      ma_npl: item.ma_npl,
+      ten_npl: item.ten_npl,
+      ghi_chu: item.ghi_chu
+    })),
+    sp: reportData.baoCaoNXT_SP.filter(item => item.ghi_chu && item.ghi_chu.includes('Cảnh báo')).map(item => ({
+      id_sp: item.id_sp,
+      ma_sp: item.ma_sp,
+      ten_sp: item.ten_sp,
+      ghi_chu: item.ghi_chu
+    }))
+  };
+
+  return {
+    ...reportData,
+    data_ton_dau_ky,
+    data_nhap_trong_ky,
+    data_xuat_trong_ky,
+    data_ton_cuoi_ky,
+    data_dinh_muc,
+    data_doi_soat
+  };
+};
+
+// ========== API mới: Generate report với NPL và SP details ==========
+const generateReport = async ({ id_hd, tu_ngay, den_ngay }, id_dn) => {
+  // Tính toán báo cáo với snapshot
+  const snapshotData = await generateSnapshot({ id_hd, tu_ngay, den_ngay }, id_dn);
+
+  // Lưu báo cáo chính
+  const baoCao = await saveBaoCao({
+    id_hd,
+    tu_ngay,
+    den_ngay,
+    data_snapshot: {
+      thongTinChung: snapshotData.thongTinChung,
+      kyBaoCao: snapshotData.kyBaoCao,
+      baoCaoNXT_SP: snapshotData.baoCaoNXT_SP,
+      baoCaoSD_NPL: snapshotData.baoCaoSD_NPL,
+      dinhMucThucTe: snapshotData.dinhMucThucTe
+    },
+    data_ton_dau_ky: snapshotData.data_ton_dau_ky,
+    data_nhap_trong_ky: snapshotData.data_nhap_trong_ky,
+    data_xuat_trong_ky: snapshotData.data_xuat_trong_ky,
+    data_ton_cuoi_ky: snapshotData.data_ton_cuoi_ky,
+    data_dinh_muc: snapshotData.data_dinh_muc,
+    data_doi_soat: snapshotData.data_doi_soat
+  });
+
+  // Lưu chi tiết NPL
+  const nplDetails = snapshotData.baoCaoSD_NPL.map(item => ({
+    id_bc: baoCao.id_bc,
+    id_npl: item.id_npl,
+    ton_dau_ky: item.ton_dau_ky,
+    nhap_trong_ky: item.tai_nhap + item.nhap_khac,
+    xuat_trong_ky: item.xuat_san_pham + item.thay_doi_muc_dich,
+    ton_cuoi_ky: item.ton_cuoi_ky,
+    ton_ly_thuyet: 0, // Có thể tính toán thêm nếu cần
+    chenh_lech: 0,
+    trang_thai: item.ghi_chu && item.ghi_chu.includes('Cảnh báo') ? 'CanhBao' : 'HopLe',
+    ghi_chu: item.ghi_chu
+  }));
+
+  if (nplDetails.length > 0) {
+    await BaoCaoThanhKhoanNPL.bulkCreate(nplDetails);
+  }
+
+  // Lưu chi tiết SP
+  const spDetails = snapshotData.baoCaoNXT_SP.map(item => ({
+    id_bc: baoCao.id_bc,
+    id_sp: item.id_sp,
+    ton_dau_ky: item.ton_dau_ky,
+    san_xuat_trong_ky: item.nhap_kho_trong_ky, // Nhập kho = sản xuất
+    xuat_trong_ky: item.xuat_khau + item.xuat_khac + item.chuyen_muc_dich,
+    ton_cuoi_ky: item.ton_cuoi_ky,
+    trang_thai: item.ghi_chu && item.ghi_chu.includes('Cảnh báo') ? 'CanhBao' : 'HopLe',
+    ghi_chu: item.ghi_chu
+  }));
+
+  if (spDetails.length > 0) {
+    await BaoCaoThanhKhoanSP.bulkCreate(spDetails);
+  }
+
+  return baoCao;
+};
+
 module.exports = { 
   getHopDongByDN, 
   calculateBaoCao, 
@@ -674,5 +912,7 @@ module.exports = {
   updateBaoCao,
   getThanhKhoanReports,
   getBaoCaoById,
-  deleteBaoCao
+  deleteBaoCao,
+  generateSnapshot,
+  generateReport
 };

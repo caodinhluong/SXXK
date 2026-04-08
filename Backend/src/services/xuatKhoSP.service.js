@@ -18,7 +18,7 @@ const TonKhoSP = db.TonKhoSP;
 //   const created = await XuatKhoSP.create({ id_kho, id_hd_xuat, ngay_xuat, file_phieu });
 //   return created;
 // };
-const createXuatSP = async ({ id_kho, ngay_xuat, file_phieu, chi_tiets }) => {
+const createXuatSP = async ({ id_kho, ngay_xuat, ca_kip, file_phieu, chi_tiets }) => {
   if (!id_kho || !ngay_xuat) throw new Error('Thiếu dữ liệu bắt buộc (id_kho, ngay_xuat)');
   if (!Array.isArray(chi_tiets) || chi_tiets.length === 0)
     throw new Error('Danh sách chi tiết xuất kho không hợp lệ');
@@ -29,7 +29,7 @@ const createXuatSP = async ({ id_kho, ngay_xuat, file_phieu, chi_tiets }) => {
   const t = await db.sequelize.transaction();
 
   try {
-    const phieu = await XuatKhoSP.create({ id_kho, ngay_xuat, file_phieu }, { transaction: t });
+    const phieu = await XuatKhoSP.create({ id_kho, ngay_xuat, ca_kip, file_phieu }, { transaction: t });
 
     for (const ct of chi_tiets) {
       const { id_sp, so_luong } = ct;
@@ -96,7 +96,7 @@ const getXuatSPById = async (id_xuat) => {
 };
 
 const updateXuatSP = async (id_xuat, data) => {
-  const { id_kho, ngay_xuat, file_phieu, chi_tiets } = data;
+  const { id_kho, ngay_xuat, ca_kip, file_phieu, chi_tiets } = data;
   
   const rec = await XuatKhoSP.findByPk(id_xuat, {
     include: [{ model: XuatKhoSPChiTiet, as: 'chiTiets' }]
@@ -119,7 +119,7 @@ const updateXuatSP = async (id_xuat, data) => {
     }
 
     // Cập nhật thông tin phiếu xuất
-    await rec.update({ id_kho, ngay_xuat, file_phieu }, { transaction: t });
+    await rec.update({ id_kho, ngay_xuat, ca_kip, file_phieu }, { transaction: t });
 
     // Xóa chi tiết cũ
     await XuatKhoSPChiTiet.destroy({ where: { id_xuat }, transaction: t });

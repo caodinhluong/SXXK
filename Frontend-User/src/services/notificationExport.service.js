@@ -25,7 +25,7 @@ class NotificationExportService {
       
       return true;
     } catch (error) {
-      console.error('Error exporting to JSON:', error);
+      console.error('❌ Error exporting to JSON:', error);
       return false;
     }
   }
@@ -68,7 +68,7 @@ class NotificationExportService {
       
       return true;
     } catch (error) {
-      console.error('Error exporting to CSV:', error);
+      console.error('❌ Error exporting to CSV:', error);
       return false;
     }
   }
@@ -104,7 +104,7 @@ class NotificationExportService {
       
       return true;
     } catch (error) {
-      console.error('Error exporting to text:', error);
+      console.error('❌ Error exporting to text:', error);
       return false;
     }
   }
@@ -134,7 +134,7 @@ class NotificationExportService {
       
       return true;
     } catch (error) {
-      console.error('Error importing from JSON:', error);
+      console.error('❌ Error importing from JSON:', error);
       return false;
     }
   }
@@ -143,32 +143,44 @@ class NotificationExportService {
    * Lấy thống kê thông báo
    */
   getStatistics() {
-    const notifications = notificationHistoryService.getAll();
-    
-    const stats = {
-      total: notifications.length,
-      unread: notifications.filter(n => !n.read).length,
-      read: notifications.filter(n => n.read).length,
-      byType: {
-        success: notifications.filter(n => n.type === 'success').length,
-        error: notifications.filter(n => n.type === 'error').length,
-        warning: notifications.filter(n => n.type === 'warning').length,
-        info: notifications.filter(n => n.type === 'info').length,
-      },
-      today: notifications.filter(n => {
-        const date = new Date(n.timestamp);
-        const today = new Date();
-        return date.toDateString() === today.toDateString();
-      }).length,
-      thisWeek: notifications.filter(n => {
-        const date = new Date(n.timestamp);
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        return date >= weekAgo;
-      }).length,
-    };
-    
-    return stats;
+    try {
+      const notifications = notificationHistoryService.getAll();
+      
+      const stats = {
+        total: notifications.length,
+        unread: notifications.filter(n => !n.read).length,
+        read: notifications.filter(n => n.read).length,
+        byType: {
+          success: notifications.filter(n => n.type === 'success').length,
+          error: notifications.filter(n => n.type === 'error').length,
+          warning: notifications.filter(n => n.type === 'warning').length,
+          info: notifications.filter(n => n.type === 'info').length,
+        },
+        today: notifications.filter(n => {
+          const date = new Date(n.timestamp);
+          const today = new Date();
+          return date.toDateString() === today.toDateString();
+        }).length,
+        thisWeek: notifications.filter(n => {
+          const date = new Date(n.timestamp);
+          const weekAgo = new Date();
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          return date >= weekAgo;
+        }).length,
+      };
+      
+      return stats;
+    } catch (error) {
+      console.error('❌ Error getting statistics:', error);
+      return {
+        total: 0,
+        unread: 0,
+        read: 0,
+        byType: { success: 0, error: 0, warning: 0, info: 0 },
+        today: 0,
+        thisWeek: 0,
+      };
+    }
   }
 }
 

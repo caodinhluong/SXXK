@@ -18,6 +18,14 @@ import {
   DollarSign,
   Calculator,
   Ruler,
+  History,
+  Factory,
+  GitCompare,
+  FileSpreadsheet,
+  Trash2,
+  Bell,
+  ScrollText,
+  Server,
 } from 'lucide-react';
 
 const menuItems = [
@@ -120,6 +128,12 @@ const menuItems = [
         path: '/kho/ton-kho',
       },
       {
+        key: '/kho/lich-su-ton-kho',
+        icon: <History size={16} />,
+        label: 'Lịch sử tồn kho',
+        path: '/kho/lich-su-ton-kho',
+      },
+      {
         key: '/kho/nhap-npl',
         icon: <PackagePlus size={16} />,
         label: 'Nhập kho NPL',
@@ -146,13 +160,88 @@ const menuItems = [
     ],
   },
   {
+    key: 'sub4',
+    icon: <Factory size={18} />,
+    label: 'Sản xuất',
+    children: [
+      {
+        key: '/phieu-san-xuat',
+        icon: <FileSpreadsheet size={16} />,
+        label: 'Phiếu sản xuất',
+        path: '/phieu-san-xuat',
+      },
+    ],
+  },
+  {
+    key: 'sub5',
+    icon: <GitCompare size={18} />,
+    label: 'Đối soát',
+    children: [
+      {
+        key: '/doi-soat-nhap',
+        icon: <PackagePlus size={16} />,
+        label: 'Đối soát nhập',
+        path: '/doi-soat-nhap',
+      },
+      {
+        key: '/doi-soat-xuat',
+        icon: <PackageMinus size={16} />,
+        label: 'Đối soát xuất',
+        path: '/doi-soat-xuat',
+      },
+      {
+        key: '/doi-soat-dinh-muc',
+        icon: <Calculator size={16} />,
+        label: 'Đối soát định mức',
+        path: '/doi-soat-dinh-muc',
+      },
+      {
+        key: '/so-khop-155',
+        icon: <GitCompare size={16} />,
+        label: 'So khớp Mã 155',
+        path: '/so-khop-155',
+      },
+    ],
+  },
+  {
+    key: '/hoa-don-noi-dia',
+    icon: <FileText size={18} />,
+    label: 'Hóa đơn nội địa',
+    path: '/hoa-don-noi-dia',
+  },
+  {
+    key: '/bien-ban-tieu-huy',
+    icon: <Trash2 size={18} />,
+    label: 'Biên bản tiêu hủy',
+    path: '/bien-ban-tieu-huy',
+  },
+  {
     key: '/thanh-khoan',
     icon: <TrendingUp size={18} />,
     label: 'Thanh khoản & Báo cáo',
     path: '/thanh-khoan',
   },
   {
-    key: 'sub4',
+    key: 'sub6',
+    icon: <Server size={18} />,
+    label: 'Hệ thống',
+    children: [
+      {
+        key: '/canh-bao',
+        icon: <Bell size={16} />,
+        label: 'Cảnh báo',
+        path: '/canh-bao',
+      },
+      {
+        key: '/log-he-thong',
+        icon: <ScrollText size={16} />,
+        label: 'Log hệ thống',
+        path: '/log-he-thong',
+      },
+    ],
+  },
+  {
+    key: 'sub7',
     icon: <Settings size={18} />,
     label: 'Thiết lập',
     children: [

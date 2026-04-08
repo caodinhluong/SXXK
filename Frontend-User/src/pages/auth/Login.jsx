@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Form, Input, Button, Checkbox, Typography } from 'antd';
 import { UserOutlined, LockOutlined, ShopOutlined, ArrowRightOutlined, BarChartOutlined, ContainerOutlined, AuditOutlined } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { loginBusiness } from '../../services/auth.service';
 import { showSuccess, showError } from '../../components/notification';
 
@@ -9,8 +9,12 @@ const { Title, Text } = Typography;
 
 const Login = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
+    
+    // Get the return URL from location state (set by ProtectedRoute)
+    const from = location.state?.from?.pathname || '/';
 
     const onFinish = async (values) => {
         try {
@@ -26,7 +30,9 @@ const Login = () => {
             localStorage.setItem('user', JSON.stringify(doanhNghiep));
             
             showSuccess('Đăng nhập thành công', 'Chào mừng bạn trở lại');
-            setTimeout(() => navigate('/'), 500);
+            
+            // Navigate to the return URL or home page
+            setTimeout(() => navigate(from, { replace: true }), 500);
         } catch (error) {
             // Hiển thị thông báo lỗi cụ thể từ backend
             const errorMessage = error?.message || 'Mã số thuế hoặc mật khẩu không đúng';

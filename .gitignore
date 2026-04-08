@@ -1,3 +1,50 @@
+# Dependencies
 node_modules/
+
+# Environment files
 .env
+.env.*
+.env.local
+.env.development
+.env.production
+
+# Backend
 Backend/.env
+Backend/node_modules/
+Backend/uploads/
+Backend/dist/
+
+# Frontend User
+Frontend-User/node_modules/
+Frontend-User/dist/
+Frontend-User/.env
+
+# Frontend Admin
+Frontend-Admin/node_modules/
+Frontend-Admin/dist/
+Frontend-Admin/.env
+
+# Kilo/Kiro config (local)
+.kilo/
+.kiro/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build outputs
+dist/
+build/
+
+# Kilo config (local)
+.kilo/

@@ -13,6 +13,9 @@ import {
     Card,
     Spin,
     Input,
+    Upload,
+    message,
+    Popconfirm,
 } from 'antd';
 import {
     PlusOutlined,
@@ -20,12 +23,18 @@ import {
     DeleteOutlined,
     SaveOutlined,
     ReloadOutlined,
+    UploadOutlined,
+    DownloadOutlined,
+    FileExcelOutlined,
 } from '@ant-design/icons';
+import * as XLSX from 'xlsx';
 import {
     getAllDinhMuc,
     getDinhMucBySanPham,
     createDinhMuc,
     deleteDinhMuc,
+    importDinhMucFromExcel,
+    getTemplateDinhMuc,
 } from '../../services/dinhmuc.service';
 import { getAllSanPham } from '../../services/sanpham.service';
 import { getAllNguyenPhuLieu } from '../../services/nguyenphulieu.service';
@@ -51,6 +60,61 @@ const DinhMuc = () => {
     const [spList, setSpList] = useState([]);
     const [nplList, setNplList] = useState([]);
     const [saving, setSaving] = useState(false);
+    const [importLoading, setImportLoading] = useState(false);
+
+    // ===================== IMPORT EXCEL =====================
+    const handleImportExcel = async (file) => {
+        try {
+            setImportLoading(true);
+            
+            const reader = new FileReader();
+            const data = await new Promise((resolve, reject) => {
+                reader.onload = (e) => {
+                    try {
+                        const workbook = XLSX.read(e.target.result, { type: 'binary' });
+                        const sheetName = workbook.SheetNames[0];
+                        const sheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(sheet);
+                        resolve(jsonData);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsBinaryString(file);
+            });
+
+            const res = await importDinhMucFromExcel(data);
+            if (res.success) {
+                message.success(`Import thành công: ${res.data?.thanh_cong || 0} dòng`);
+                fetchAll();
+            } else {
+                message.error(res.message || 'Import thất bại');
+            }
+        } catch (err) {
+            message.error(err.message || 'Lỗi khi import Excel');
+        } finally {
+            setImportLoading(false);
+        }
+        return false;
+    };
+
+    const handleDownloadTemplate = async () => {
+        try {
+            const res = await getTemplateDinhMuc();
+            if (res.success && res.data) {
+                const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: 'application/json' });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'mau_dinh_muc.json';
+                link.click();
+                message.success('Đã tải mẫu template');
+            }
+        } catch (err) {
+            message.error('Lỗi khi tải mẫu');
+        }
+    };
 
     // ===================== FETCH DATA =====================
     const fetchAll = async () => {
@@ -287,6 +351,19 @@ const DinhMuc = () => {
                 <div style={{ display: 'flex', gap: 12 }}>
                     <Button icon={<ReloadOutlined />} onClick={fetchAll}>
                         Tải lại
+                    </Button>
+                    <Upload
+                        accept=".xlsx,.xls,.json"
+                        showUploadList={false}
+                        beforeUpload={handleImportExcel}
+                        disabled={importLoading}
+                    >
+                        <Button icon={<UploadOutlined />} loading={importLoading}>
+                            Import Excel
+                        </Button>
+                    </Upload>
+                    <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>
+                        Tải mẫu
                     </Button>
                     <Button
                         type="primary"

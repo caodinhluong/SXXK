@@ -108,4 +108,36 @@ const getNguyenLieu = async (req, res) => {
   }
 };
 
-module.exports = { create, getAll, getByProduct, remove, getSanPham, getNguyenLieu };
+// Import định mức từ Excel
+const importExcel = async (req, res) => {
+  try {
+    const id_dn = req.user?.id;
+    const role = req.user?.role;
+
+    if (!id_dn && role !== 'Admin') {
+      return res.status(400).json({ success: false, message: 'Thiếu thông tin xác thực' });
+    }
+
+    const { data } = req.body;
+    if (!data || !Array.isArray(data)) {
+      return res.status(400).json({ success: false, message: 'Dữ liệu Excel không hợp lệ' });
+    }
+
+    const result = await dmService.importDinhMucFromExcel(id_dn, data);
+    res.status(200).json({ success: true, message: `Import hoàn tất: ${result.thanh_cong} thành công, ${result.that_bai} thất bại`, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Lấy mẫu Excel
+const getTemplate = async (req, res) => {
+  try {
+    const template = dmService.getTemplateDinhMuc();
+    res.status(200).json({ success: true, data: template });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { create, getAll, getByProduct, remove, getSanPham, getNguyenLieu, importExcel, getTemplate };
