@@ -87,15 +87,13 @@ const getLHById = async (id_lh, id_dn, role) => {
 // Lấy danh sách lô hàng theo hợp đồng
 // ====================================
 const getLHByHopDong = async (id_hd, id_dn, role) => {
-  const whereClause = role === 'Admin' ? { id_hd } : { id_hd, id_dn };
-  
-  const hopDong = await HopDong.findOne({
-    where: whereClause,
-    include: [{ model: LoHang, as: 'loHangs' }]
+  // Direct query for LoHang with id_hd
+  const loHangs = await LoHang.findAll({
+    where: { id_hd: id_hd },
+    order: [['id_lh', 'DESC']]
   });
-
-  if (!hopDong) throw new Error(`Không tìm thấy hợp đồng ID=${id_hd} hoặc bạn không có quyền truy cập`);
-  return hopDong.loHangs;
+  
+  return loHangs;
 };
 
 // ==========================

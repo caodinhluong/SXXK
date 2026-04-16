@@ -13,7 +13,7 @@ const { authenticateToken, authorizeRole } = require('../middlewares/auth.middle
 router.get(
   '/',
   authenticateToken,
-  authorizeRole('business'),
+  authorizeRole(['business', 'Admin']),
   hoaDonNoiDiaController.getAll
 );
 
@@ -24,7 +24,7 @@ router.get(
 router.get(
   '/:id_hd_nd',
   authenticateToken,
-  authorizeRole('business'),
+  authorizeRole(['business', 'Admin']),
   hoaDonNoiDiaController.getById
 );
 
@@ -36,7 +36,7 @@ router.get(
 router.post(
   '/',
   authenticateToken,
-  authorizeRole('business'),
+  authorizeRole(['business', 'Admin']),
   hoaDonNoiDiaController.create
 );
 
@@ -48,7 +48,7 @@ router.post(
 router.put(
   '/:id_hd_nd',
   authenticateToken,
-  authorizeRole('business'),
+  authorizeRole(['business', 'Admin']),
   hoaDonNoiDiaController.update
 );
 
@@ -59,7 +59,7 @@ router.put(
 router.delete(
   '/:id_hd_nd',
   authenticateToken,
-  authorizeRole('business'),
+  authorizeRole(['business', 'Admin']),
   hoaDonNoiDiaController.delete
 );
 
@@ -71,7 +71,7 @@ router.delete(
 router.post(
   '/calculate-tax',
   authenticateToken,
-  authorizeRole('business'),
+  authorizeRole(['business', 'Admin']),
   hoaDonNoiDiaController.calculateTax
 );
 

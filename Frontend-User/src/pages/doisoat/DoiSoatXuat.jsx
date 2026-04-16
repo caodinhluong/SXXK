@@ -93,7 +93,7 @@ const DoiSoatXuat = () => {
             if (filterResult) filters.ket_qua = filterResult;
 
             const response = await getAllXuat(filters);
-            const data = response?.data || response || [];
+            const data = Array.isArray(response) ? response : [];
             setDoiSoatList(data);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);

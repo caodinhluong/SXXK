@@ -13,7 +13,7 @@ const { authenticateToken, authorizeRole } = require('../middlewares/auth.middle
 router.get(
   '/',
   authenticateToken,
-  authorizeRole('business'),
+  authorizeRole(['business', 'Admin']),
   bienBanTieuHuyController.getAll
 );
 
@@ -24,8 +24,43 @@ router.get(
 router.get(
   '/:id_bb',
   authenticateToken,
-  authorizeRole('business'),
+  authorizeRole(['business', 'Admin']),
   bienBanTieuHuyController.getById
+);
+
+router.post(
+  '/',
+  authenticateToken,
+  authorizeRole(['business', 'Admin']),
+  bienBanTieuHuyController.create
+);
+
+router.put(
+  '/:id_bb',
+  authenticateToken,
+  authorizeRole(['business', 'Admin']),
+  bienBanTieuHuyController.update
+);
+
+router.delete(
+  '/:id_bb',
+  authenticateToken,
+  authorizeRole(['business', 'Admin']),
+  bienBanTieuHuyController.delete
+);
+
+router.post(
+  '/:id_bb/upload-bien-ban',
+  authenticateToken,
+  authorizeRole(['business', 'Admin']),
+  bienBanTieuHuyController.uploadFileBienBan
+);
+
+router.post(
+  '/:id_bb/upload-images',
+  authenticateToken,
+  authorizeRole(['business', 'Admin']),
+  bienBanTieuHuyController.uploadImages
 );
 
 /**

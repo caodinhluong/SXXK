@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import {
     Steps, Button, Form, Select, DatePicker, Input, Upload, Table,
-    InputNumber, Card, Typography, Row, Col, Space
+    InputNumber, Card, Typography, Row, Col, Space, message, Modal, Divider
 } from "antd";
 import {
-    UploadOutlined, PlusOutlined, DeleteOutlined
+    UploadOutlined, PlusOutlined, DeleteOutlined, FileExcelOutlined, DownloadOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import * as XLSX from "xlsx";
 import { 
     showCreateSuccess, 
     showLoadError, 
@@ -20,8 +21,13 @@ import { getAllHopDong } from "../../services/hopdong.service";
 import { getAllNguyenPhuLieu } from "../../services/nguyenphulieu.service";
 import { getAllTienTe } from "../../services/tiente.service";
 import { uploadSingleFile } from "../../services/upload.service";
-import { createToKhaiNhap, getAllToKhaiNhap } from "../../services/tokhainhap.service";
-import { createLoHang } from "../../services/lohang.service";
+import { 
+    createToKhaiNhap, 
+    getAllToKhaiNhap,
+    importToKhaiNhapFromExcel,
+    getTemplateToKhaiNhap
+} from "../../services/tokhainhap.service";
+import { createLoHang, getAllLoHang } from "../../services/lohang.service";
 import { createHoaDonNhap, getAllHoaDonNhap } from "../../services/hoadonnhap.service";
 import { createVanDonNhap, getAllVanDonNhap } from "../../services/vandonnhap.service";
 
@@ -55,6 +61,12 @@ const NhapToKhaiNhap = () => {
     const [fileVanDon, setFileVanDon] = useState(null);
     const [fileToKhai, setFileToKhai] = useState(null);
     const [fileExcelImport, setFileExcelImport] = useState(null);
+
+    // ✅ Import Excel state
+    const [importModalVisible, setImportModalVisible] = useState(false);
+    const [importLoading, setImportLoading] = useState(false);
+    const [selectedLoHang, setSelectedLoHang] = useState(null);
+    const [loHangList, setLoHangList] = useState([]);
 
     /* ============================================================
        🟢 LẤY DỮ LIỆU BAN ĐẦU
@@ -126,6 +138,78 @@ const NhapToKhaiNhap = () => {
             if (onError) onError(err);
         } finally {
             setUploading(false);
+        }
+    };
+
+    // ✅ Import Excel handlers
+    const handleImportExcel = async (file) => {
+        try {
+            setImportLoading(true);
+            const reader = new FileReader();
+            const data = await new Promise((resolve, reject) => {
+                reader.onload = (e) => {
+                    try {
+                        const workbook = XLSX.read(e.target.result, { type: "binary" });
+                        const sheetName = workbook.SheetNames[0];
+                        const sheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(sheet);
+                        resolve(jsonData);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsBinaryString(file);
+            });
+
+            const res = await importToKhaiNhapFromExcel(data, selectedLoHang);
+            if (res.success) {
+                message.success(`Import thành công: ${res.data?.thanh_cong || 0} tờ khai`);
+                setImportModalVisible(false);
+                const resTKN = await getAllToKhaiNhap();
+                setToKhaiList(Array.isArray(resTKN) ? resTKN : (resTKN.data || []));
+            } else {
+                message.error(res.message || "Import thất bại");
+            }
+        } catch (err) {
+            message.error(err.message || "Lỗi khi import Excel");
+        } finally {
+            setImportLoading(false);
+        }
+        return false;
+    };
+
+    const handleDownloadTemplate = async () => {
+        try {
+            const res = await getTemplateToKhaiNhap();
+            if (res.success && res.data) {
+                const templateData = res.data.vi_du ? [res.data.vi_du] : [];
+                const ws = XLSX.utils.json_to_sheet(templateData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "ToKhaiNhap");
+                XLSX.writeFile(wb, "_template_tokhai_nhap.xlsx");
+                message.success("Đã tải mẫu template");
+            }
+        } catch (err) {
+            message.error("Lỗi khi tải template");
+        }
+    };
+
+    const openImportModal = async () => {
+        try {
+            setLoading(true);
+            const res = await getAllLoHang();
+            const lhList = Array.isArray(res) ? res : (res.data || []);
+            const mappedList = lhList.map(item => ({
+                ...item,
+                ten_hd: item.hopDong?.so_hd || "N/A"
+            }));
+            setLoHangList(mappedList);
+            setImportModalVisible(true);
+        } catch (err) {
+            message.error("Lỗi khi tải danh sách lô hàng");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -840,10 +924,20 @@ const NhapToKhaiNhap = () => {
 
     return (
         <>
-            <Title level={3} style={{ textAlign: "center", marginBottom: 24 }}>
-                Khai báo Tờ khai Nhập khẩu
-            </Title>
             <Card loading={loading}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                    <Title level={3} style={{ margin: 0 }}>
+                        Khai báo Tờ khai Nhập khẩu
+                    </Title>
+                    <Space>
+                        <Button icon={<FileExcelOutlined />} onClick={openImportModal}>
+                            Import Excel
+                        </Button>
+                        <Button icon={<DownloadOutlined />} onClick={handleDownloadTemplate}>
+                            Tải mẫu
+                        </Button>
+                    </Space>
+                </div>
                 <Steps current={current} style={{ maxWidth: 900, margin: "0 auto 24px auto" }}>
                     {steps.map((item) => (
                         <Step key={item.title} title={item.title} />
@@ -873,6 +967,51 @@ const NhapToKhaiNhap = () => {
                     </Space>
                 </div>
             </Card>
+
+            {/* Import Excel Modal */}
+            <Modal
+                title="Import Tờ khai Nhập từ Excel"
+                open={importModalVisible}
+                onCancel={() => setImportModalVisible(false)}
+                footer={null}
+                width={500}
+            >
+                <div style={{ padding: "16px 0" }}>
+                    <p style={{ marginBottom: 16 }}>
+                        Chọn file Excel để import tờ khai. Đảm bảo file có các cột: <b>so_tk, ngay_tk, ma_to_khai, loai_hang, cang_nhap, tong_tri_gia, thue_nhap_khau, thue_gtgt</b>
+                    </p>
+                    <Form layout="vertical">
+                        <Form.Item label="Chọn Lô hàng" required>
+                            <Select
+                                placeholder="Chọn lô hàng"
+                                value={selectedLoHang}
+                                onChange={setSelectedLoHang}
+                                showSearch
+                                optionFilterProp="children"
+                                style={{ width: "100%" }}
+                            >
+                                {loHangList.map(lh => (
+                                    <Option key={lh.id_lh} value={lh.id_lh}>
+                                        {lh.so_lo} - {lh.ten_hd}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label="Chọn file Excel" required>
+                            <Upload
+                                accept=".xlsx,.xls"
+                                beforeUpload={handleImportExcel}
+                                showUploadList={false}
+                                disabled={!selectedLoHang || importLoading}
+                            >
+                                <Button icon={<UploadOutlined />} loading={importLoading} disabled={!selectedLoHang}>
+                                    {importLoading ? "Đang import..." : "Chọn file Excel"}
+                                </Button>
+                            </Upload>
+                        </Form.Item>
+                    </Form>
+                </div>
+            </Modal>
         </>
     );
 };

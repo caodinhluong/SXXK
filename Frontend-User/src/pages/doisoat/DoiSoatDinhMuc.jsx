@@ -87,7 +87,7 @@ const DoiSoatDinhMuc = () => {
             if (filterResult) filters.ket_luan = filterResult;
 
             const response = await getAllDinhMuc(filters);
-            const data = response?.data || response || [];
+            const data = Array.isArray(response) ? response : [];
             setDoiSoatList(data);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);

@@ -22,12 +22,14 @@ const SanPhamRoutes = require('./routes/sanpham.route')
 const LoHangRoutes = require('./routes/lohang.route')
 const HoaDonNhapRoutes = require('./routes/hoadonnhap.route')
 const ToKhaiNhapRoutes = require('./routes/tokhainhap.route')
+const ImportTokhaiNhapRoutes = require('./routes/import-tokhai-nhap.routes')
 const VanDonNhapRoutes = require('./routes/vandongnhap.route')
 
 const hoaDonXuatRoutes = require('./routes/hoaDonXuat.routes');
 const hoaDonXuatChiTietRoutes = require('./routes/hoaDonXuatChiTiet.routes');
 const vanDonXuatRoutes = require('./routes/vanDonXuat.routes');
 const toKhaiXuatRoutes = require('./routes/toKhaiXuat.routes');
+const ImportTokhaiXuatRoutes = require('./routes/import-tokhai-xuat.routes');
 
 const khoRoutes = require('./routes/kho.routes');
 const nhapKhoNPLRoutes = require('./routes/nhapKhoNPL.routes');
@@ -73,7 +75,8 @@ app.use('/api/hop-dong', hopdongRoutes)
 
 app.use('/api/san-pham', SanPhamRoutes)
 app.use('/api/lo-hang', LoHangRoutes)
-app.use('/api/to-khai-nhap', ToKhaiNhapRoutes)
+app.use('/api/to-khai-nhap', ToKhaiNhapRoutes);
+app.use('/api/to-khai-nhap/import', ImportTokhaiNhapRoutes);
 app.use('/api/hoa-don-nhap', HoaDonNhapRoutes)
 app.use('/api/van-don-nhap', VanDonNhapRoutes)
 
@@ -81,6 +84,7 @@ app.use('/api/hoa-don-xuat', hoaDonXuatRoutes);
 app.use('/api/hoa-don-xuat-chi-tiet', hoaDonXuatChiTietRoutes);
 app.use('/api/van-don-xuat', vanDonXuatRoutes);
 app.use('/api/to-khai-xuat', toKhaiXuatRoutes);
+app.use('/api/to-khai-xuat/import', ImportTokhaiXuatRoutes);
 app.use('/api/kho', khoRoutes);
 app.use('/api/nhapkho-npl', nhapKhoNPLRoutes);
 app.use('/api/xuatkho-npl', xuatKhoNPLRoutes);

@@ -88,9 +88,8 @@ const BienBanTieuHuy = () => {
     const fetchBienBanList = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await getAll();
-            const data = response?.data || response || [];
-            setBienBanList(data);
+            const data = await getAll();
+            setBienBanList(Array.isArray(data) ? data : []);
         } catch (error) {
             const errorMsg = extractErrorMessage(error);
             showLoadError("danh sách biên bản tiêu hủy", errorMsg);

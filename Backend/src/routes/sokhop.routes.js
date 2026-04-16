@@ -9,8 +9,10 @@ const sokhopService = require('../services/sokhop.service');
 router.post('/', authenticateToken, authorizeRole(['business', 'Admin']), async (req, res) => {
     try {
         const { id_tkx, id_xuat_kho, nguoi_khop, ngay_khop } = req.body;
+        const id_dn = req.user.id_dn || req.user.id;
+        
         const result = await sokhopService.soKhopToKhaiXuatVoiPhieuXuat({
-            id_tkx, id_xuat_kho, nguoi_khop, ngay_khop
+            id_tkx, id_xuat_kho, nguoi_khop, ngay_khop, id_dn
         });
         res.json({ success: true, message: 'So khớp thành công', data: result });
     } catch (error) {
@@ -21,7 +23,9 @@ router.post('/', authenticateToken, authorizeRole(['business', 'Admin']), async 
 // Lấy danh sách chưa khớp
 router.get('/chua-khop', authenticateToken, authorizeRole(['business', 'Admin']), async (req, res) => {
     try {
-        const { id_dn, loai } = req.query;
+        const { loai } = req.query;
+        const id_dn = req.user.id_dn || req.user.id;
+        
         const result = await sokhopService.getDanhSachChuaKhop(id_dn, loai);
         res.json({ success: true, data: result });
     } catch (error) {
@@ -32,7 +36,9 @@ router.get('/chua-khop', authenticateToken, authorizeRole(['business', 'Admin'])
 // Lấy báo cáo so khớp
 router.get('/bao-cao', authenticateToken, authorizeRole(['business', 'Admin']), async (req, res) => {
     try {
-        const { id_dn, tu_ngay, den_ngay } = req.query;
+        const { tu_ngay, den_ngay } = req.query;
+        const id_dn = req.user.id_dn || req.user.id;
+        
         const result = await sokhopService.getBaoCaoSoKhop(id_dn, tu_ngay, den_ngay);
         res.json({ success: true, data: result });
     } catch (error) {

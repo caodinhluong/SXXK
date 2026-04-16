@@ -9,7 +9,7 @@ const api = createApiInstance(API_BASE_URL);
 ============================================================ */
 export const getAllTienTe = async () => {
     try {
-        const res = await api.get("/");
+        const res = await api.get("/", { params: { limit: 100 } });
         return res.data;
     } catch (err) {
         console.error("❌ Lỗi getAllTienTe:", err);

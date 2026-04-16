@@ -1850,3 +1850,115 @@ body.ant-scrolling-effect {
 [data-theme="dark"] .ant-breadcrumb li:last-child .ant-breadcrumb-link {
   color: var(--text-primary);
 }
+
+/* ========================================
+   📊 RESPONSIVE TABLE STYLES
+   Cho phép tables co giãn theo màn hình
+   ======================================== */
+
+/* Default responsive table container */
+.ant-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Ensure table scrolls horizontally when needed */
+.ant-table {
+  min-width: 100%;
+}
+
+/* Make table scrollable on small screens */
+@media (max-width: 1200px) {
+  .ant-table-wrapper .ant-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .ant-table-wrapper .ant-table-thead > tr > th,
+  .ant-table-wrapper .ant-table-tbody > tr > td {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+/* Responsive pagination */
+@media (max-width: 768px) {
+  .ant-table-wrapper .ant-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .ant-table-wrapper .ant-pagination-item {
+    margin: 4px;
+  }
+  
+  .ant-table-wrapper .ant-pagination-options {
+    width: 100%;
+    margin-top: 8px;
+    text-align: center;
+  }
+}
+
+/* Table wrapper to allow horizontal scroll */
+.table-responsive {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.table-responsive .ant-table {
+  min-width: 600px;
+}
+
+/* Ant Design Table scroll fix - make it truly responsive */
+.ant-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ant-table-scroll {
+  overflow: auto;
+}
+
+.ant-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.ant-table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.ant-table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.ant-table-container::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Table column responsive - use flex where possible */
+.ant-table-thead > tr > th {
+  flex-shrink: 0;
+}
+
+.ant-table-tbody > tr > td {
+  flex-shrink: 0;
+}
+
+/* Responsive columns for table */
+@media (max-width: 768px) {
+  .ant-table-column-title {
+    font-size: 12px;
+  }
+  
+  .ant-table-cell {
+    padding: 8px !important;
+    font-size: 12px;
+  }
+  
+  .ant-table-thead > tr > th {
+    padding: 8px !important;
+    font-size: 12px;
+  }
+}

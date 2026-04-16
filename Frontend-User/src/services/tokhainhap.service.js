@@ -109,6 +109,34 @@ export const deleteToKhaiNhap = async (id_tkn) => {
     }
 };
 
+/* ============================================================
+   🟢 IMPORT TỜ KHAI NHẬP TỪ EXCEL
+   data: Array of objects from Excel
+   id_lh: Lô hàng ID
+============================================================ */
+export const importToKhaiNhapFromExcel = async (data, id_lh) => {
+    try {
+        const res = await api.post("/import", { data, id_lh });
+        return res.data;
+    } catch (err) {
+        logError("importToKhaiNhapFromExcel", err);
+        throw formatServiceError(err, "Lỗi khi import tờ khai nhập từ Excel");
+    }
+};
+
+/* ============================================================
+   🟢 LẤY MẪU TEMPLATE TỜ KHAI NHẬP
+============================================================ */
+export const getTemplateToKhaiNhap = async () => {
+    try {
+        const res = await api.get("/template");
+        return res.data;
+    } catch (err) {
+        logError("getTemplateToKhaiNhap", err);
+        throw formatServiceError(err, "Lỗi khi lấy mẫu template");
+    }
+};
+
 // Alias exports for compatibility
 export const getAll = getAllToKhaiNhap;
 export const getById = getToKhaiNhapById;
@@ -122,6 +150,8 @@ export default {
     createToKhaiNhap,
     updateToKhaiNhap,
     deleteToKhaiNhap,
+    importToKhaiNhapFromExcel,
+    getTemplateToKhaiNhap,
     // Aliases
     getAll: getAllToKhaiNhap,
     getById: getToKhaiNhapById,

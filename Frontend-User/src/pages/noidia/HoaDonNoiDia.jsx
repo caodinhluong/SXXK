@@ -94,22 +94,32 @@ const HoaDonNoiDia = () => {
                 getAllSanPham(),
                 getAllNPL(),
             ]);
-            setDoanhNghiepList(dnRes?.data || dnRes || []);
-            setSanPhamList(spRes?.data || spRes || []);
-            setNplList(nplRes?.data || nplRes || []);
+            console.log('DN Res:', dnRes);
+            console.log('SP Res:', spRes);
+            console.log('NPL Res:', nplRes);
+            const dnData = Array.isArray(dnRes) ? dnRes : (dnRes?.data || []);
+            const spData = Array.isArray(spRes) ? spRes : (spRes?.data || []);
+            const nplData = Array.isArray(nplRes) ? nplRes : (nplRes?.data || []);
+            setDoanhNghiepList(Array.isArray(dnData) ? dnData : []);
+            setSanPhamList(Array.isArray(spData) ? spData : []);
+            setNplList(Array.isArray(nplData) ? nplData : []);
         } catch (error) {
+            console.error('Fetch data error:', error);
             const errorMsg = extractErrorMessage(error);
             showLoadError("dữ liệu danh mục", errorMsg);
         }
     };
 
-    const fetchHoaDonList = async () => {
+const fetchHoaDonList = async () => {
         setLoading(true);
         try {
             const response = await getAll();
-            const data = response?.data || response || [];
-            setHoaDonList(data);
+            console.log('HoaDon Response:', response);
+            const data = response?.success ? response.data : (response || []);
+            console.log('HoaDon Data:', data);
+            setHoaDonList(Array.isArray(data) ? data : []);
         } catch (error) {
+            console.error('HoaDon Error:', error);
             const errorMsg = extractErrorMessage(error);
             showLoadError("danh sách hóa đơn nội địa", errorMsg);
         } finally {
@@ -594,15 +604,18 @@ const HoaDonNoiDia = () => {
                 </Col>
                 <Col xs={24} sm={12} lg={6}>
                     <Card>
-                        <Statistic
-                            title="Tổng doanh thu"
-                            value={hoaDonList
-                                .filter((h) => h.trang_thai === "DaThanhToan")
-                                .reduce((sum, h) => sum + (h.tong_thanh_toan || 0), 0)}
-                            prefix={<DollarOutlined />}
-                            valueStyle={{ color: "#52c41a" }}
-                            formatter={(value) => formatVNNumber(value)}
-                        />
+<Statistic
+    title="Tổng doanh thu"
+    value={hoaDonList
+        .filter((h) => h.trang_thai === "DaThanhToan")
+        .reduce((sum, h) => {
+            const val = parseFloat(h.tong_thanh_toan);
+            return sum + (isNaN(val) ? 0 : val);
+        }, 0)}
+    prefix={<DollarOutlined />}
+    valueStyle={{ color: "#52c41a" }}
+    formatter={(value) => formatVNNumber(value)}
+/>
                     </Card>
                 </Col>
             </Row>

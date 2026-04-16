@@ -19,23 +19,21 @@ const Login = () => {
     const onFinish = async (values) => {
         try {
             setLoading(true);
-            const res = await loginBusiness({
+            await loginBusiness({
                 ma_so_thue: values.ma_so_thue,
                 mat_khau: values.mat_khau,
             });
 
-            const doanhNghiep = res?.data?.DoanhNghiep;
-            if (doanhNghiep?.token) localStorage.setItem('accessToken', doanhNghiep.token);
-            if (doanhNghiep?.refreshToken) localStorage.setItem('refreshToken', doanhNghiep.refreshToken);
-            localStorage.setItem('user', JSON.stringify(doanhNghiep));
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                throw new Error('Không lưu được token');
+            }
             
             showSuccess('Đăng nhập thành công', 'Chào mừng bạn trở lại');
-            
-            // Navigate to the return URL or home page
             setTimeout(() => navigate(from, { replace: true }), 500);
         } catch (error) {
-            // Hiển thị thông báo lỗi cụ thể từ backend
-            const errorMessage = error?.message || 'Mã số thuế hoặc mật khẩu không đúng';
+            console.error('Login error:', error);
+            const errorMessage = error?.response?.data?.message || error?.message || 'Mã số thuế hoặc mật khẩu không đúng';
             showError('Đăng nhập thất bại', errorMessage);
         } finally {
             setLoading(false);

@@ -182,7 +182,8 @@ const getDanhSachChuaKhop = async (id_dn, loai = 'all') => {
         'ToKhaiXuat' as loai_ban_ghi
       FROM ToKhaiXuat tk
       JOIN LoHang lh ON lh.id_lh = tk.id_lh
-      WHERE lh.id_dn = :id_dn
+      JOIN HopDong hd ON hd.id_hd = lh.id_hd
+      WHERE hd.id_dn = :id_dn
         AND tk.trang_thai = 'ThongQuan'
         AND NOT EXISTS (
           SELECT 1 FROM DoiSoatXuat ds 
@@ -216,7 +217,8 @@ const getDanhSachChuaKhop = async (id_dn, loai = 'all') => {
         'ToKhaiXuat' as loai_ban_ghi
       FROM ToKhaiXuat tk
       JOIN LoHang lh ON lh.id_lh = tk.id_lh
-      WHERE lh.id_dn = :id_dn
+      JOIN HopDong hd ON hd.id_hd = lh.id_hd
+      WHERE hd.id_dn = :id_dn
         AND tk.trang_thai = 'ThongQuan'
         AND NOT EXISTS (
           SELECT 1 FROM DoiSoatXuat ds 
@@ -250,7 +252,8 @@ const getBaoCaoSoKhop = async (id_dn, tu_ngay, den_ngay) => {
     JOIN ToKhaiXuat tk ON tk.id_tkx = ds.id_tkx
     JOIN XuatKhoSP px ON px.id_xuat = ds.id_xuat
     JOIN LoHang lh ON lh.id_lh = tk.id_lh
-    WHERE lh.id_dn = :id_dn
+    JOIN HopDong hd ON hd.id_hd = lh.id_hd
+    WHERE hd.id_dn = :id_dn
       AND ds.ngay_doi_soat BETWEEN :tu_ngay AND :den_ngay
     ORDER BY ds.ngay_doi_soat DESC
   `;

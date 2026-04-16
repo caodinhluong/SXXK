@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Layout, Typography } from 'antd';
 import Sidebar from '../components/layout/Sidebar';
 import AppHeader from '../components/layout/Header';
+import ChatBot from '../components/chatbot/ChatBot';
 import logo from '../assets/logo.png';
 
 const { Content, Footer, Sider } = Layout;
@@ -190,6 +191,9 @@ const MainLayout = () => {
           <span style={{ fontWeight: 500 }}>SXXK</span> ©{new Date().getFullYear()} - 
           Hệ thống Quản lý Xuất Nhập Khẩu
         </Footer>
+
+        {/* ChatBot */}
+        <ChatBot />
       </Layout>
     </Layout>
   );

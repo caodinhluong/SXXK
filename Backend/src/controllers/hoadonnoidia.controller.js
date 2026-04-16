@@ -8,9 +8,10 @@ const hoaDonNoiDiaService = require('../services/hoadonnoidia.service');
  */
 const getAll = async (req, res) => {
   try {
-    const id_dn = req.user?.id;
+    const id_dn = req.user?.id || req.user?.id_dn;
+    console.log('getAll HoaDonNoidia - user:', req.user, 'id_dn:', id_dn);
     if (!id_dn) {
-      return res.status(401).json({ error: 'Không xác định được doanh nghiệp từ token' });
+      return res.status(401).json({ success: false, error: 'Không xác định được doanh nghiệp từ token' });
     }
 
     const { page, limit, sortBy, sortOrder, trang_thai, so_hd, khach_hang, tu_ngay, den_ngay } = req.query;
@@ -32,10 +33,11 @@ const getAll = async (req, res) => {
     };
 
     const result = await hoaDonNoiDiaService.getAll(filters, options);
-    res.json(result);
+    console.log('HoaDon Service result:', result);
+    res.json({ success: true, data: result.data, pagination: result.pagination });
   } catch (error) {
     console.error('Error in getAll:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 

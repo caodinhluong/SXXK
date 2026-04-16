@@ -9,7 +9,10 @@ const api = createApiInstance(API_BASE_URL);
 export const getAllNhap = async (filters = {}) => {
     try {
         const res = await api.get("/nhap", { params: filters });
-        return res.data?.data || res.data || [];
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi lấy danh sách");
+        }
+        return res.data?.data || [];
     } catch (err) {
         logError("getAllNhap doisoat", err);
         throw formatServiceError(err, "Lỗi khi lấy danh sách đối soát nhập");
@@ -19,7 +22,10 @@ export const getAllNhap = async (filters = {}) => {
 export const getNhapById = async (id) => {
     try {
         const res = await api.get(`/nhap/${id}`);
-        return res.data?.data || res.data;
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi lấy chi tiết");
+        }
+        return res.data?.data;
     } catch (err) {
         logError("getNhapById doisoat", err);
         throw formatServiceError(err, "Lỗi khi lấy chi tiết đối soát nhập");
@@ -29,6 +35,9 @@ export const getNhapById = async (id) => {
 export const createNhap = async (payload) => {
     try {
         const res = await api.post("/nhap", payload);
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi tạo đối soát");
+        }
         return res.data;
     } catch (err) {
         logError("createNhap doisoat", err);
@@ -39,16 +48,22 @@ export const createNhap = async (payload) => {
 export const updateTrangThaiNhap = async (id, trang_thai) => {
     try {
         const res = await api.put(`/nhap/${id}/status`, { trang_thai });
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi cập nhật");
+        }
         return res.data;
     } catch (err) {
         logError("updateTrangThaiNhap doisoat", err);
-        throw formatServiceError(err, "Lỗi khi cập nhật trạng thái đối soát nhập");
+        throw formatServiceError(err, "Lỗi khi cập nhật trạng thái");
     }
 };
 
 export const removeNhap = async (id) => {
     try {
         const res = await api.delete(`/nhap/${id}`);
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi xóa");
+        }
         return res.data;
     } catch (err) {
         logError("removeNhap doisoat", err);
@@ -61,7 +76,10 @@ export const removeNhap = async (id) => {
 export const getAllXuat = async (filters = {}) => {
     try {
         const res = await api.get("/xuat", { params: filters });
-        return res.data?.data || res.data || [];
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi lấy danh sách");
+        }
+        return res.data?.data || [];
     } catch (err) {
         logError("getAllXuat doisoat", err);
         throw formatServiceError(err, "Lỗi khi lấy danh sách đối soát xuất");
@@ -71,7 +89,10 @@ export const getAllXuat = async (filters = {}) => {
 export const getXuatById = async (id) => {
     try {
         const res = await api.get(`/xuat/${id}`);
-        return res.data?.data || res.data;
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi lấy chi tiết");
+        }
+        return res.data?.data;
     } catch (err) {
         logError("getXuatById doisoat", err);
         throw formatServiceError(err, "Lỗi khi lấy chi tiết đối soát xuất");
@@ -81,6 +102,9 @@ export const getXuatById = async (id) => {
 export const createXuat = async (payload) => {
     try {
         const res = await api.post("/xuat", payload);
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi tạo đối soát");
+        }
         return res.data;
     } catch (err) {
         logError("createXuat doisoat", err);
@@ -91,16 +115,22 @@ export const createXuat = async (payload) => {
 export const updateTrangThaiXuat = async (id, trang_thai) => {
     try {
         const res = await api.put(`/xuat/${id}/status`, { trang_thai });
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi cập nhật");
+        }
         return res.data;
     } catch (err) {
         logError("updateTrangThaiXuat doisoat", err);
-        throw formatServiceError(err, "Lỗi khi cập nhật trạng thái đối soát xuất");
+        throw formatServiceError(err, "Lỗi khi cập nhật trạng thái");
     }
 };
 
 export const removeXuat = async (id) => {
     try {
         const res = await api.delete(`/xuat/${id}`);
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi xóa");
+        }
         return res.data;
     } catch (err) {
         logError("removeXuat doisoat", err);
@@ -113,7 +143,10 @@ export const removeXuat = async (id) => {
 export const getAllDinhMuc = async (filters = {}) => {
     try {
         const res = await api.get("/dinhmuc", { params: filters });
-        return res.data?.data || res.data || [];
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi lấy danh sách");
+        }
+        return res.data?.data || [];
     } catch (err) {
         logError("getAllDinhMuc doisoat", err);
         throw formatServiceError(err, "Lỗi khi lấy danh sách đối soát định mức");
@@ -123,7 +156,10 @@ export const getAllDinhMuc = async (filters = {}) => {
 export const getDinhMucById = async (id) => {
     try {
         const res = await api.get(`/dinhmuc/${id}`);
-        return res.data?.data || res.data;
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi lấy chi tiết");
+        }
+        return res.data?.data;
     } catch (err) {
         logError("getDinhMucById doisoat", err);
         throw formatServiceError(err, "Lỗi khi lấy chi tiết đối soát định mức");
@@ -133,6 +169,9 @@ export const getDinhMucById = async (id) => {
 export const createDinhMuc = async (payload) => {
     try {
         const res = await api.post("/dinhmuc", payload);
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi tạo đối soát");
+        }
         return res.data;
     } catch (err) {
         logError("createDinhMuc doisoat", err);
@@ -143,6 +182,9 @@ export const createDinhMuc = async (payload) => {
 export const removeDinhMuc = async (id) => {
     try {
         const res = await api.delete(`/dinhmuc/${id}`);
+        if (!res.data?.success) {
+            throw new Error(res.data?.message || res.data?.error || "Lỗi xóa");
+        }
         return res.data;
     } catch (err) {
         logError("removeDinhMuc doisoat", err);
@@ -158,27 +200,8 @@ export const update = updateTrangThaiNhap;
 export const remove = removeNhap;
 
 export default { 
-    // Import reconciliation
-    getAllNhap, 
-    getNhapById, 
-    createNhap, 
-    updateTrangThaiNhap, 
-    removeNhap,
-    // Export reconciliation
-    getAllXuat,
-    getXuatById,
-    createXuat,
-    updateTrangThaiXuat,
-    removeXuat,
-    // Quota reconciliation
-    getAllDinhMuc,
-    getDinhMucById,
-    createDinhMuc,
-    removeDinhMuc,
-    // Legacy
-    getAll, 
-    getById, 
-    create, 
-    update, 
-    remove 
+    getAllNhap, getNhapById, createNhap, updateTrangThaiNhap, removeNhap,
+    getAllXuat, getXuatById, createXuat, updateTrangThaiXuat, removeXuat,
+    getAllDinhMuc, getDinhMucById, createDinhMuc, removeDinhMuc,
+    getAll, getById, create, update, remove 
 };

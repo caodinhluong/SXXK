@@ -377,9 +377,75 @@ const getTemplateExcelXuat = () => {
   };
 };
 
+const importToKhaiNhapFromExcel = async (data, id_lh, id_dn) => {
+  const results = {
+    thanh_cong: 0,
+    that_bai: 0,
+    chi_tiet: []
+  };
+
+  if (!Array.isArray(data)) {
+    throw new Error('Dữ liệu Excel không hợp lệ');
+  }
+
+  for (const item of data) {
+    try {
+      const result = await parseExcelToToKhaiNhap(item, id_lh, id_dn);
+      results.thanh_cong++;
+      results.chi_tiet.push({
+        so_tk: result.toKhai?.so_tk,
+        trang_thai: 'thanh_cong'
+      });
+    } catch (err) {
+      results.that_bai++;
+      results.chi_tiet.push({
+        so_tk: item.so_tk || item.soToKhai || 'Unknown',
+        trang_thai: 'that_bai',
+        loi: err.message
+      });
+    }
+  }
+
+  return results;
+};
+
+const importToKhaiXuatFromExcel = async (data, id_lh, id_dn) => {
+  const results = {
+    thanh_cong: 0,
+    that_bai: 0,
+    chi_tiet: []
+  };
+
+  if (!Array.isArray(data)) {
+    throw new Error('Dữ liệu Excel không hợp lệ');
+  }
+
+  for (const item of data) {
+    try {
+      const result = await parseExcelToToKhaiXuat(item, id_lh, id_dn);
+      results.thanh_cong++;
+      results.chi_tiet.push({
+        so_tk: result.toKhai?.so_tk,
+        trang_thai: 'thanh_cong'
+      });
+    } catch (err) {
+      results.that_bai++;
+      results.chi_tiet.push({
+        so_tk: item.so_tk || item.soToKhai || 'Unknown',
+        trang_thai: 'that_bai',
+        loi: err.message
+      });
+    }
+  }
+
+  return results;
+};
+
 module.exports = {
   parseExcelToToKhaiNhap,
   parseExcelToToKhaiXuat,
+  importToKhaiNhapFromExcel,
+  importToKhaiXuatFromExcel,
   xacDinhThanhPhan,
   xacDinhThanhPhanXuat,
   getTemplateExcelNhap,

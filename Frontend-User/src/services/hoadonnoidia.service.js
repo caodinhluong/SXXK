@@ -7,7 +7,7 @@ const api = createApiInstance(API_BASE_URL);
 export const getAll = async () => {
     try {
         const res = await api.get("/");
-        return res.data?.data || res.data || [];
+        return res.data;
     } catch (err) {
         logError("getAll hoadonnoidia", err);
         throw formatServiceError(err, "Lỗi khi lấy danh sách hóa đơn nội địa");

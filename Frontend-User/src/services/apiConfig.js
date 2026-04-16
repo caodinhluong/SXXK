@@ -86,6 +86,11 @@ export const createApiInstance = (baseURL) => {
                 console.error('Request URL:', error.config?.url);
                 console.error('Response:', error.response?.data);
                 
+                // For login endpoint, don't redirect - just throw the error
+                if (error.config?.url?.includes('/auth/login')) {
+                    return Promise.reject(error);
+                }
+                
                 // Show warning notification
                 showWarning(
                     'Không có quyền truy cập', 

@@ -93,9 +93,39 @@ export const deleteToKhaiXuat = async (id_tkx) => {
     }
 };
 
+/* ============================================================
+   IMPORT TỜ KHAI XUẤT TỪ EXCEL
+   data: Array of objects from Excel
+   id_lh: Lô hàng ID
+============================================================ */
+export const importToKhaiXuatFromExcel = async (data, id_lh) => {
+    try {
+        const res = await api.post("/import", { data, id_lh });
+        return res.data;
+    } catch (err) {
+        logError("importToKhaiXuatFromExcel", err);
+        throw formatServiceError(err, "Lỗi khi import tờ khai xuất từ Excel");
+    }
+};
+
+/* ============================================================
+   LẤY MẪU TEMPLATE TỜ KHAI XUẤT
+============================================================ */
+export const getTemplateToKhaiXuat = async () => {
+    try {
+        const res = await api.get("/template");
+        return res.data;
+    } catch (err) {
+        logError("getTemplateToKhaiXuat", err);
+        throw formatServiceError(err, "Lỗi khi lấy mẫu template");
+    }
+};
+
 export default {
     getAllToKhaiXuat,
     createToKhaiXuat,
     updateToKhaiXuat,
     deleteToKhaiXuat,
+    importToKhaiXuatFromExcel,
+    getTemplateToKhaiXuat,
 };

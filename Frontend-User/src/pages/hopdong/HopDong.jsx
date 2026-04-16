@@ -86,9 +86,12 @@ const HopDong = () => {
         try {
             setSelectedHopDong(record);
             const res = await getLoHangByHopDong(record.id_hd);
-            setLoHangDataSource(res.data || []);
+            console.log("LoHang response:", res); // Debug log
+            const lhData = res?.data?.data || res?.data || res || [];
+            setLoHangDataSource(Array.isArray(lhData) ? lhData : []);
             setDetailModalOpen(true);
-        } catch {
+        } catch (err) {
+            console.error("Lỗi lấy lô hàng:", err); // Debug log
             showLoadError('danh sách lô hàng');
         }
     }, []);

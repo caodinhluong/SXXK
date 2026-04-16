@@ -20,7 +20,7 @@ const createCurrency = async (req, res) => {
 const getAllCurrencies = async (req, res) => {
   try {
     // Lấy params phân trang từ query string
-    const { page = 1, limit = 10, search = '' } = req.query;
+    const { page = 1, limit = 100, search = '' } = req.query;
     
     const result = await currencyService.getAllCurrencies({
       page: Number(page),

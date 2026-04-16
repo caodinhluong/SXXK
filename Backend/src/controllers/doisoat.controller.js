@@ -13,18 +13,20 @@ const createDoiSoatNhap = async (req, res) => {
 
     if (!id_tkn || !id_nhap_kho || !nguoi_doi_soat) {
       return res.status(400).json({ 
+        success: false,
         error: 'Thiếu dữ liệu: id_tkn, id_nhap_kho, nguoi_doi_soat là bắt buộc' 
       });
     }
 
     const result = await doiSoatService.doiSoatNhap(req.body);
     res.status(201).json({
+      success: true,
       message: 'Đối soát nhập thành công',
       data: result
     });
   } catch (err) {
     console.error('Error in createDoiSoatNhap:', err);
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 };
 
@@ -42,10 +44,10 @@ const getDoiSoatNhap = async (req, res) => {
     };
 
     const results = await doiSoatService.getDoiSoatNhap(filters);
-    res.json(results);
+    res.json({ success: true, data: results });
   } catch (err) {
     console.error('Error in getDoiSoatNhap:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -57,10 +59,10 @@ const getDoiSoatNhapById = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await doiSoatService.getDoiSoatNhapById(id);
-    res.json(result);
+    res.json({ success: true, data: result });
   } catch (err) {
     console.error('Error in getDoiSoatNhapById:', err);
-    res.status(404).json({ error: err.message });
+    res.status(404).json({ success: false, error: err.message });
   }
 };
 
@@ -76,18 +78,20 @@ const createDoiSoatXuat = async (req, res) => {
 
     if (!id_tkx || !id_xuat_kho || !nguoi_doi_soat) {
       return res.status(400).json({ 
+        success: false,
         error: 'Thiếu dữ liệu: id_tkx, id_xuat_kho, nguoi_doi_soat là bắt buộc' 
       });
     }
 
     const result = await doiSoatService.doiSoatXuat(req.body);
     res.status(201).json({
+      success: true,
       message: 'Đối soát xuất thành công',
       data: result
     });
   } catch (err) {
     console.error('Error in createDoiSoatXuat:', err);
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 };
 
@@ -105,10 +109,10 @@ const getDoiSoatXuat = async (req, res) => {
     };
 
     const results = await doiSoatService.getDoiSoatXuat(filters);
-    res.json(results);
+    res.json({ success: true, data: results });
   } catch (err) {
     console.error('Error in getDoiSoatXuat:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -120,10 +124,10 @@ const getDoiSoatXuatById = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await doiSoatService.getDoiSoatXuatById(id);
-    res.json(result);
+    res.json({ success: true, data: result });
   } catch (err) {
     console.error('Error in getDoiSoatXuatById:', err);
-    res.status(404).json({ error: err.message });
+    res.status(404).json({ success: false, error: err.message });
   }
 };
 
@@ -139,18 +143,20 @@ const createDoiSoatDinhMuc = async (req, res) => {
 
     if (!id_dn || !id_sp || !tu_ngay || !den_ngay || !nguoi_doi_soat) {
       return res.status(400).json({ 
+        success: false,
         error: 'Thiếu dữ liệu: id_dn, id_sp, tu_ngay, den_ngay, nguoi_doi_soat là bắt buộc' 
       });
     }
 
     const result = await doiSoatService.doiSoatDinhMuc(req.body);
     res.status(201).json({
+      success: true,
       message: 'Đối soát định mức thành công',
       data: result
     });
   } catch (err) {
     console.error('Error in createDoiSoatDinhMuc:', err);
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 };
 
@@ -169,10 +175,10 @@ const getDoiSoatDinhMuc = async (req, res) => {
     };
 
     const results = await doiSoatService.getDoiSoatDinhMuc(filters);
-    res.json(results);
+    res.json({ success: true, data: results });
   } catch (err) {
     console.error('Error in getDoiSoatDinhMuc:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -184,10 +190,10 @@ const getDoiSoatDinhMucById = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await doiSoatService.getDoiSoatDinhMucById(id);
-    res.json(result);
+    res.json({ success: true, data: result });
   } catch (err) {
     console.error('Error in getDoiSoatDinhMucById:', err);
-    res.status(404).json({ error: err.message });
+    res.status(404).json({ success: false, error: err.message });
   }
 };
 
@@ -203,17 +209,18 @@ const updateTrangThai = async (req, res) => {
     const { trang_thai } = req.body;
 
     if (!trang_thai) {
-      return res.status(400).json({ error: 'Thiếu trạng thái mới' });
+      return res.status(400).json({ success: false, error: 'Thiếu trạng thái mới' });
     }
 
     const result = await doiSoatService.updateTrangThai(type, id, trang_thai);
     res.json({
+      success: true,
       message: 'Cập nhật trạng thái thành công',
       data: result
     });
   } catch (err) {
     console.error('Error in updateTrangThai:', err);
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 };
 
@@ -227,11 +234,12 @@ const deleteDoiSoat = async (req, res) => {
 
     await doiSoatService.deleteDoiSoat(type, id);
     res.json({
+      success: true,
       message: 'Xóa đối soát thành công'
     });
   } catch (err) {
     console.error('Error in deleteDoiSoat:', err);
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ success: false, error: err.message });
   }
 };
 

@@ -6,7 +6,7 @@ const { authenticateToken, authorizeRole } = require('../middlewares/auth.middle
 
 const router = express.Router();
 
-router.get('/', authenticateToken, authorizeRole("Admin"), doanhnghiepController.getAll);
+router.get('/', authenticateToken, authorizeRole(['business', 'Admin']), doanhnghiepController.getAll);
 // router.get('/:id', categoryController.getById);
 // router.put('/:id', authenticateToken, authorizeRole("admin"), categoryController.update);
 // router.delete('/:id', authenticateToken, authorizeRole("admin"), categoryController.deleteCategory);
