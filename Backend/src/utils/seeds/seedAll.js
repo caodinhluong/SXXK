@@ -4,17 +4,19 @@ const { execSync } = require('child_process');
 const path = require('path');
 
 const SEEDS_DIR = __dirname;
+const BACKEND_ROOT = path.resolve(SEEDS_DIR, '..', '..', '..');
 const SEED_FILES = [
-    '01-seed-tiente.js',
-    '02-seed-donvi-tinh-hq.js',
-    '03-seed-nghiep-vu.js',
-    '04-seed-them.js'
+    path.join('src', 'seed-tiente.js'),
+    path.join('src', 'seed-dvthq.js'),
+    path.join('src', 'seed-haiquan.js'),
+    path.join('src', 'seed-nghiep-vu.js'),
+    path.join('src', 'seed-them.js')
 ];
 
 async function runSeed(file) {
     console.log(`\n🚀 Running ${file}...`);
     try {
-        execSync(`node ${path.join(SEEDS_DIR, file)}`, { stdio: 'inherit', cwd: path.dirname(SEEDS_DIR) });
+        execSync(`node ${path.join(BACKEND_ROOT, file)}`, { stdio: 'inherit', cwd: BACKEND_ROOT });
         console.log(`✅ ${file} completed`);
     } catch (error) {
         console.error(`❌ ${file} failed:`, error.message);

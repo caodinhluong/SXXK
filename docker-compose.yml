@@ -1,0 +1,23 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: sxxk-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: xuatnhapkhau
+      MYSQL_USER: sxxk
+      MYSQL_PASSWORD: sxxk123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_sxxk_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot123"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  mysql_sxxk_data:

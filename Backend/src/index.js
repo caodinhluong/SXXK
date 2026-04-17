@@ -52,7 +52,7 @@ const quydoiRoutes = require('./routes/quydoi.routes');
 const scheduleTyGiaUpdate = require('./cron/tygia.cron');
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(corsMiddleware);

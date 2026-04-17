@@ -5,6 +5,19 @@ const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/auth`;
 
 const api = createApiInstance(API_BASE_URL);
 
+const persistAuthData = (authData = {}) => {
+    const { token, refreshToken, DoanhNghiep, HaiQuan } = authData;
+    const user = DoanhNghiep
+        ? { ...DoanhNghiep, role: "business" }
+        : HaiQuan
+            ? { ...HaiQuan, role: "Admin" }
+            : null;
+
+    if (token) localStorage.setItem("accessToken", token);
+    if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+    if (user) localStorage.setItem("user", JSON.stringify(user));
+};
+
 // Đăng ký doanh nghiệp
 export const registerBusiness = async (data) => {
     try {
@@ -20,12 +33,7 @@ export const registerBusiness = async (data) => {
 export const loginBusiness = async (data) => {
     try {
         const res = await api.post("/login", data);
-
-        // BE trả về kiểu nào thì lấy đúng key đó
-        const { token, refreshToken } = res.data?.data || {};
-
-        if (token) localStorage.setItem("accessToken", token);
-        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+        persistAuthData(res.data?.data);
 
         return res.data;
     } catch (err) {
@@ -38,11 +46,7 @@ export const loginBusiness = async (data) => {
 export const loginHaiQuan = async (data) => {
     try {
         const res = await api.post("/login-haiquan", data);
-
-        const { token, refreshToken } = res.data?.data || {};
-
-        if (token) localStorage.setItem("accessToken", token);
-        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+        persistAuthData(res.data?.data);
 
         return res.data;
     } catch (err) {
