@@ -1803,6 +1803,9 @@ body.ant-scrolling-effect {
 .ant-breadcrumb-separator {
   color: var(--text-tertiary);
   margin: 0 8px;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
 }
 
 /* Last breadcrumb item (current page) */

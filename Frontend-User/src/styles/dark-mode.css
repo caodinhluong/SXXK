@@ -386,6 +386,9 @@
 
   .ant-breadcrumb-separator {
     color: #94a3b8;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
   }
 
   /* Steps in dark mode */

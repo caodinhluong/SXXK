@@ -25,7 +25,9 @@ import {
     createToKhaiNhap, 
     getAllToKhaiNhap,
     importToKhaiNhapFromExcel,
-    getTemplateToKhaiNhap
+    importToKhaiFromHaiQuanExcel,
+    getTemplateToKhaiNhap,
+    getTemplateHaiQuanExcel
 } from "../../services/tokhainhap.service";
 import { createLoHang, getAllLoHang } from "../../services/lohang.service";
 import { createHoaDonNhap, getAllHoaDonNhap } from "../../services/hoadonnhap.service";
@@ -65,6 +67,7 @@ const NhapToKhaiNhap = () => {
     // ✅ Import Excel state
     const [importModalVisible, setImportModalVisible] = useState(false);
     const [importLoading, setImportLoading] = useState(false);
+    const [importFormat, setImportFormat] = useState("he_thong");
     const [selectedLoHang, setSelectedLoHang] = useState(null);
     const [loHangList, setLoHangList] = useState([]);
 
@@ -146,14 +149,14 @@ const NhapToKhaiNhap = () => {
         try {
             setImportLoading(true);
             const reader = new FileReader();
-            const data = await new Promise((resolve, reject) => {
+            const jsonData = await new Promise((resolve, reject) => {
                 reader.onload = (e) => {
                     try {
                         const workbook = XLSX.read(e.target.result, { type: "binary" });
                         const sheetName = workbook.SheetNames[0];
                         const sheet = workbook.Sheets[sheetName];
-                        const jsonData = XLSX.utils.sheet_to_json(sheet);
-                        resolve(jsonData);
+                        const data = XLSX.utils.sheet_to_json(sheet);
+                        resolve(data);
                     } catch (err) {
                         reject(err);
                     }
@@ -162,7 +165,48 @@ const NhapToKhaiNhap = () => {
                 reader.readAsBinaryString(file);
             });
 
-            const res = await importToKhaiNhapFromExcel(data, selectedLoHang);
+            let res;
+            if (importFormat === "hai_quan") {
+                if (jsonData.length === 0) {
+                    throw new Error("File Excel không có dữ liệu");
+                }
+                
+                // Đọc dữ liệu từ các ô cố định của file hải quan (vnaccs format)
+                // E4=Số TK, L6=Mã LH, F8=Ngày đăng ký
+                const sheet = workbook.Sheets[sheetName];
+                const getCellValue = (addr) => sheet[addr]?.v || '';
+                
+                const parsedRow = {
+                  'Số tờ khai': getCellValue('E4'),
+                  'Mã loại hình': getCellValue('L6'),
+                  'Ngày đăng ký': getCellValue('F8'),
+                  'Cơ quan Hải quan tiếp nhận': getCellValue('J7'),
+                  'Mã số thuế đại diện': getCellValue('Y6')
+                };
+                
+                // Fallback: thử đọc từ jsonData nếu không có ô cố định
+                if (!parsedRow['Số tờ khai'] && jsonData[0]) {
+                  const firstRow = jsonData[0];
+                  for (const [key, value] of Object.entries(firstRow)) {
+                    if (key.includes('Số tờ khai') || key.includes('so_tk')) {
+                      parsedRow['Số tờ khai'] = value;
+                    } else if (key.includes('Mã loại hình') || key.includes('ma_loai')) {
+                      parsedRow['Mã loại hình'] = value;
+                    } else if (key.includes('Ngày') || key.includes('ngay')) {
+                      parsedRow['Ngày đăng ký'] = value;
+                    }
+                  }
+                }
+                
+                if (!parsedRow['Số tờ khai']) {
+                  throw new Error("Không tìm thấy số tờ khai trong file");
+                }
+                
+                res = await importToKhaiFromHaiQuanExcel(parsedRow, selectedLoHang, false);
+            } else {
+                res = await importToKhaiNhapFromExcel(jsonData, selectedLoHang);
+            }
+            
             if (res.success) {
                 message.success(`Import thành công: ${res.data?.thanh_cong || 0} tờ khai`);
                 setImportModalVisible(false);
@@ -974,13 +1018,45 @@ const NhapToKhaiNhap = () => {
                 open={importModalVisible}
                 onCancel={() => setImportModalVisible(false)}
                 footer={null}
-                width={500}
+                width={600}
             >
                 <div style={{ padding: "16px 0" }}>
-                    <p style={{ marginBottom: 16 }}>
-                        Chọn file Excel để import tờ khai. Đảm bảo file có các cột: <b>so_tk, ngay_tk, ma_to_khai, loai_hang, cang_nhap, tong_tri_gia, thue_nhap_khau, thue_gtgt</b>
-                    </p>
                     <Form layout="vertical">
+                        <Form.Item label="Định dạng file Excel">
+                            <Select
+                                value={importFormat}
+                                onChange={setImportFormat}
+                                style={{ width: "100%" }}
+                            >
+                                <Option value="he_thong">
+                                    Mẫu hệ thống (so_tk, ngay_tk, ma_to_khai...)
+                                </Option>
+                                <Option value="hai_quan">
+                                    Tờ khai hải quan (VNACCS/VCIS)
+                                </Option>
+                            </Select>
+                        </Form.Item>
+                        
+                        {importFormat === "he_thong" && (
+                            <p style={{ marginBottom: 16, color: "#666" }}>
+                                File Excel cần có các cột: <b>so_tk, ngay_tk, ma_to_khai, loai_hang, cang_nhap, tong_tri_gia</b>
+                            </p>
+                        )}
+                        
+                        {importFormat === "hai_quan" && (
+                            <div style={{ marginBottom: 16, padding: 12, background: "#f5f5f5", borderRadius: 6 }}>
+                                <p style={{ marginBottom: 8, color: "#666" }}>
+                                    <b>Định dạng hải quan</b> - File xuất từ hệ thống VNACCS/VCIS
+                                </p>
+                                <ul style={{ marginBottom: 0, paddingLeft: 16, color: "#666", fontSize: 13 }}>
+                                    <li>Số tờ khai</li>
+                                    <li>Mã loại hình (E11, E12, E13...)</li>
+                                    <li>Ngày đăng ký (DD/MM/YYYY)</li>
+                                    <li>Cơ quan Hải quan tiếp nhận</li>
+                                </ul>
+                            </div>
+                        )}
+
                         <Form.Item label="Chọn Lô hàng" required>
                             <Select
                                 placeholder="Chọn lô hàng"

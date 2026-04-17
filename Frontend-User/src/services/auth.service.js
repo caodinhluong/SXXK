@@ -22,10 +22,11 @@ export const loginBusiness = async (data) => {
         const res = await api.post("/login", data);
 
         // BE trả về kiểu nào thì lấy đúng key đó
-        const { token, refreshToken } = res.data?.data || {};
+        const { token, refreshToken, DoanhNghiep } = res.data?.data || {};
 
         if (token) localStorage.setItem("accessToken", token);
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+        if (DoanhNghiep) localStorage.setItem("user", JSON.stringify(DoanhNghiep));
 
         return res.data;
     } catch (err) {
@@ -39,10 +40,11 @@ export const loginHaiQuan = async (data) => {
     try {
         const res = await api.post("/login-haiquan", data);
 
-        const { token, refreshToken } = res.data?.data || {};
+        const { token, refreshToken, HaiQuan } = res.data?.data || {};
 
         if (token) localStorage.setItem("accessToken", token);
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+        if (HaiQuan) localStorage.setItem("user", JSON.stringify(HaiQuan));
 
         return res.data;
     } catch (err) {
@@ -59,10 +61,11 @@ export const refreshAccessToken = async () => {
 
         const res = await api.post("/refresh", { refreshToken });
 
-        const { accessToken, refreshToken: newRefresh } = res.data?.data || {};
+        const { accessToken, refreshToken: newRefresh, user } = res.data?.data || {};
 
         if (accessToken) localStorage.setItem("accessToken", accessToken);
         if (newRefresh) localStorage.setItem("refreshToken", newRefresh);
+        if (user) localStorage.setItem("user", JSON.stringify(user));
 
         return res.data;
     } catch (err) {
@@ -70,6 +73,7 @@ export const refreshAccessToken = async () => {
         // Nếu refresh fail thì xóa token
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
         throw formatServiceError(err, "Lỗi khi làm mới token");
     }
 };
