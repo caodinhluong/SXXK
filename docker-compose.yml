@@ -1,4 +1,20 @@
 services:
+  chatbot:
+    build: ./ai/chatbot
+    container_name: sxxk-chatbot
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ai/chatbot/data:/app/data
+    env_file:
+      - ./ai/chatbot/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   mysql:
     image: mysql:8.0
     container_name: sxxk-mysql
