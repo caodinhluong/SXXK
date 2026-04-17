@@ -4,6 +4,7 @@ import { formatServiceError, logError } from "../utils/errorHandler";
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/auth`;
 
 const api = createApiInstance(API_BASE_URL);
+
 const persistAuthData = (authData = {}) => {
     const { token, refreshToken, DoanhNghiep, HaiQuan } = authData;
     const user = DoanhNghiep
@@ -16,6 +17,7 @@ const persistAuthData = (authData = {}) => {
     if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
     if (user) localStorage.setItem("user", JSON.stringify(user));
 };
+
 // Đăng ký doanh nghiệp
 export const registerBusiness = async (data) => {
     try {
@@ -31,11 +33,7 @@ export const registerBusiness = async (data) => {
 export const loginBusiness = async (data) => {
     try {
         const res = await api.post("/login", data);
-
-        // BE trả về kiểu nào thì lấy đúng key đó
         persistAuthData(res.data?.data);
-
-
         return res.data;
     } catch (err) {
         logError("loginBusiness", err);
@@ -47,10 +45,7 @@ export const loginBusiness = async (data) => {
 export const loginHaiQuan = async (data) => {
     try {
         const res = await api.post("/login-haiquan", data);
-
         persistAuthData(res.data?.data);
-
-
         return res.data;
     } catch (err) {
         logError("loginHaiQuan", err);

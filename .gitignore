@@ -1,50 +1,50 @@
-# Dependencies
+# ── Node / npm ──────────────────────────────────────────────
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Environment files
+# ── Build outputs ────────────────────────────────────────────
+dist/
+dist-ssr/
+build/
+
+# ── Environment files (.env.example được giữ lại) ────────────
 .env
-.env.*
 .env.local
 .env.development
 .env.production
+.env.staging
 
-# Backend
-Backend/.env
-Backend/node_modules/
+# ── Backend ──────────────────────────────────────────────────
 Backend/uploads/
-Backend/dist/
 
-# Frontend User
-Frontend-User/node_modules/
-Frontend-User/dist/
-Frontend-User/.env
+# ── AI / Chatbot (Python) ────────────────────────────────────
+ai/chatbot/.venv/
+ai/chatbot/venv/
+ai/chatbot/__pycache__/
+ai/chatbot/**/__pycache__/
+ai/chatbot/**/*.py[cod]
 
-# Frontend Admin
-Frontend-Admin/node_modules/
-Frontend-Admin/dist/
-Frontend-Admin/.env
+# Data sinh ra khi chạy — không commit
+ai/chatbot/data/documents/
+ai/chatbot/data/vector_store/
+ai/chatbot/data/faiss_cache/
+ai/chatbot/data/bm25_cache/
+ai/chatbot/data/*.db
 
-# Kilo/Kiro config (local)
-.kilo/
-.kiro/
+# ── OS ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
 
-# IDE
+# ── IDE / Editor ─────────────────────────────────────────────
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
+# ── Misc ─────────────────────────────────────────────────────
 *.log
-npm-debug.log*
-
-# Build outputs
-dist/
-build/
-
-# Kilo config (local)
 .kilo/
+.kiro/

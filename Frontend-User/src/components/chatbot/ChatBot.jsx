@@ -1,40 +1,32 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Input, Button, Badge, Typography } from "antd";
-import { MessageCircle, X, Minimize2, Maximize2, Send, Bot } from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Input, Button, Badge, Typography, Spin } from "antd";
+import { MessageCircle, X, Minimize2, Maximize2, Send, Bot, RotateCcw } from "lucide-react";
+import { createSession, streamAnswer } from "../../services/chatbotApi";
 
 const { Text } = Typography;
 
-const defaultQuestions = [
-    "Tra cứu tờ khai nhập",
-    "Tra cứu tờ khai xuất",
-    "Xem tồn kho hiện tại",
-    "Tạo định mức sản phẩm",
-    "Đối soát nhập hàng",
-    "Hướng dẫn sử dụng",
-];
 
-const quickReplies = [
-    { key: "tk_nhap", label: "Tra TK nhập" },
-    { key: "tk_xuat", label: "Tra TK xuất" },
-    { key: "ton_kho", label: "Tồn kho" },
-    { key: "dinh_muc", label: "Định mức" },
-    { key: "doi_soat", label: "Đối soát" },
-];
+const WELCOME_MSG = {
+    id: "welcome",
+    type: "bot",
+    content:
+        "Xin chào! Tôi là trợ lý ảo giúp bạn sử dụng phần mềm Quản lý Xuất Nhập Khẩu (SXXK). Hãy đặt câu hỏi về bất kỳ tính năng nào bạn cần hỗ trợ.",
+    timestamp: new Date(),
+};
 
 const ChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isMaximized, setIsMaximized] = useState(false);
-    const [messages, setMessages] = useState([
-        {
-            id: 1,
-            type: "bot",
-            content: "Xin chào! Tôi là trợ lý ảo của hệ thống hỗ trợ người dùng tạo báo cáo thanh khoản cho các hợp đồng sản xuất xuất khẩu. Tôi có thể giúp bạn:",
-            timestamp: new Date(),
-        },
-    ]);
+    const [messages, setMessages] = useState([WELCOME_MSG]);
     const [inputValue, setInputValue] = useState("");
+    const [isStreaming, setIsStreaming] = useState(false);
+    const [sessionId, setSessionId] = useState(null);
+
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
+    const abortRef = useRef(null);
 
     useEffect(() => {
         if (isOpen && messagesEndRef.current) {
@@ -48,67 +40,86 @@ const ChatBot = () => {
         }
     }, [isOpen]);
 
+    // Cleanup abort on unmount
+    useEffect(() => () => abortRef.current?.(), []);
+
+    const ensureSession = useCallback(async (question) => {
+        if (sessionId) return sessionId;
+        const session = await createSession(question.slice(0, 80));
+        setSessionId(session.id);
+        return session.id;
+    }, [sessionId]);
+
+    const appendBotStreaming = (id) => {
+        setMessages((prev) => [
+            ...prev,
+            { id, type: "bot", content: "", streaming: true, timestamp: new Date() },
+        ]);
+    };
+
+    const appendChunk = (id, chunk) => {
+        setMessages((prev) =>
+            prev.map((m) => m.id === id ? { ...m, content: m.content + chunk } : m)
+        );
+    };
+
+    const finalizeBot = (id) => {
+        setMessages((prev) =>
+            prev.map((m) => m.id === id ? { ...m, streaming: false } : m)
+        );
+    };
+
+    const appendError = (id, errorText) => {
+        setMessages((prev) =>
+            prev.map((m) =>
+                m.id === id
+                    ? { ...m, content: errorText || "Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại.", streaming: false, isError: true }
+                    : m
+            )
+        );
+    };
+
+    const sendQuestion = useCallback(async (question) => {
+        if (!question.trim() || isStreaming) return;
+
+        const userMsg = {
+            id: `user-${Date.now()}`,
+            type: "user",
+            content: question.trim(),
+            timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, userMsg]);
+        setIsStreaming(true);
+
+        const botId = `bot-${Date.now()}`;
+        appendBotStreaming(botId);
+
+        try {
+            const sid = await ensureSession(question);
+
+            abortRef.current?.(); // cancel previous if any
+            abortRef.current = streamAnswer(sid, question.trim(), {
+                onChunk: (chunk) => appendChunk(botId, chunk),
+                onDone: () => {
+                    finalizeBot(botId);
+                    setIsStreaming(false);
+                },
+                onError: (msg) => {
+                    appendError(botId, msg);
+                    setIsStreaming(false);
+                },
+            });
+        } catch (err) {
+            appendError(botId, `Không thể kết nối đến chatbot: ${err.message}`);
+            setIsStreaming(false);
+        }
+    }, [isStreaming, ensureSession]);
+
     const handleSend = () => {
         if (!inputValue.trim()) return;
-
-        const userMsg = {
-            id: Date.now(),
-            type: "user",
-            content: inputValue.trim(),
-            timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, userMsg]);
+        const q = inputValue.trim();
         setInputValue("");
-
-        setTimeout(() => {
-            const botResponse = getBotResponse(userMsg.content);
-            setMessages((prev) => [...prev, botResponse]);
-        }, 500);
-    };
-
-    const handleQuickReply = (key) => {
-        const question = quickReplies.find((q) => q.key === key)?.label || "";
-        const userMsg = {
-            id: Date.now(),
-            type: "user",
-            content: question,
-            timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, userMsg]);
-
-        setTimeout(() => {
-            const botResponse = getBotResponse(key);
-            setMessages((prev) => [...prev, botResponse]);
-        }, 500);
-    };
-
-    const getBotResponse = (input) => {
-        const lowerInput = input.toLowerCase();
-        let content = "";
-        let suggestion = null;
-
-        if (lowerInput.includes("tk_nhap") || lowerInput.includes("tra tk nhập")) {
-            content = "Để tra cứu tờ khai nhập, bạn vào menu: Tờ khai → Quản lý tờ khai nhập. Tại đây bạn có thể:\n• Xem danh sách tờ khai\n• Tìm kiếm theo số tờ khai, ngày\n• Xem chi tiết từng tờ khai\n• Import từ Excel";
-        } else if (lowerInput.includes("tk_xuat") || lowerInput.includes("tra tk xuất")) {
-            content = "Để tra cứu tờ khai xuất, bạn vào menu: Tờ khai → Quản lý tờ khai xuất.";
-        } else if (lowerInput.includes("ton_kho") || lowerInput.includes("tồn kho")) {
-            content = "Để xem tồn kho, bạn vào menu: Kho → Tồn kho. Hiển thị:\n• Tồn kho nguyên phụ liệu\n• Tồn kho sản phẩm\n• Báo cáo tồn kho theo kỳ";
-        } else if (lowerInput.includes("dinh_muc") || lowerInput.includes("định mức")) {
-            content = "Để quản lý định mức, bạn vào menu: Danh mục → Định mức. Tại đây bạn có thể:\n• Thêm mới định mức\n• Import từ Excel\n• Chỉnh sửa định mức";
-        } else if (lowerInput.includes("doi_soat") || lowerInput.includes("đối soát")) {
-            content = "Để đối soát, bạn vào menu:\n• Đối soát nhập - Kiểm tra phiếu nhập kho vs tờ khai\n• Đối soát xuất - Kiểm tra phiếu xuất kho vs tờ khai\n• Đối soát định mức - Kiểm tra định mức vs sử dụng";
-        } else if (lowerInput.includes("hướng dẫn") || lowerInput.includes("help")) {
-            content = "Hướng sử dụng:\n1. Đăng nhập bằng tài khoản doanh nghiệp\n2. Vào Danh mục để nhập SP, NPL, định mức\n3. Vào Hợp đồng để tạo hợp đồng\n4. Vào Tờ khai để khai báo\n5. Vào Kho để nhập/xuất hàng\n6. Vào Đối soát để đối chiếu";
-        } else {
-            content = "Xin lỗi, tôi chưa hiểu yêu cầu của bạn. Bạn có thể:\n• Chọn các câu hỏi nhanh bên dưới\n• Liên hệsupport để được hỗ trợ";
-        }
-
-        return {
-            id: Date.now(),
-            type: "bot",
-            content,
-            timestamp: new Date(),
-        };
+        sendQuestion(q);
     };
 
     const handleKeyPress = (e) => {
@@ -122,7 +133,6 @@ const ChatBot = () => {
         <>
             {isOpen && (
                 <div
-                    className="chatbot-window"
                     style={{
                         position: "fixed",
                         bottom: 80,
@@ -150,6 +160,7 @@ const ChatBot = () => {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "space-between",
+                            flexShrink: 0,
                         }}
                     >
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -157,6 +168,20 @@ const ChatBot = () => {
                             <Text strong style={{ color: "#fff" }}>Trợ lý ảo SXXK</Text>
                         </div>
                         <div style={{ display: "flex", gap: 4 }}>
+                            <Button
+                                type="text"
+                                size="small"
+                                icon={<RotateCcw size={16} />}
+                                onClick={() => {
+                                    abortRef.current?.();
+                                    setMessages([WELCOME_MSG]);
+                                    setSessionId(null);
+                                    setIsStreaming(false);
+                                    setInputValue("");
+                                }}
+                                style={{ color: "#fff" }}
+                                title="Cuộc hội thoại mới"
+                            />
                             <Button
                                 type="text"
                                 size="small"
@@ -194,56 +219,42 @@ const ChatBot = () => {
                                 }}
                             >
                                 <div
-                                    style={{
+                                                    style={{
                                         maxWidth: "80%",
                                         padding: "10px 14px",
                                         borderRadius: 12,
                                         background:
                                             msg.type === "user"
                                                 ? "linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)"
+                                                : msg.isError
+                                                ? "#fff2f0"
                                                 : "var(--gray-1, #f5f5f5)",
-                                        color: msg.type === "user" ? "#fff" : "var(--text-primary, #333)",
-                                        whiteSpace: "pre-wrap",
+                                        color:
+                                            msg.type === "user"
+                                                ? "#fff"
+                                                : msg.isError
+                                                ? "#cf1322"
+                                                : "var(--text-primary, #333)",
                                         fontSize: 14,
-                                        lineHeight: 1.5,
+                                        lineHeight: 1.6,
                                     }}
                                 >
-                                    {msg.content}
+                                    {msg.type === "user" ? (
+                                        <span style={{ whiteSpace: "pre-wrap" }}>{msg.content}</span>
+                                    ) : (
+                                        <div className="md-body">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                                            {msg.streaming && (
+                                                <Spin size="small" style={{ marginLeft: 4 }} />
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Quick Replies */}
-                    <div
-                        style={{
-                            padding: "8px 12px",
-                            borderTop: "1px solid var(--border-color, #e5e5e5)",
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: 6,
-                        }}
-                    >
-                        {quickReplies.map((q, index) => {
-                            const colors = ["#1890ff", "#52c41a", "#faad14", "#f5222d", "#722ed1"];
-                            return (
-                                <Button
-                                    key={q.key}
-                                    size="small"
-                                    onClick={() => handleQuickReply(q.key)}
-                                    style={{
-                                        fontSize: 12,
-                                        background: colors[index % colors.length],
-                                        borderColor: colors[index % colors.length],
-                                        color: "#fff",
-                                    }}
-                                >
-                                    {q.label}
-                                </Button>
-                            );
-                        })}
-                    </div>
 
                     {/* Input */}
                     <div
@@ -252,23 +263,31 @@ const ChatBot = () => {
                             borderTop: "1px solid var(--border-color, #e5e5e5)",
                             display: "flex",
                             gap: 8,
+                            flexShrink: 0,
                         }}
                     >
                         <Input
                             ref={inputRef}
-                            placeholder="Nhập tin nhắn..."
+                            placeholder="Nhập câu hỏi..."
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyPress={handleKeyPress}
+                            disabled={isStreaming}
                             style={{ flex: 1 }}
                         />
-                        <Button type="primary" icon={<Send size={16} />} onClick={handleSend} />
+                        <Button
+                            type="primary"
+                            icon={<Send size={16} />}
+                            onClick={handleSend}
+                            disabled={isStreaming || !inputValue.trim()}
+                            loading={isStreaming}
+                        />
                     </div>
                 </div>
             )}
 
-            {/* Chat Button */}
-            <Badge dot>
+            {/* Floating button */}
+            <Badge dot={!isOpen}>
                 <Button
                     type="primary"
                     shape="circle"

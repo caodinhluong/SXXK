@@ -5,6 +5,7 @@ import {
   Building2,
   DollarSign,
   Package,
+  Bot,
 } from 'lucide-react';
 
 const menuItems = [
@@ -31,6 +32,12 @@ const menuItems = [
     icon: <Package size={18} />,
     label: 'Đơn vị tính HQ',
     path: '/don-vi-tinh-hq',
+  },
+  {
+    key: '/chatbot-admin',
+    icon: <Bot size={18} />,
+    label: 'Quản lý Chatbot',
+    path: '/chatbot-admin',
   },
 ];
 

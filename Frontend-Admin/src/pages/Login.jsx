@@ -7,6 +7,7 @@ import axios from 'axios';
 const { Title, Text } = Typography;
 
 const Login = () => {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
@@ -38,7 +39,7 @@ const Login = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://localhost:3000/api/auth/login-haiquan', {
+      const response = await axios.post(`${apiBaseUrl}/auth/login-haiquan`, {
         tai_khoan: values.email,
         mat_khau: values.password,
       });
