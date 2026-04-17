@@ -71,6 +71,18 @@ const NhapToKhaiNhap = () => {
     const [selectedLoHang, setSelectedLoHang] = useState(null);
     const [loHangList, setLoHangList] = useState([]);
 
+    // ✅ Lưu giá trị mặc định cho cảng xuất/nhập (qui trình 3 lượt)
+    const [defaultPorts, setDefaultPorts] = useState(() => {
+        const saved = localStorage.getItem('defaultPorts');
+        return saved ? JSON.parse(saved) : {
+            cang_xuat: '',
+            cang_nhap: '',
+            vd_cang_xuat: '',
+            vd_cang_nhap: '',
+            tk_cang_nhap: ''
+        };
+    });
+
     /* ============================================================
        🟢 LẤY DỮ LIỆU BAN ĐẦU
     ============================================================ */
@@ -98,7 +110,24 @@ const NhapToKhaiNhap = () => {
                 setLoading(false);
             }
         };
-        fetchData();
+fetchData();
+    }, []);
+
+    // ✅ Set giá trị mặc định cho cảng xuất/nhập khi component mount (qui trình 3 lượt)
+    useEffect(() => {
+        if (defaultPorts.cang_xuat || defaultPorts.cang_nhap || defaultPorts.vd_cang_xuat || defaultPorts.vd_cang_nhap || defaultPorts.tk_cang_nhap) {
+            formLoHang.setFieldsValue({
+                cang_xuat: defaultPorts.cang_xuat,
+                cang_nhap: defaultPorts.cang_nhap,
+            });
+            formHoaDonVanDon.setFieldsValue({
+                vd_cang_xuat: defaultPorts.vd_cang_xuat,
+                vd_cang_nhap: defaultPorts.vd_cang_nhap,
+            });
+            formToKhai.setFieldsValue({
+                cang_nhap: defaultPorts.tk_cang_nhap,
+            });
+        }
     }, []);
 
     /* ============================================================
@@ -494,6 +523,17 @@ const NhapToKhaiNhap = () => {
 
             showCreateSuccess('Tờ khai nhập');
 
+            // ✅ Lưu giá trị cảng xuất/nhập vào localStorage (qui trình 3 lượt)
+            const newDefaultPorts = {
+                cang_xuat: loHangForm.cang_xuat || defaultPorts.cang_xuat,
+                cang_nhap: loHangForm.cang_nhap || defaultPorts.cang_nhap,
+                vd_cang_xuat: hoaDonForm.vd_cang_xuat || defaultPorts.vd_cang_xuat,
+                vd_cang_nhap: hoaDonForm.vd_cang_nhap || defaultPorts.vd_cang_nhap,
+                tk_cang_nhap: toKhaiForm.cang_nhap || defaultPorts.tk_cang_nhap,
+            };
+            localStorage.setItem('defaultPorts', JSON.stringify(newDefaultPorts));
+            setDefaultPorts(newDefaultPorts);
+
             // Reset state/forms
             setCurrent(0);
             formLoHang.resetFields();
@@ -505,6 +545,19 @@ const NhapToKhaiNhap = () => {
             setFileToKhai(null);
             setFileExcelImport(null);
             setChiTietHoaDon([{ key: 1, id_npl: null, so_luong: 0, don_gia: 0, tri_gia: 0 }]);
+
+            // ✅ Set giá trị mặc định vào form sau khi reset (qui trình 3 lượt)
+            formLoHang.setFieldsValue({
+                cang_xuat: defaultPorts.cang_xuat,
+                cang_nhap: defaultPorts.cang_nhap,
+            });
+            formHoaDonVanDon.setFieldsValue({
+                vd_cang_xuat: defaultPorts.vd_cang_xuat,
+                vd_cang_nhap: defaultPorts.vd_cang_nhap,
+            });
+            formToKhai.setFieldsValue({
+                cang_nhap: defaultPorts.tk_cang_nhap,
+            });
         } catch (err) {
             console.error("onFinish error:", err);
             showSaveError('tờ khai nhập');
