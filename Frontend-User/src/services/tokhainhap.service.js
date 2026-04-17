@@ -137,6 +137,48 @@ export const getTemplateToKhaiNhap = async () => {
     }
 };
 
+/* ============================================================
+   🟢 IMPORT TỜ KHAI TỪ ĐỊNH DẠNG HẢI QUAN (VNACCS/VCIS)
+   data: Object từ Excel hải quan
+   id_lh: Lô hàng ID
+   loai_xuat: false cho nhập
+============================================================ */
+export const importToKhaiFromHaiQuanExcel = async (data, id_lh, loai_xuat = false) => {
+    try {
+        const res = await api.post("/import-hai-quan", { data, id_lh, loai_xuat });
+        return res.data;
+    } catch (err) {
+        logError("importToKhaiFromHaiQuanExcel", err);
+        throw formatServiceError(err, "Lỗi khi import từ file hải quan");
+    }
+};
+
+/* ============================================================
+   🟢 PARSE TỜ KHAI HẢI QUAN (Preview không lưu)
+============================================================ */
+export const parseToKhaiHaiQuan = async (data) => {
+    try {
+        const res = await api.post("/parse-hai-quan", { data });
+        return res.data;
+    } catch (err) {
+        logError("parseToKhaiHaiQuan", err);
+        throw formatServiceError(err, "Lỗi khi parse dữ liệu hải quan");
+    }
+};
+
+/* ============================================================
+   🟢 LẤY TEMPLATE ĐỊNH DẠNG HẢI QUAN
+============================================================ */
+export const getTemplateHaiQuanExcel = async () => {
+    try {
+        const res = await api.get("/template-hai-quan");
+        return res.data;
+    } catch (err) {
+        logError("getTemplateHaiQuanExcel", err);
+        throw formatServiceError(err, "Lỗi khi lấy template hải quan");
+    }
+};
+
 // Alias exports for compatibility
 export const getAll = getAllToKhaiNhap;
 export const getById = getToKhaiNhapById;
@@ -151,7 +193,10 @@ export default {
     updateToKhaiNhap,
     deleteToKhaiNhap,
     importToKhaiNhapFromExcel,
+    importToKhaiFromHaiQuanExcel,
+    parseToKhaiHaiQuan,
     getTemplateToKhaiNhap,
+    getTemplateHaiQuanExcel,
     // Aliases
     getAll: getAllToKhaiNhap,
     getById: getToKhaiNhapById,

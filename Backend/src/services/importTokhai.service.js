@@ -1,5 +1,7 @@
 'use strict';
 
+const ExcelJS = require('exceljs');
+
 const db = require('../models');
 const { Op } = require('sequelize');
 
@@ -26,6 +28,78 @@ const MA_TK_XUAT_MAP = {
   'G23': 'Tạm xuất tái nhập',
   'G24': 'Chuyển khẩu',
   'G61': 'Tái xuất'
+};
+
+const MA_LOAI_HINH_HQ_MAP = {
+  'E41': 'G21',
+  'E42': 'G22',
+  'E43': 'G23',
+  'E44': 'G24',
+  'E45': 'G22',
+  'E61': 'G61',
+  'E11': 'G11',
+  'E12': 'G12',
+  'E13': 'G13',
+  'E14': 'G14',
+  'E15': 'G12',
+  'E51': 'G51'
+};
+
+const convertDateHaiQuan = (dateStr) => {
+  if (!dateStr) return null;
+  const cleaned = dateStr.toString().trim();
+  const match = cleaned.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  if (match) {
+    return `${match[3]}-${match[2]}-${match[1]}`;
+  }
+  if (cleaned.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return cleaned;
+  }
+  return cleaned;
+};
+
+const mapMaLoaiHinhHaiQuan = (maHQ) => {
+  if (!maHQ) return 'G21';
+  const trimmed = maHQ.toString().trim().toUpperCase();
+  const match = trimmed.match(/^E(\d+)/);
+  if (match) {
+    const maChinh = 'E' + match[1];
+    return MA_LOAI_HINH_HQ_MAP[maChinh] || 'G21';
+  }
+  return MA_LOAI_HINH_HQ_MAP[trimmed] || 'G21';
+};
+
+const parseExcelHaiQuanToSystem = (excelData) => {
+  const data = {};
+  for (const [key, value] of Object.entries(excelData)) {
+    if (value !== null && value !== undefined && value.toString().trim()) {
+      data[key] = value.toString().trim();
+    }
+  }
+  const soTk = data['Số tờ khai'] || data['so_tk'] || data['soToKhai'] || data['Col5'];
+  const ngayTk = convertDateHaiQuan(data['Ngày đăng ký'] || data['ngay_tk'] || data['ngayToKhai']);
+  const maLoaiHinh = data['Mã loại hình'] || data['ma_to_khai'] || data['maToKhai'] || 'E42';
+  const maTk = mapMaLoaiHinhHaiQuan(maLoaiHinh);
+  const loaiHang = data['Loại hàng'] || data['loai_hang'] || 'SanPham';
+  const loaiXuat = data['Loại xuất'] || data['loai_xuat'] || loaiHang;
+  const cangXuat = data['Cơ quan Hải quan tiếp nhận'] || data['cang_xuat'] || data['ten_cang'] || '';
+  const maSoThue = data['Mã số thuế đại diện'] || data['ma_so_thue'] || '';
+  const coQuanHQ = data['Cơ quan Hải quan'] || data['co_quan_hq'] || '';
+  const maBP = data['Mã bộ phận xử lý'] || data['ma_bp'] || '';
+  return {
+    so_tk: soTk,
+    ngay_tk: ngayTk,
+    ma_to_khai: maTk,
+    loai_hang: loaiHang,
+    loai_xuat: loaiXuat,
+    cang_xuat: cangXuat,
+    ma_so_thue: maSoThue,
+    co_quan_hq: coQuanHQ,
+    ma_bp: maBP,
+    ma_loai_hinh_hq: maLoaiHinh,
+    loai_xuat: loaiHang,
+    trang_thai: 'ChoXuLy'
+  };
 };
 
 const parseExcelToToKhaiNhap = async (dataExcel, id_lh, id_dn) => {
@@ -441,15 +515,196 @@ const importToKhaiXuatFromExcel = async (data, id_lh, id_dn) => {
   return results;
 };
 
+const importToKhaiFromHaiQuanExcel = async (excelData, id_lh, id_dn, loai_xuat = true) => {
+  const results = {
+    thanh_cong: 0,
+    that_bai: 0,
+    chi_tiet: [],
+    du_lieu_goc: excelData,
+    du_lieu_da_chuyen_doi: null
+  };
+
+  if (!excelData || typeof excelData !== 'object') {
+    throw new Error('Dữ liệu Excel không hợp lệ');
+  }
+
+  try {
+    const dataChuyenDoi = parseExcelHaiQuanToSystem(excelData);
+
+    if (!dataChuyenDoi.so_tk) {
+      throw new Error('Thiếu số tờ khai');
+    }
+    if (!dataChuyenDoi.ngay_tk) {
+      throw new Error('Thiếu ngày tờ khai');
+    }
+    if (!id_lh) {
+      throw new Error('Thiếu ID lô hàng');
+    }
+
+    const existingTk = loai_xuat 
+      ? await ToKhaiXuat.findOne({ where: { so_tk: dataChuyenDoi.so_tk, id_lh } })
+      : await ToKhaiNhap.findOne({ where: { so_tk: dataChuyenDoi.so_tk, id_lh } });
+
+    if (existingTk) {
+      throw new Error(`Tờ khai số ${dataChuyenDoi.so_tk} đã tồn tại cho lô hàng này`);
+    }
+
+    let toKhai;
+    if (loai_xuat) {
+      toKhai = await ToKhaiXuat.create({
+        id_lh,
+        so_tk: dataChuyenDoi.so_tk,
+        ngay_tk: dataChuyenDoi.ngay_tk,
+        ma_to_khai: dataChuyenDoi.ma_to_khai,
+        loai_hang: dataChuyenDoi.loai_hang,
+        loai_xuat: dataChuyenDoi.loai_xuat,
+        cang_xuat: dataChuyenDoi.cang_xuat,
+        tong_tri_gia: dataChuyenDoi.tong_tri_gia || 0,
+        ghi_chu: `Import từ HQ: Mã HQ ${dataChuyenDoi.ma_loai_hinh_hq}, MST: ${dataChuyenDoi.ma_so_thue}`,
+        trang_thai: 'ChoXuLy'
+      });
+    } else {
+      toKhai = await ToKhaiNhap.create({
+        id_lh,
+        so_tk: dataChuyenDoi.so_tk,
+        ngay_tk: dataChuyenDoi.ngay_tk,
+        ma_to_khai: dataChuyenDoi.ma_to_khai,
+        loai_hang: dataChuyenDoi.loai_hang,
+        cang_nhap: dataChuyenDoi.cang_xuat,
+        tong_tri_gia: dataChuyenDoi.tong_tri_gia || 0,
+        ghi_chu: `Import từ HQ: Mã HQ ${dataChuyenDoi.ma_loai_hinh_hq}, MST: ${dataChuyenDoi.ma_so_thue}`,
+        trang_thai: 'ChoXuLy'
+      });
+    }
+
+    results.thanh_cong = 1;
+    results.chi_tiet.push({
+      so_tk: toKhai.so_tk,
+      ma_to_khai_goc: dataChuyenDoi.ma_loai_hinh_hq,
+      ma_to_khai: toKhai.ma_to_khai,
+      trang_thai: 'thanh_cong'
+    });
+    results.du_lieu_da_chuyen_doi = dataChuyenDoi;
+
+  } catch (err) {
+    results.that_bai = 1;
+    results.chi_tiet.push({
+      so_tk: excelData['Số tờ khai'] || 'Unknown',
+      trang_thai: 'that_bai',
+      loi: err.message
+    });
+  }
+
+  return results;
+};
+
+const getTemplateHaiQuanExcel = () => {
+  return {
+    ten_mau: 'Tờ khai hải quan (VNACCS/VCIS)',
+    mo_ta: 'Định dạng tờ khai xuất khẩu từ hệ thống hải quan',
+    cac_cot_goc: [
+      { ten: 'Số tờ khai', vi_tri: 'Col5', bat_buoc: true },
+      { ten: 'Mã loại hình', vi_tri: 'Col12', ghi_chu: 'E41-E61 (mã hải quan)' },
+      { ten: 'Ngày đăng ký', vi_tri: 'Col6', dinh_dang: 'DD/MM/YYYY HH:mm:ss' },
+      { ten: 'Cơ quan Hải quan tiếp nhận', vi_tri: 'Col10' },
+      { ten: 'Mã số thuế đại diện', vi_tri: 'Col25' },
+      { ten: 'Mã bộ phận xử lý tờ khai', vi_tri: 'Col25' }
+    ],
+    cac_cot_chuyen_doi: [
+      { ten_goc: 'Số tờ khai', ten_moi: 'so_tk' },
+      { ten_goc: 'Ngày đăng ký', ten_moi: 'ngay_tk', dinh_dang: 'YYYY-MM-DD' },
+      { ten_goc: 'Mã loại hình', ten_moi: 'ma_to_khai', ghi_chu: 'E41->G21, E42->G22...' }
+    ],
+    vi_du: {
+      'Số tờ khai': '305648950740',
+      'Mã loại hình': 'E42',
+      'Ngày đăng ký': '07/07/2023 09:10:19'
+    }
+  };
+};
+
 module.exports = {
   parseExcelToToKhaiNhap,
   parseExcelToToKhaiXuat,
   importToKhaiNhapFromExcel,
   importToKhaiXuatFromExcel,
+  importToKhaiFromHaiQuanExcel,
+  parseExcelHaiQuanToSystem,
   xacDinhThanhPhan,
   xacDinhThanhPhanXuat,
   getTemplateExcelNhap,
   getTemplateExcelXuat,
+  getTemplateHaiQuanExcel,
   MA_TK_NHAP_MAP,
-  MA_TK_XUAT_MAP
+  MA_TK_XUAT_MAP,
+  MA_LOAI_HINH_HQ_MAP,
+  mapMaLoaiHinhHaiQuan,
+  convertDateHaiQuan
+};
+
+const readExcelFile = async (filePath) => {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(filePath);
+  
+  const worksheet = workbook.getWorksheet(1);
+  const rows = [];
+  
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+    const rowData = {};
+    row.eachCell((cell, colNumber) => {
+      const headerCell = worksheet.getCell(1, colNumber);
+      rowData[headerCell.value] = cell.value;
+    });
+    rows.push(rowData);
+  });
+  
+  return rows;
+};
+
+const readExcelBuffer = async (buffer) => {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buffer);
+  
+  const worksheet = workbook.getWorksheet(1);
+  const headers = [];
+  
+  worksheet.getRow(1).eachCell((cell) => {
+    headers.push(cell.value);
+  });
+  
+  const rows = [];
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+    const rowData = {};
+    row.eachCell((cell, colNumber) => {
+      if (headers[colNumber - 1]) {
+        rowData[headers[colNumber - 1]] = cell.value;
+      }
+    });
+    rows.push(rowData);
+  });
+  
+  return rows;
+};
+
+module.exports = {
+  parseExcelToToKhaiNhap,
+  parseExcelToToKhaiXuat,
+  importToKhaiNhapFromExcel,
+  importToKhaiXuatFromExcel,
+  importToKhaiFromHaiQuanExcel,
+  parseExcelHaiQuanToSystem,
+  xacDinhThanhPhan,
+  xacDinhThanhPhanXuat,
+  getTemplateExcelNhap,
+  getTemplateExcelXuat,
+  getTemplateHaiQuanExcel,
+  MA_TK_NHAP_MAP,
+  MA_TK_XUAT_MAP,
+  MA_LOAI_HINH_HQ_MAP,
+  mapMaLoaiHinhHaiQuan,
+  convertDateHaiQuan,
+  readExcelFile,
+  readExcelBuffer
 };

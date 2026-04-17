@@ -34,7 +34,6 @@ export const loginBusiness = async (data) => {
     try {
         const res = await api.post("/login", data);
         persistAuthData(res.data?.data);
-
         return res.data;
     } catch (err) {
         logError("loginBusiness", err);
@@ -47,7 +46,6 @@ export const loginHaiQuan = async (data) => {
     try {
         const res = await api.post("/login-haiquan", data);
         persistAuthData(res.data?.data);
-
         return res.data;
     } catch (err) {
         logError("loginHaiQuan", err);
@@ -63,10 +61,11 @@ export const refreshAccessToken = async () => {
 
         const res = await api.post("/refresh", { refreshToken });
 
-        const { accessToken, refreshToken: newRefresh } = res.data?.data || {};
+        const { accessToken, refreshToken: newRefresh, user } = res.data?.data || {};
 
         if (accessToken) localStorage.setItem("accessToken", accessToken);
         if (newRefresh) localStorage.setItem("refreshToken", newRefresh);
+        if (user) localStorage.setItem("user", JSON.stringify(user));
 
         return res.data;
     } catch (err) {
@@ -74,6 +73,7 @@ export const refreshAccessToken = async () => {
         // Nếu refresh fail thì xóa token
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
         throw formatServiceError(err, "Lỗi khi làm mới token");
     }
 };
