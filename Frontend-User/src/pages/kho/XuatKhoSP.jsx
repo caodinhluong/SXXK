@@ -16,7 +16,10 @@ const { Title, Text } = Typography;
 // Hàm format số theo kiểu Việt Nam (1.000.000)
 const formatVNNumber = (value) => {
     if (value === null || value === undefined) return '';
-    return Number(value).toLocaleString('vi-VN');
+    return Number(value).toLocaleString('vi-VN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    });
 };
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -74,8 +77,12 @@ const XuatKhoSP = () => {
                     KhoService.getAllKho(), 
                     HoaDonXuatService.getAllHoaDonXuat()
                 ]);
+                console.log('API Kho response:', resKho);
+                console.log('API HoaDonXuat response:', resHDX);
                 setKhoList(resKho.data || []);
-                setHoaDonXuatList(resHDX.data || []);
+                const hdxData = resHDX?.data?.data || resHDX?.data || resHDX || [];
+                console.log('HoaDonXuatList set to:', hdxData);
+                setHoaDonXuatList(hdxData);
             } catch {
                 showLoadError('dữ liệu ban đầu'); 
             }
@@ -308,7 +315,7 @@ const XuatKhoSP = () => {
                  <Form form={form} layout="vertical" onFinish={onFinish}>
                     <Row gutter={24}>
                         <Col span={8}><Form.Item label="Kho xuất hàng" name="id_kho" rules={[requiredSelectRule('kho xuất')]}><Select placeholder="-- Chọn kho trước --" onChange={handleKhoChange} disabled={!!editingRecord}>{khoList.map(k => <Option key={k.id_kho} value={k.id_kho}>{k.ten_kho}</Option>)}</Select></Form.Item></Col>
-                        <Col span={8}><Form.Item label="Hóa đơn xuất" name="id_hd_xuat" rules={[requiredSelectRule('hóa đơn xuất')]}><Select placeholder="Chọn hóa đơn" onChange={handleHoaDonChange} disabled={!selectedKhoId}>{hoaDonXuatList.map(hd => <Option key={hd.id_hd_xuat} value={hd.id_hd_xuat}>{hd.so_hd}</Option>)}</Select></Form.Item></Col>
+                        <Col span={8}><Form.Item label="Hóa đơn xuất" name="id_hd_xuat" rules={[requiredSelectRule('hóa đơn xuất')]}><Select placeholder="Chọn hóa đơn" onChange={handleHoaDonChange} disabled={!selectedKhoId}>{hoaDonXuatList.map(hd => <Option key={hd.id_hd_xuat} value={hd.id_hd_xuat}>{hd.so_hd} - {hd.ngay_hd ? dayjs(hd.ngay_hd).format('DD/MM/YYYY') : 'N/A'}</Option>)}</Select></Form.Item></Col>
                         <Col span={8}><Form.Item label="Ngày xuất kho" name="ngay_xuat" rules={pastDateRules('ngày xuất')}><DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" placeholder="Chọn ngày xuất" /></Form.Item></Col>
                     </Row>
                     <Row gutter={24}>

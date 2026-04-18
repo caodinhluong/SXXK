@@ -113,7 +113,7 @@ const ToKhai = () => {
 
     const hoaDonColumns = [
         { title: 'Số Hóa đơn', dataIndex: 'so_hd' }, { title: 'Ngày HĐ', dataIndex: 'ngay_hd' },
-        { title: 'Tổng tiền', dataIndex: 'tong_tien', render: (val) => val?.toLocaleString() }, { title: 'Tiền tệ', dataIndex: 'id_tt', render: (id) => tienTeList.find(t => t.id_tt === id)?.ma_tt },
+        { title: 'Tổng tiền', dataIndex: 'tong_tien', render: (val) => val ? Number(val).toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '' }, { title: 'Tiền tệ', dataIndex: 'id_tt', render: (id) => tienTeList.find(t => t.id_tt === id)?.ma_tt },
         { title: 'Hàng hóa', key: 'chi_tiet', align: 'center', render: (_, record) => <Button type="link" onClick={() => showChiTietDrawer(record)}>Xem ({record.chiTiet?.length || 0})</Button> },
         { title: 'File', dataIndex: 'file_hoa_don', render: file => file ? <Tooltip title={file}><FileOutlined style={{ color: '#1890ff' }} /></Tooltip> : null },
         actionColumn('hoaDon', handleOpenCrudModal, (record) => console.log('Delete Hóa đơn', record.id_hd_nhap))
@@ -136,7 +136,7 @@ const ToKhai = () => {
         },
         { title: 'Số lượng', dataIndex: 'so_luong', width: 120, render: (_, record) => <InputNumber min={1} value={record.so_luong} onChange={(val) => handleChiTietChange(record.key, 'so_luong', val)} style={{ width: '100%' }} /> },
         { title: 'Đơn giá', dataIndex: 'don_gia', width: 150, render: (_, record) => <InputNumber min={0} value={record.don_gia} onChange={(val) => handleChiTietChange(record.key, 'don_gia', val)} style={{ width: '100%' }} /> },
-        { title: 'Trị giá', dataIndex: 'tri_gia', width: 150, render: (text, record) => ((record.so_luong || 0) * (record.don_gia || 0)).toLocaleString() },
+        { title: 'Trị giá', dataIndex: 'tri_gia', width: 150, render: (text, record) => Number((record.so_luong || 0) * (record.don_gia || 0)).toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) },
         { title: 'Hành động', width: 80, align: 'center', render: (_, record) => <Popconfirm title="Xóa dòng này?" onConfirm={() => handleRemoveChiTietRow(record.key)}><Button type="link" danger>Xóa</Button></Popconfirm> },
     ];
 

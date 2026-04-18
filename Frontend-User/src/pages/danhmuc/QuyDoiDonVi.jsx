@@ -14,7 +14,10 @@ const { Option } = Select;
 
 const formatVNNumber = (value) => {
     if (value === null || value === undefined) return '';
-    return Number(value).toLocaleString('vi-VN');
+    return Number(value).toLocaleString('vi-VN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    });
 };
 
 // Component hiển thị danh sách ĐVT Hải quan (chỉ xem)

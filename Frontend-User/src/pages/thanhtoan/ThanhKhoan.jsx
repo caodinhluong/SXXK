@@ -18,6 +18,14 @@ const { Option } = Select;
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
+const formatVNNumber = (value) => {
+    if (value === null || value === undefined) return '';
+    return Number(value).toLocaleString('vi-VN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    });
+};
+
 const ThanhKhoan = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
@@ -350,14 +358,14 @@ const ThanhKhoan = () => {
         { title: '(2) Mã SP', dataIndex: 'ma_sp', width: '7%' },
         { title: '(3) Tên sản phẩm', dataIndex: 'ten_sp', width: '15%' },
         { title: '(4) ĐVT', dataIndex: 'don_vi_tinh', width: '5%', align: 'center' },
-        { title: '(5) Tồn đầu kỳ', dataIndex: 'ton_dau_ky', width: '8%', align: 'right', render: (v) => v?.toLocaleString() },
-        { title: '(6) Nhập trong kỳ', dataIndex: 'nhap_kho_trong_ky', width: '9%', align: 'right', render: (v) => v?.toLocaleString() },
+        { title: '(5) Tồn đầu kỳ', dataIndex: 'ton_dau_ky', width: '8%', align: 'right', render: (v) => v !== null && v !== undefined ? formatVNNumber(v) : '' },
+        { title: '(6) Nhập trong kỳ', dataIndex: 'nhap_kho_trong_ky', width: '9%', align: 'right', render: (v) => v !== null && v !== undefined ? formatVNNumber(v) : '' },
         { 
             title: 'Xuất kho trong kỳ', 
             children: [
-                { title: '(7) Chuyển MĐ', dataIndex: 'chuyen_muc_dich', width: '8%', align: 'right', render: (v) => v?.toLocaleString() },
-                { title: '(8) Xuất khẩu', dataIndex: 'xuat_khau', width: '8%', align: 'right', render: (v) => v?.toLocaleString() },
-                { title: '(9) Xuất khác', dataIndex: 'xuat_khac', width: '8%', align: 'right', render: (v) => v?.toLocaleString() },
+                { title: '(7) Chuyển MĐ', dataIndex: 'chuyen_muc_dich', width: '8%', align: 'right', render: (v) => v !== null && v !== undefined ? formatVNNumber(v) : '' },
+                { title: '(8) Xuất khẩu', dataIndex: 'xuat_khau', width: '8%', align: 'right', render: (v) => v !== null && v !== undefined ? formatVNNumber(v) : '' },
+                { title: '(9) Xuất khác', dataIndex: 'xuat_khac', width: '8%', align: 'right', render: (v) => v !== null && v !== undefined ? formatVNNumber(v) : '' },
             ]
         },
         { 
@@ -365,7 +373,7 @@ const ThanhKhoan = () => {
             dataIndex: 'ton_cuoi_ky', 
             width: '10%', 
             align: 'right', 
-            render: (v) => <Text type={v < 0 ? 'danger' : undefined} strong={v < 0}>{v?.toLocaleString()}</Text>
+            render: (v) => <Text type={v < 0 ? 'danger' : undefined} strong={v < 0}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text>
         },
         { 
             title: '(11) Ghi chú', 
@@ -380,19 +388,19 @@ const ThanhKhoan = () => {
         { title: '(2) Mã NPL', dataIndex: 'ma_npl', width: '7%' },
         { title: '(3) Tên NPL, VT', dataIndex: 'ten_npl', width: '15%' },
         { title: '(4) ĐVT', dataIndex: 'don_vi_tinh', width: '5%', align: 'center' },
-        { title: '(5) Tồn đầu kỳ', dataIndex: 'ton_dau_ky', width: '8%', align: 'right', render: (v) => v?.toLocaleString() },
+        { title: '(5) Tồn đầu kỳ', dataIndex: 'ton_dau_ky', width: '8%', align: 'right', render: (v) => v !== null && v !== undefined ? formatVNNumber(v) : '' },
         { 
             title: 'Nhập trong kỳ', 
             children: [
-                { title: '(6) Tái nhập', dataIndex: 'tai_nhap', width: '8%', align: 'right', render: (v) => v?.toLocaleString() },
-                { title: '(7) Nhập khác', dataIndex: 'nhap_khac', width: '8%', align: 'right', render: (v) => v?.toLocaleString() },
+                { title: '(6) Tái nhập', dataIndex: 'tai_nhap', width: '8%', align: 'right', render: (v) => v !== null && v !== undefined ? formatVNNumber(v) : '' },
+                { title: '(7) Nhập khác', dataIndex: 'nhap_khac', width: '8%', align: 'right', render: (v) => v !== null && v !== undefined ? formatVNNumber(v) : '' },
             ]
         },
         { 
             title: 'Xuất trong kỳ', 
             children: [
-                { title: '(8) Xuất SX', dataIndex: 'xuat_san_pham', width: '8%', align: 'right', render: (v) => v?.toLocaleString() },
-                { title: '(9) Chuyển MĐ', dataIndex: 'thay_doi_muc_dich', width: '8%', align: 'right', render: (v) => v?.toLocaleString() },
+                { title: '(8) Xuất SX', dataIndex: 'xuat_san_pham', width: '8%', align: 'right', render: (v) => v !== null && v !== undefined ? formatVNNumber(v) : '' },
+                { title: '(9) Chuyển MĐ', dataIndex: 'thay_doi_muc_dich', width: '8%', align: 'right', render: (v) => v !== null && v !== undefined ? formatVNNumber(v) : '' },
             ]
         },
         { 
@@ -400,7 +408,7 @@ const ThanhKhoan = () => {
             dataIndex: 'ton_cuoi_ky', 
             width: '10%', 
             align: 'right', 
-            render: (v) => <Text type={v < 0 ? 'danger' : undefined} strong={v < 0}>{v?.toLocaleString()}</Text>
+            render: (v) => <Text type={v < 0 ? 'danger' : undefined} strong={v < 0}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text>
         },
         { 
             title: '(11) Ghi chú', 
@@ -423,7 +431,7 @@ const ThanhKhoan = () => {
                 { title: '(7) ĐVT', dataIndex: 'don_vi_tinh_npl', width: '7%', align: 'center' }
             ]
         },
-        { title: '(8) Định mức/1SP', dataIndex: 'luong_sd', width: '11%', align: 'right', render: (v) => v?.toLocaleString() },
+        { title: '(8) Định mức/1SP', dataIndex: 'luong_sd', width: '11%', align: 'right', render: (v) => v !== null && v !== undefined ? formatVNNumber(v) : '' },
         { title: '(9) Ghi chú', dataIndex: 'ghi_chu', width: '12%' },
     ];
     
@@ -548,110 +556,6 @@ const ThanhKhoan = () => {
                             </Descriptions.Item>
                         </Descriptions>
 
-                        {/* Summary Statistics Cards */}
-                        {summaryStats && (
-                            <Card 
-                                title={
-                                    <Space>
-                                        <CalculatorOutlined />
-                                        <span>Tổng quan Báo cáo</span>
-                                    </Space>
-                                } 
-                                size="small" 
-                                style={{ marginBottom: 24, backgroundColor: '#fafafa' }}
-                                className="no-print"
-                            >
-                                <Row gutter={[16, 16]}>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Card size="small" style={{ textAlign: 'center', borderColor: '#1890ff' }}>
-                                            <Statistic
-                                                title="Tổng số NPL"
-                                                value={summaryStats.totalNPL}
-                                                prefix={<InboxOutlined />}
-                                                valueStyle={{ color: '#1890ff' }}
-                                            />
-                                        </Card>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Card size="small" style={{ textAlign: 'center', borderColor: '#52c41a' }}>
-                                            <Statistic
-                                                title="Tổng số SP"
-                                                value={summaryStats.totalSP}
-                                                prefix={<InboxOutlined />}
-                                                valueStyle={{ color: '#52c41a' }}
-                                            />
-                                        </Card>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Card size="small" style={{ textAlign: 'center', borderColor: '#faad14' }}>
-                                            <Statistic
-                                                title="Tổng Nhập (NPL)"
-                                                value={summaryStats.totalNhapNPL}
-                                                prefix={<RiseOutlined />}
-                                                valueStyle={{ color: '#faad14' }}
-                                                precision={2}
-                                            />
-                                        </Card>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Card size="small" style={{ textAlign: 'center', borderColor: '#f5222d' }}>
-                                            <Statistic
-                                                title="Tổng Xuất (NPL)"
-                                                value={summaryStats.totalXuatNPL}
-                                                prefix={<FallOutlined />}
-                                                valueStyle={{ color: '#f5222d' }}
-                                                precision={2}
-                                            />
-                                        </Card>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Card size="small" style={{ textAlign: 'center', borderColor: '#722ed1' }}>
-                                            <Statistic
-                                                title="Tồn đầu kỳ (NPL)"
-                                                value={summaryStats.tonDauKyNPL}
-                                                prefix={<SwapOutlined />}
-                                                valueStyle={{ color: '#722ed1' }}
-                                                precision={2}
-                                            />
-                                        </Card>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Card size="small" style={{ textAlign: 'center', borderColor: '#eb2f96' }}>
-                                            <Statistic
-                                                title="Tồn cuối kỳ (NPL)"
-                                                value={summaryStats.tonCuoiKyNPL}
-                                                prefix={<SwapOutlined />}
-                                                valueStyle={{ color: '#eb2f96' }}
-                                                precision={2}
-                                            />
-                                        </Card>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Card size="small" style={{ textAlign: 'center', borderColor: '#13c2c2' }}>
-                                            <Statistic
-                                                title="Tổng Nhập (SP)"
-                                                value={summaryStats.totalNhapSP}
-                                                prefix={<RiseOutlined />}
-                                                valueStyle={{ color: '#13c2c2' }}
-                                                precision={2}
-                                            />
-                                        </Card>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Card size="small" style={{ textAlign: 'center', borderColor: '#fa8c16' }}>
-                                            <Statistic
-                                                title="Tổng Xuất (SP)"
-                                                value={summaryStats.totalXuatSP}
-                                                prefix={<FallOutlined />}
-                                                valueStyle={{ color: '#fa8c16' }}
-                                                precision={2}
-                                            />
-                                        </Card>
-                                    </Col>
-                                </Row>
-                            </Card>
-                        )}
-
                         <Divider orientation="left" style={{ fontSize: '16px', fontWeight: 'bold' }}>
                             Chi tiết Báo cáo
                         </Divider>
@@ -775,8 +679,8 @@ const ThanhKhoan = () => {
                                                                     dataIndex: 'ton_dau_ky', 
                                                                     width: '20%', 
                                                                     align: 'right', 
-                                                                    render: (v) => <Text strong style={{ color: '#1890ff', fontSize: '14px' }}>{v?.toLocaleString()}</Text>
-                                                                },
+render: (v) => <Text strong style={{ color: '#1890ff', fontSize: '14px' }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text>
+                                                            },
                                                                 { title: 'ĐVT', dataIndex: 'don_vi_tinh', width: '15%', align: 'center', render: (text) => <Tag>{text}</Tag> }
                                                             ]}
                                                             dataSource={baoCaoData.data_ton_dau_ky?.npl || []}
@@ -795,7 +699,7 @@ const ThanhKhoan = () => {
                                                                             <Text strong style={{ fontSize: '14px' }}>📊 Tổng cộng</Text>
                                                                         </Table.Summary.Cell>
                                                                         <Table.Summary.Cell align="right">
-                                                                            <Text strong style={{ color: '#1890ff', fontSize: '15px' }}>{total.toLocaleString()}</Text>
+                                                                            <Text strong style={{ color: '#1890ff', fontSize: '15px' }}>{formatVNNumber(total)}</Text>
                                                                         </Table.Summary.Cell>
                                                                         <Table.Summary.Cell />
                                                                     </Table.Summary.Row>
@@ -826,7 +730,7 @@ const ThanhKhoan = () => {
                                                                     dataIndex: 'ton_dau_ky', 
                                                                     width: '20%', 
                                                                     align: 'right', 
-                                                                    render: (v) => <Text strong style={{ color: '#52c41a', fontSize: '14px' }}>{v?.toLocaleString()}</Text>
+                                                                    render: (v) => <Text strong style={{ color: '#52c41a', fontSize: '14px' }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text>
                                                                 },
                                                                 { title: 'ĐVT', dataIndex: 'don_vi_tinh', width: '15%', align: 'center', render: (text) => <Tag color="green">{text}</Tag> }
                                                             ]}
@@ -846,7 +750,7 @@ const ThanhKhoan = () => {
                                                                             <Text strong style={{ fontSize: '14px' }}>📊 Tổng cộng</Text>
                                                                         </Table.Summary.Cell>
                                                                         <Table.Summary.Cell align="right">
-                                                                            <Text strong style={{ color: '#52c41a', fontSize: '15px' }}>{total.toLocaleString()}</Text>
+                                                                            <Text strong style={{ color: '#52c41a', fontSize: '15px' }}>{formatVNNumber(total)}</Text>
                                                                         </Table.Summary.Cell>
                                                                         <Table.Summary.Cell />
                                                                     </Table.Summary.Row>
@@ -901,14 +805,14 @@ const ThanhKhoan = () => {
                                                                     dataIndex: 'tai_nhap', 
                                                                     width: '15%', 
                                                                     align: 'right', 
-                                                                    render: (v) => <Text style={{ color: '#52c41a', fontWeight: 500 }}>{v?.toLocaleString()}</Text>
+                                                                    render: (v) => <Text style={{ color: '#52c41a', fontWeight: 500 }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text>
                                                                 },
                                                                 { 
                                                                     title: <Tooltip title="Nhập từ nguồn khác"><span>Nhập khác 📦</span></Tooltip>, 
                                                                     dataIndex: 'nhap_khac', 
                                                                     width: '15%', 
                                                                     align: 'right', 
-                                                                    render: (v) => <Text style={{ color: '#1890ff', fontWeight: 500 }}>{v?.toLocaleString()}</Text>
+                                                                    render: (v) => <Text style={{ color: '#1890ff', fontWeight: 500 }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text>
                                                                 },
                                                                 { title: 'ĐVT', dataIndex: 'don_vi_tinh', width: '15%', align: 'center', render: (text) => <Tag>{text}</Tag> }
                                                             ]}
@@ -930,10 +834,10 @@ const ThanhKhoan = () => {
                                                                             <Text strong style={{ fontSize: '14px' }}>📊 Tổng cộng</Text>
                                                                         </Table.Summary.Cell>
                                                                         <Table.Summary.Cell align="right">
-                                                                            <Text strong style={{ color: '#52c41a', fontSize: '15px' }}>{totalTaiNhap.toLocaleString()}</Text>
+                                                                            <Text strong style={{ color: '#52c41a', fontSize: '15px' }}>{formatVNNumber(totalTaiNhap)}</Text>
                                                                         </Table.Summary.Cell>
                                                                         <Table.Summary.Cell align="right">
-                                                                            <Text strong style={{ color: '#1890ff', fontSize: '15px' }}>{totalNhapKhac.toLocaleString()}</Text>
+                                                                            <Text strong style={{ color: '#1890ff', fontSize: '15px' }}>{formatVNNumber(totalNhapKhac)}</Text>
                                                                         </Table.Summary.Cell>
                                                                         <Table.Summary.Cell />
                                                                     </Table.Summary.Row>
@@ -964,7 +868,7 @@ const ThanhKhoan = () => {
                                                                     dataIndex: 'nhap_kho_trong_ky', 
                                                                     width: '20%', 
                                                                     align: 'right', 
-                                                                    render: (v) => <Text strong style={{ color: '#13c2c2', fontSize: '14px' }}>{v?.toLocaleString()}</Text>
+                                                                    render: (v) => <Text strong style={{ color: '#13c2c2', fontSize: '14px' }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text>
                                                                 },
                                                                 { title: 'ĐVT', dataIndex: 'don_vi_tinh', width: '15%', align: 'center', render: (text) => <Tag color="cyan">{text}</Tag> }
                                                             ]}
@@ -984,7 +888,7 @@ const ThanhKhoan = () => {
                                                                             <Text strong style={{ fontSize: '14px' }}>📊 Tổng cộng</Text>
                                                                         </Table.Summary.Cell>
                                                                         <Table.Summary.Cell align="right">
-                                                                            <Text strong style={{ color: '#13c2c2', fontSize: '15px' }}>{total.toLocaleString()}</Text>
+                                                                            <Text strong style={{ color: '#13c2c2', fontSize: '15px' }}>{formatVNNumber(total)}</Text>
                                                                         </Table.Summary.Cell>
                                                                         <Table.Summary.Cell />
                                                                     </Table.Summary.Row>
@@ -1037,8 +941,8 @@ const ThanhKhoan = () => {
                                                             columns={[
                                                                 { title: 'Mã NPL', dataIndex: 'ma_npl', width: '20%', render: (text) => <Text strong>{text}</Text> },
                                                                 { title: 'Tên NPL', dataIndex: 'ten_npl', width: '35%' },
-                                                                { title: 'Xuất SX', dataIndex: 'xuat_san_pham', width: '15%', align: 'right', render: (v) => <Text style={{ color: '#f5222d', fontWeight: 500 }}>{v?.toLocaleString()}</Text> },
-                                                                { title: 'Chuyển MĐ', dataIndex: 'thay_doi_muc_dich', width: '15%', align: 'right', render: (v) => <Text style={{ color: '#fa8c16', fontWeight: 500 }}>{v?.toLocaleString()}</Text> },
+                                                                { title: 'Xuất SX', dataIndex: 'xuat_san_pham', width: '15%', align: 'right', render: (v) => <Text style={{ color: '#f5222d', fontWeight: 500 }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text> },
+                                                                { title: 'Chuyển MĐ', dataIndex: 'thay_doi_muc_dich', width: '15%', align: 'right', render: (v) => <Text style={{ color: '#fa8c16', fontWeight: 500 }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text> },
                                                                 { title: 'ĐVT', dataIndex: 'don_vi_tinh', width: '15%', align: 'center', render: (text) => <Tag>{text}</Tag> }
                                                             ]}
                                                             dataSource={baoCaoData.data_xuat_trong_ky?.npl || []}
@@ -1066,9 +970,9 @@ const ThanhKhoan = () => {
                                                             columns={[
                                                                 { title: 'Mã SP', dataIndex: 'ma_sp', width: '15%', render: (text) => <Text strong>{text}</Text> },
                                                                 { title: 'Tên SP', dataIndex: 'ten_sp', width: '30%' },
-                                                                { title: 'XK', dataIndex: 'xuat_khau', width: '13%', align: 'right', render: (v) => <Text style={{ color: '#f5222d', fontWeight: 500 }}>{v?.toLocaleString()}</Text> },
-                                                                { title: 'Xuất khác', dataIndex: 'xuat_khac', width: '13%', align: 'right', render: (v) => <Text style={{ color: '#fa541c', fontWeight: 500 }}>{v?.toLocaleString()}</Text> },
-                                                                { title: 'Chuyển MĐ', dataIndex: 'chuyen_muc_dich', width: '14%', align: 'right', render: (v) => <Text style={{ color: '#fa8c16', fontWeight: 500 }}>{v?.toLocaleString()}</Text> },
+                                                                { title: 'XK', dataIndex: 'xuat_khau', width: '13%', align: 'right', render: (v) => <Text style={{ color: '#f5222d', fontWeight: 500 }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text> },
+                                                                { title: 'Xuất khác', dataIndex: 'xuat_khac', width: '13%', align: 'right', render: (v) => <Text style={{ color: '#fa541c', fontWeight: 500 }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text> },
+                                                                { title: 'Chuyển MĐ', dataIndex: 'chuyen_muc_dich', width: '14%', align: 'right', render: (v) => <Text style={{ color: '#fa8c16', fontWeight: 500 }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text> },
                                                                 { title: 'ĐVT', dataIndex: 'don_vi_tinh', width: '15%', align: 'center', render: (text) => <Tag color="orange">{text}</Tag> }
                                                             ]}
                                                             dataSource={baoCaoData.data_xuat_trong_ky?.sp || []}
@@ -1125,7 +1029,7 @@ const ThanhKhoan = () => {
                                                                     dataIndex: 'ton_cuoi_ky', 
                                                                     width: '20%', 
                                                                     align: 'right', 
-                                                                    render: (v) => <Text type={v < 0 ? 'danger' : undefined} strong style={{ fontSize: '14px', color: v < 0 ? '#f5222d' : '#722ed1' }}>{v?.toLocaleString()}</Text>
+                                                                    render: (v) => <Text type={v < 0 ? 'danger' : undefined} strong style={{ fontSize: '14px', color: v < 0 ? '#f5222d' : '#722ed1' }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text>
                                                                 },
                                                                 { title: 'ĐVT', dataIndex: 'don_vi_tinh', width: '15%', align: 'center', render: (text) => <Tag color="purple">{text}</Tag> }
                                                             ]}
@@ -1159,7 +1063,7 @@ const ThanhKhoan = () => {
                                                                     dataIndex: 'ton_cuoi_ky', 
                                                                     width: '20%', 
                                                                     align: 'right', 
-                                                                    render: (v) => <Text type={v < 0 ? 'danger' : undefined} strong style={{ fontSize: '14px', color: v < 0 ? '#f5222d' : '#eb2f96' }}>{v?.toLocaleString()}</Text>
+                                                                    render: (v) => <Text type={v < 0 ? 'danger' : undefined} strong style={{ fontSize: '14px', color: v < 0 ? '#f5222d' : '#eb2f96' }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text>
                                                                 },
                                                                 { title: 'ĐVT', dataIndex: 'don_vi_tinh', width: '15%', align: 'center', render: (text) => <Tag color="magenta">{text}</Tag> }
                                                             ]}
@@ -1207,7 +1111,7 @@ const ThanhKhoan = () => {
                                                         dataIndex: 'luong_sd', 
                                                         width: '12%', 
                                                         align: 'right', 
-                                                        render: (v) => <Text strong style={{ color: '#2f54eb', fontSize: '14px' }}>{v?.toLocaleString()}</Text>
+                                                        render: (v) => <Text strong style={{ color: '#2f54eb', fontSize: '14px' }}>{v !== null && v !== undefined ? formatVNNumber(v) : ''}</Text>
                                                     },
                                                     { title: 'Ghi chú', dataIndex: 'ghi_chu', width: '7%' }
                                                 ]}

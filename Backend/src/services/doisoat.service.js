@@ -87,20 +87,26 @@ const doiSoatNhap = async ({ id_tkn, id_nhap_kho, nguoi_doi_soat, ngay_doi_soat 
 
   // Aggregate quantities from ToKhaiNhapChiTiet
   toKhai.chiTiets.forEach(ct => {
-    if (ct.id_npl) {
-      if (!comparisonMap[ct.id_npl]) {
-        comparisonMap[ct.id_npl] = { sl_to_khai: 0, sl_nhap_kho: 0 };
+    const idKey = ct.id_npl || ct.id_sp;
+    if (idKey) {
+      const keyType = ct.id_npl ? 'npl' : 'sp';
+      if (!comparisonMap[idKey]) {
+        comparisonMap[idKey] = { sl_to_khai: 0, sl_nhap_kho: 0, keyType };
       }
-      comparisonMap[ct.id_npl].sl_to_khai += Number(ct.so_luong || 0);
+      comparisonMap[idKey].sl_to_khai += Number(ct.so_luong || 0);
     }
   });
 
   // Aggregate quantities from NhapKhoNPLChiTiet
   nhapKho.chiTiets.forEach(ct => {
-    if (!comparisonMap[ct.id_npl]) {
-      comparisonMap[ct.id_npl] = { sl_to_khai: 0, sl_nhap_kho: 0 };
+    const idKey = ct.id_npl || ct.id_sp;
+    if (idKey) {
+      const keyType = ct.id_npl ? 'npl' : 'sp';
+      if (!comparisonMap[idKey]) {
+        comparisonMap[idKey] = { sl_to_khai: 0, sl_nhap_kho: 0, keyType };
+      }
+      comparisonMap[idKey].sl_nhap_kho += Number(ct.so_luong || 0);
     }
-    comparisonMap[ct.id_npl].sl_nhap_kho += Number(ct.so_luong || 0);
   });
 
   // Calculate discrepancies
@@ -127,13 +133,23 @@ const doiSoatNhap = async ({ id_tkn, id_nhap_kho, nguoi_doi_soat, ngay_doi_soat 
 
     totalChenhLechSL += Math.abs(chenh_lech);
 
-    chiTietList.push({
-      id_npl,
-      sl_to_khai: data.sl_to_khai,
-      sl_nhap_kho: data.sl_nhap_kho,
-      chenh_lech,
-      ly_do
-    });
+    if (data.keyType === 'sp') {
+      chiTietList.push({
+        id_sp: id_npl,
+        sl_to_khai: data.sl_to_khai,
+        sl_nhap_kho: data.sl_nhap_kho,
+        chenh_lech,
+        ly_do
+      });
+    } else {
+      chiTietList.push({
+        id_npl: id_npl,
+        sl_to_khai: data.sl_to_khai,
+        sl_nhap_kho: data.sl_nhap_kho,
+        chenh_lech,
+        ly_do
+      });
+    }
   }
 
   // Determine reconciliation result
@@ -234,25 +250,31 @@ const doiSoatXuat = async ({ id_tkx, id_xuat_kho, nguoi_doi_soat, ngay_doi_soat,
     throw new Error('Đã tồn tại đối soát cho tờ khai và phiếu xuất kho này');
   }
 
-  // Build comparison map: id_sp -> { sl_to_khai, sl_xuat_kho }
+  // Build comparison map: idKey -> { sl_to_khai, sl_xuat_kho }
   const comparisonMap = {};
 
   // Aggregate quantities from ToKhaiXuatChiTiet
   toKhai.chiTiets.forEach(ct => {
-    if (ct.id_sp) {
-      if (!comparisonMap[ct.id_sp]) {
-        comparisonMap[ct.id_sp] = { sl_to_khai: 0, sl_xuat_kho: 0 };
+    const idKey = ct.id_sp || ct.id_npl;
+    if (idKey) {
+      const keyType = ct.id_sp ? 'sp' : 'npl';
+      if (!comparisonMap[idKey]) {
+        comparisonMap[idKey] = { sl_to_khai: 0, sl_xuat_kho: 0, keyType };
       }
-      comparisonMap[ct.id_sp].sl_to_khai += Number(ct.so_luong || 0);
+      comparisonMap[idKey].sl_to_khai += Number(ct.so_luong || 0);
     }
   });
 
   // Aggregate quantities from XuatKhoSPChiTiet
   xuatKho.chiTiets.forEach(ct => {
-    if (!comparisonMap[ct.id_sp]) {
-      comparisonMap[ct.id_sp] = { sl_to_khai: 0, sl_xuat_kho: 0 };
+    const idKey = ct.id_sp || ct.id_npl;
+    if (idKey) {
+      const keyType = ct.id_sp ? 'sp' : 'npl';
+      if (!comparisonMap[idKey]) {
+        comparisonMap[idKey] = { sl_to_khai: 0, sl_xuat_kho: 0, keyType };
+      }
+      comparisonMap[idKey].sl_xuat_kho += Number(ct.so_luong || 0);
     }
-    comparisonMap[ct.id_sp].sl_xuat_kho += Number(ct.so_luong || 0);
   });
 
   // Calculate discrepancies
@@ -279,13 +301,23 @@ const doiSoatXuat = async ({ id_tkx, id_xuat_kho, nguoi_doi_soat, ngay_doi_soat,
 
     totalChenhLechSL += Math.abs(chenh_lech);
 
-    chiTietList.push({
-      id_sp,
-      sl_to_khai: data.sl_to_khai,
-      sl_xuat_kho: data.sl_xuat_kho,
-      chenh_lech,
-      ly_do
-    });
+    if (data.keyType === 'npl') {
+      chiTietList.push({
+        id_npl: id_sp,
+        sl_to_khai: data.sl_to_khai,
+        sl_xuat_kho: data.sl_xuat_kho,
+        chenh_lech,
+        ly_do
+      });
+    } else {
+      chiTietList.push({
+        id_sp: id_sp,
+        sl_to_khai: data.sl_to_khai,
+        sl_xuat_kho: data.sl_xuat_kho,
+        chenh_lech,
+        ly_do
+      });
+    }
   }
 
   // Determine reconciliation result

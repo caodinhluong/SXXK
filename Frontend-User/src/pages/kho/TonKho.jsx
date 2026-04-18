@@ -11,7 +11,10 @@ const { Search } = Input;
 // Format số theo kiểu Việt Nam
 const formatVNNumber = (value) => {
     if (value === null || value === undefined) return '0';
-    return Number(value).toLocaleString('vi-VN');
+    return Number(value).toLocaleString('vi-VN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    });
 };
 
 const TonKho = () => {

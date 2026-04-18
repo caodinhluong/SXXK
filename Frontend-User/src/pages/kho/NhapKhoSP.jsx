@@ -55,7 +55,10 @@ const { Title, Text } = Typography;
 // Hàm format số theo kiểu Việt Nam (1.000.000)
 const formatVNNumber = (value) => {
     if (value === null || value === undefined) return '';
-    return Number(value).toLocaleString('vi-VN');
+    return Number(value).toLocaleString('vi-VN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    });
 };
 
 const NhapKhoSP = () => {
@@ -270,7 +273,7 @@ const NhapKhoSP = () => {
 
         // Validate chi tiết
         let hasError = false;
-        for (const item of chiTietNhap) {
+        for (const item of validatedItems) {
             if (!item.id_sp) {
                 showError("Vui lòng chọn sản phẩm cho tất cả dòng!", "Có dòng chưa chọn sản phẩm");
                 hasError = true;
@@ -294,9 +297,9 @@ const NhapKhoSP = () => {
                 ? dayjs(values.ngay_nhap).format("YYYY-MM-DD")
                 : null,
             file_phieu: fileUrl || null,
-            chi_tiets: chiTietNhap.map(item => ({
+            chi_tiets: validatedItems.map(item => ({
                 id_sp: item.id_sp,
-                so_luong_nhap: item.so_luong_hq || item.so_luong_dn || item.so_luong // Backend expects 'so_luong_nhap'
+                so_luong: item.so_luong_hq || item.so_luong_dn || item.so_luong
             }))
         };
 

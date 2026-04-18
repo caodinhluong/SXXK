@@ -66,7 +66,7 @@ const formatVNNumber = (value) => {
     if (value === null || value === undefined) return "";
     return Number(value).toLocaleString("vi-VN", {
         minimumFractionDigits: 0,
-        maximumFractionDigits: 3,
+        maximumFractionDigits: 0,
     });
 };
 

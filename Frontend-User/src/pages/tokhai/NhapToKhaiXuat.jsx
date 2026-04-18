@@ -29,7 +29,7 @@ import {
     getTemplateToKhaiXuat,
     getTemplateHaiQuanExcel
 } from "../../services/tokhaixuat.service";
-import { getAllLoHang } from "../../services/lohang.service";
+import { getAllLoHang, createLoHang } from "../../services/lohang.service";
 import { createHoaDonXuat, getAllHoaDonXuat } from "../../services/hoadonxuat.service";
 import { createVanDonXuat, getAllVanDonXuat } from "../../services/vandonxuat.service";
 
@@ -339,6 +339,9 @@ const NhapToKhaiXuat = () => {
 
     const onFinish = async () => {
         try {
+            // Validate all forms
+            const loHangValues = await formLoHang.validateFields();
+            const hoaDonValues = await formHoaDonVanDon.validateFields();
             await formToKhai.validateFields();
 
             const validItems = chiTietHoaDon.filter(item => item.id_sp && item.so_luong > 0 && item.don_gia > 0);
@@ -357,20 +360,19 @@ const NhapToKhaiXuat = () => {
 
             setLoading(true);
 
-            const loHangForm = formLoHang.getFieldsValue();
-            const hoaDonForm = formHoaDonVanDon.getFieldsValue();
-
             // 1) Tạo Lô hàng
             const payloadLoHang = {
-                id_hd: loHangForm.id_hd,
-                ngay_dong_goi: loHangForm.ngay_dong_goi ? loHangForm.ngay_dong_goi.format("YYYY-MM-DD") : null,
-                ngay_xuat_cang: loHangForm.ngay_xuat_cang ? loHangForm.ngay_xuat_cang.format("YYYY-MM-DD") : null,
-                cang_xuat: loHangForm.cang_xuat || null,
-                cang_nhap: loHangForm.cang_nhap || null,
+                id_hd: loHangValues.id_hd,
+                ngay_dong_goi: loHangValues.ngay_dong_goi ? loHangValues.ngay_dong_goi.format("YYYY-MM-DD") : null,
+                ngay_xuat_cang: loHangValues.ngay_xuat_cang ? loHangValues.ngay_xuat_cang.format("YYYY-MM-DD") : null,
+                cang_xuat: loHangValues.cang_xuat || null,
+                cang_nhap: loHangValues.cang_nhap || null,
                 file_chung_tu: fileLoHang || null,
             };
 
+            console.log(">>> Payload Lô hàng:", payloadLoHang);
             const resLoHang = await createLoHang(payloadLoHang);
+            console.log(">>> Response Lô hàng:", resLoHang);
             const createdLoHang = resLoHang?.data || resLoHang;
             const id_lh = createdLoHang?.id_lh || createdLoHang?.data?.id_lh;
             if (!id_lh) throw new Error("Không lấy được id_lh sau khi tạo lô hàng");
@@ -386,23 +388,24 @@ const NhapToKhaiXuat = () => {
 
             const payloadHoaDon = {
                 id_lh,
-                so_hd: hoaDonForm.so_hd,
-                ngay_hd: hoaDonForm.ngay_hd ? hoaDonForm.ngay_hd.format("YYYY-MM-DD") : null,
-                id_tt: hoaDonForm.id_tt,
+                so_hd: hoaDonValues.so_hd,
+                ngay_hd: hoaDonValues.ngay_hd ? hoaDonValues.ngay_hd.format("YYYY-MM-DD") : null,
+                id_tt: hoaDonValues.id_tt,
                 tong_tien: tong_tri_gia,
                 file_hoa_don: fileHoaDon || null,
                 chi_tiets: chiTiet,
             };
 
+            console.log(">>> Payload Hóa đơn:", payloadHoaDon);
             await createHoaDonXuat(payloadHoaDon);
 
             // 3) Tạo Vận đơn xuất
             const payloadVanDon = {
                 id_lh,
-                so_vd: hoaDonForm.so_vd || null,
-                ngay_phat_hanh: hoaDonForm.ngay_phat_hanh ? hoaDonForm.ngay_phat_hanh.format("YYYY-MM-DD") : null,
-                cang_xuat: hoaDonForm.vd_cang_xuat || null,
-                cang_nhap: hoaDonForm.vd_cang_nhap || null,
+                so_vd: hoaDonValues.so_vd || null,
+                ngay_phat_hanh: hoaDonValues.ngay_phat_hanh ? hoaDonValues.ngay_phat_hanh.format("YYYY-MM-DD") : null,
+                cang_xuat: hoaDonValues.vd_cang_xuat || null,
+                cang_nhap: hoaDonValues.vd_cang_nhap || null,
                 file_van_don: fileVanDon || null,
             };
 
@@ -420,7 +423,7 @@ const NhapToKhaiXuat = () => {
                 ngay_thong_quan: toKhaiFormValues.ngay_thong_quan ? toKhaiFormValues.ngay_thong_quan.format("YYYY-MM-DD") : null,
                 cang_xuat: toKhaiFormValues.cang_xuat || null,
                 tong_tri_gia,
-                id_tt: hoaDonForm.id_tt,
+                id_tt: hoaDonValues.id_tt,
                 file_to_khai: fileToKhai || null,
                 file_excel_import: toKhaiFormValues.file_excel_import || null,
                 ghi_chu: toKhaiFormValues.ghi_chu || null,
@@ -445,7 +448,8 @@ const NhapToKhaiXuat = () => {
             setChiTietHoaDon([{ key: 1, id_sp: null, so_luong: 0, don_gia: 0, tri_gia: 0 }]);
         } catch (err) {
             console.error("onFinish error:", err);
-            showSaveError('tờ khai xuất');
+            const errorMessage = err?.response?.data?.message || err?.message || '';
+            showSaveError('tờ khai xuất', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -495,7 +499,7 @@ const NhapToKhaiXuat = () => {
                 />
             ),
         },
-        { title: "Trị giá", dataIndex: "tri_gia", render: (text) => text?.toLocaleString() },
+        { title: "Trị giá", dataIndex: "tri_gia", render: (text) => text ? Number(text).toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '' },
         {
             title: "Hành động",
             render: (_, record) => (

@@ -396,7 +396,9 @@ fetchData();
 
     const onFinish = async () => {
         try {
-            // Validate cuối cùng (bắt buộc phần toKhai)
+            // Validate all forms
+            const loHangValues = await formLoHang.validateFields();
+            const hoaDonValues = await formHoaDonVanDon.validateFields();
             await formToKhai.validateFields();
             
             // Validate lại chi tiết hóa đơn
@@ -415,12 +417,9 @@ fetchData();
             }
 
             // ✅ Validate date logic for tờ khai
-            const loHangForm = formLoHang.getFieldsValue();
-            const hoaDonForm = formHoaDonVanDon.getFieldsValue();
-
             // Ngày đăng ký tờ khai phải sau ngày hóa đơn
-            if (toKhaiForm.ngay_dk && hoaDonForm.ngay_hd) {
-                if (dayjs(toKhaiForm.ngay_dk).isBefore(dayjs(hoaDonForm.ngay_hd))) {
+            if (toKhaiForm.ngay_dk && hoaDonValues.ngay_hd) {
+                if (dayjs(toKhaiForm.ngay_dk).isBefore(dayjs(hoaDonValues.ngay_hd))) {
                     showSaveError('Ngày đăng ký tờ khai không thể trước ngày hóa đơn');
                     return;
                 }
@@ -443,14 +442,13 @@ fetchData();
             }
 
             // --- 1) Tạo Lô hàng (bắt buộc để có id_lh)
-            const payloadLoHang = {
-                id_hd: loHangForm.id_hd, // now should be defined
-                // nếu bạn muốn gửi id_lh do người nhập thì giữ id_lh, else omit
+const payloadLoHang = {
+                id_hd: loHangValues.id_hd,
                 // id_lh: loHangForm.id_lh || undefined,
-                ngay_dong_goi: loHangForm.ngay_dong_goi ? loHangForm.ngay_dong_goi.format("YYYY-MM-DD") : null,
-                ngay_xuat_cang: loHangForm.ngay_xuat_cang ? loHangForm.ngay_xuat_cang.format("YYYY-MM-DD") : null,
-                cang_xuat: loHangForm.cang_xuat || null,
-                cang_nhap: loHangForm.cang_nhap || null,
+                ngay_dong_goi: loHangValues.ngay_dong_goi ? loHangValues.ngay_dong_goi.format("YYYY-MM-DD") : null,
+                ngay_xuat_cang: loHangValues.ngay_xuat_cang ? loHangValues.ngay_xuat_cang.format("YYYY-MM-DD") : null,
+                cang_xuat: loHangValues.cang_xuat || null,
+                cang_nhap: loHangValues.cang_nhap || null,
                 file_chung_tu: fileLoHang || null,
             };
 
@@ -473,26 +471,25 @@ fetchData();
 
             const payloadHoaDon = {
                 id_lh,
-                so_hd: hoaDonForm.so_hd,
-                ngay_hd: hoaDonForm.ngay_hd ? hoaDonForm.ngay_hd.format("YYYY-MM-DD") : null,
-                id_tt: hoaDonForm.id_tt,
+                so_hd: hoaDonValues.so_hd,
+                ngay_hd: hoaDonValues.ngay_hd ? hoaDonValues.ngay_hd.format("YYYY-MM-DD") : null,
+                id_tt: hoaDonValues.id_tt,
                 tong_tien: tong_tri_gia,
                 file_hoa_don: fileHoaDon || null,
                 chi_tiets: chiTiet,
-            };
+};
 
             await createHoaDonNhap(payloadHoaDon);
 
-            // --- 3)  Tạo Vận đơn
+            // --- 3) Tạo Vận đơn
             const payloadVanDon = {
                 id_lh,
-                so_vd: hoaDonForm.so_vd || null,
-                ngay_phat_hanh: hoaDonForm.ngay_phat_hanh ? hoaDonForm.ngay_phat_hanh.format("YYYY-MM-DD") : null,
-                cang_xuat: hoaDonForm.vd_cang_xuat || null,
-                cang_nhap: hoaDonForm.vd_cang_nhap || null,
+                so_vd: hoaDonValues.so_vd || null,
+                ngay_phat_hanh: hoaDonValues.ngay_phat_hanh ? hoaDonValues.ngay_phat_hanh.format("YYYY-MM-DD") : null,
+                cang_xuat: hoaDonValues.vd_cang_xuat || null,
+                cang_nhap: hoaDonValues.vd_cang_nhap || null,
                 file_van_don: fileVanDon || null,
             };
-
 
             if (payloadVanDon.so_vd || payloadVanDon.file_van_don) {
                 await createVanDonNhap(payloadVanDon);
@@ -510,7 +507,7 @@ fetchData();
                 thue_nhap_khau: toKhaiForm.thue_nhap_khau || null,
                 thue_gtgt: toKhaiForm.thue_gtgt || null,
                 tong_tri_gia,
-                id_tt: hoaDonForm.id_tt,
+                id_tt: hoaDonValues.id_tt,
                 file_to_khai: fileToKhai || null,
                 file_excel_import: fileExcelImport || null,
                 ghi_chu: toKhaiForm.ghi_chu || null,
@@ -527,8 +524,8 @@ fetchData();
             const newDefaultPorts = {
                 cang_xuat: loHangForm.cang_xuat || defaultPorts.cang_xuat,
                 cang_nhap: loHangForm.cang_nhap || defaultPorts.cang_nhap,
-                vd_cang_xuat: hoaDonForm.vd_cang_xuat || defaultPorts.vd_cang_xuat,
-                vd_cang_nhap: hoaDonForm.vd_cang_nhap || defaultPorts.vd_cang_nhap,
+                vd_cang_xuat: hoaDonValues.vd_cang_xuat || defaultPorts.vd_cang_xuat,
+                vd_cang_nhap: hoaDonValues.vd_cang_nhap || defaultPorts.vd_cang_nhap,
                 tk_cang_nhap: toKhaiForm.cang_nhap || defaultPorts.tk_cang_nhap,
             };
             localStorage.setItem('defaultPorts', JSON.stringify(newDefaultPorts));
@@ -560,7 +557,8 @@ fetchData();
             });
         } catch (err) {
             console.error("onFinish error:", err);
-            showSaveError('tờ khai nhập');
+            const errorMessage = err?.response?.data?.message || err?.message || '';
+            showSaveError('tờ khai nhập', errorMessage);
         }
     };
 
@@ -615,7 +613,7 @@ fetchData();
                 />
             ),
         },
-        { title: "Trị giá", dataIndex: "tri_gia", render: (text) => text?.toLocaleString() },
+        { title: "Trị giá", dataIndex: "tri_gia", render: (text) => text ? Number(text).toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '' },
         {
             title: "Hành động",
             render: (_, record) => (

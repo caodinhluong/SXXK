@@ -98,7 +98,7 @@ const TyGia = () => {
       title: "Tỷ giá (sang VND)",
       dataIndex: "ty_gia",
       key: "ty_gia",
-      render: (val) => Number(val).toLocaleString("vi-VN"),
+      render: (val) => Number(val).toLocaleString("vi-VN", { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
     },
   ];
 
